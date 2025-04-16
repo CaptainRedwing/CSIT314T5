@@ -1,12 +1,18 @@
 import React from "react";
 
-export default function adminPage({user, onLogout}){
+export default function adminPage(){
+
+    const handleLogout = () => {
+        window.location.href = "/login";
+      };
+
+
     return (
         <>
         <div>
             <h1>Admin Page</h1>
 
-            <button onclick={onLogout}>Logout</button>
+            <button onClick={handleLogout}>Logout</button>
         </div>
         </>
     )
