@@ -1,0 +1,5 @@
+option1|admin|admin123|admin
+option2|user1|password123|user
+option3|cleaner1|cleanerpass|cleaner
+option4|homeowner1|homepass|homeowner
+option5|manager1|managerpass|manager
