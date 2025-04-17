@@ -1,0 +1,18 @@
+// i manual created table on my computer, but havent figure out how to automatically create table for whoever 
+trying download the project, so they dont have to download manaually (open postgresSQL)
+
+import { createUserAccountQuery, getUserAccountQuery } from "../utils/sqlQuery.js";
+
+const response = await query(`
+    SELECT to_regclass('users');
+    `)
+    console.log(response);
+        
+    if (response.rows[0].to_regclass){
+        await query(createAccountTypeQuery);
+        await query(createUserTableQuery);
+        await query(createUserQuery,['admin123','adminpass','UserAdmin']);
+        await query(createUserQuery,['cleaner123','cleanerpass','Cleaner']);
+            await query(createUserQuery,['homeowner123','homeownerpass','Homeowner']);
+            await query(createUserQuery,['manager123','managerpass','PlatformManager']);
+    }

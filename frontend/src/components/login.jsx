@@ -1,6 +1,5 @@
 import React, { useState } from "react"
 import AdminPage from "./adminPage";
-import AdminProfilePage from "./adminProfilePage";
 import CleanerPage from "./cleanerPage";
 import HomeownerPage from "./homeownerPage";
 import PlatformManagerPage from "./platformManagerPage";
@@ -71,14 +70,13 @@ export default function login() {
             switch (currentUser.accountType) {
               case 'UserAdmin': // Admin
                 return <AdminPage user={currentUser} onLogout={handleLogout} />;
-              case 'UserProfile': // Admin Profile
-                return <AdminProfilePage user={currentUser} onLogout={handleLogout} />;
               case 'Cleaner': // Cleaner
                 return <CleanerPage user={currentUser} onLogout={handleLogout} />;
               case 'Homeowner': // Homeowner
                 return <HomeownerPage user={currentUser} onLogout={handleLogout} />;
               case 'PlatformManager': // Platform Manager
                 return <PlatformManagerPage user={currentUser} onLogout={handleLogout} />;
+
     }};
 
 
@@ -97,8 +95,7 @@ export default function login() {
             value={formData.accountType}
             onChange={handleChange}
           >
-            <option value="UserAdmin">User Admin</option>
-            <option value="UserProfile">User Profile</option>
+            <option value="UserAdmin">User Admin</option> 
             <option value="Cleaner">Cleaner</option>
             <option value="Homeowner">Homeowner</option>
             <option value="PlatformManager">Platform Manager</option>

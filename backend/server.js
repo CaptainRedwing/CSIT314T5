@@ -21,6 +21,8 @@ app.use(bodyParser.json());
 
 app.use('/api/login', loginRoute);
 
+app.use('/api/userAdmin', userAdminRoute);
+
 
 
 app.use((err,req,res,next)=>{
@@ -32,3 +34,4 @@ app.use((err,req,res,next)=>{
 app.listen(PORT, () =>{
   console.log(`Listening on port ${PORT}`);
 });
+

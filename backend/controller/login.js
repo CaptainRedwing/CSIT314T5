@@ -8,20 +8,6 @@ export async function login(req, res, next) {
 
     try {
 
-        const response = await query(`
-            SELECT to_regclass('users');
-            `)
-        console.log(response);
-        
-        if (response.rows[0].to_regclass){
-             await query(createAccountTypeQuery);
-             await query(createUserTableQuery);
-             await query(createUserQuery,['admin123','adminpass','UserAdmin']);
-             await query(createUserQuery,['cleaner123','cleanerpass','Cleaner']);
-             await query(createUserQuery,['homeowner123','homeownerpass','Homeowner']);
-             await query(createUserQuery,['manager123','managerpass','PlatformManager']);
-        }
-
         if (!account || !password || !account_type) {
             return res.status(400).json({ error: 'All fields are required' });
         }
