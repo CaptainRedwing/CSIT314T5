@@ -9,9 +9,10 @@ import PlatformManagerPage from "./platformManagerPage";
 export default function login() {
 
     const [formData, setFormData] = useState({
-        accountType : 'option1',
+
         useraccount : '',
-        password: ''
+        password: '',
+        accountType : 'UserAdmin'
     });
 
     const [error, setError] = useState('');
@@ -28,35 +29,38 @@ export default function login() {
     }
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsLoading(true);
-        setError('');
-
-        try {
-            const response = await fetch('http://localhost:3000/api/login', {
+      e.preventDefault();
+      setIsLoading(true);
+      setError('');
+  
+      try {
+          const response = await fetch('http://localhost:3000/api/login', {
               method: 'POST',
               headers: {
-                'Content-Type': 'application/json',
+                  'Content-Type': 'application/json',
               },
-              body: JSON.stringify(formData)
-            });
-      
-            const data = await response.json();
-      
-            if (!response.ok) {
-              throw new Error(data.message || 'Login failed');
-            }
-      
-            setIsLoggedIn(true);
-            setCurrentUser(data.user);
-            
-          } catch (err) {
-            setError(err.message);
-            console.error('Login error:', err);
-          } finally {
-            setIsLoading(false);
+              body: JSON.stringify({
+                  useraccount: formData.useraccount,
+                  password: formData.password,
+                  accountType: formData.accountType
+              })
+          });
+  
+          const data = await response.json();
+  
+          if (!response.ok) {
+              throw new Error(data.error || 'Login failed');
           }
-        };
+  
+          setIsLoggedIn(true);
+          setCurrentUser(data.user);
+          
+      } catch (err) {
+          setError(err.message);
+      } finally {
+          setIsLoading(false);
+      }
+  };
       
         const handleLogout = () => {
           setIsLoggedIn(false);
@@ -65,15 +69,15 @@ export default function login() {
 
         if (isLoggedIn && currentUser) {
             switch (currentUser.accountType) {
-              case 'option1': // Admin
+              case 'UserAdmin': // Admin
                 return <AdminPage user={currentUser} onLogout={handleLogout} />;
-              case 'option2': // Admin Profile
+              case 'UserProfile': // Admin Profile
                 return <AdminProfilePage user={currentUser} onLogout={handleLogout} />;
-              case 'option3': // Cleaner
+              case 'Cleaner': // Cleaner
                 return <CleanerPage user={currentUser} onLogout={handleLogout} />;
-              case 'option4': // Homeowner
+              case 'Homeowner': // Homeowner
                 return <HomeownerPage user={currentUser} onLogout={handleLogout} />;
-              case 'option5': // Platform Manager
+              case 'PlatformManager': // Platform Manager
                 return <PlatformManagerPage user={currentUser} onLogout={handleLogout} />;
     }};
 
@@ -93,11 +97,11 @@ export default function login() {
             value={formData.accountType}
             onChange={handleChange}
           >
-            <option value="option1">User Admin</option>
-            <option value="option2">User Profile</option>
-            <option value="option3">Cleaner</option>
-            <option value="option4">Homeowner</option>
-            <option value="option5">Platform Manager</option>
+            <option value="UserAdmin">User Admin</option>
+            <option value="UserProfile">User Profile</option>
+            <option value="Cleaner">Cleaner</option>
+            <option value="Homeowner">Homeowner</option>
+            <option value="PlatformManager">Platform Manager</option>
           </select>
         </div>
 
