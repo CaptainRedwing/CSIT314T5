@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 import loginRoute from "../backend/routes/login.js"
+import userAdminRoute from "../backend/routes/userAdmin.js"
 
 dotenv.config();
 
@@ -20,9 +21,7 @@ app.use(bodyParser.json());
 
 app.use('/api/login', loginRoute);
 
-app.get("/", (req, res) => {
-  res.send("API is running 👋");
-});
+
 
 app.use((err,req,res,next)=>{
   const statusCode = err.statusCode|| 500;

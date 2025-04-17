@@ -1,6 +1,6 @@
 export const createAccountTypeQuery = `
     CREATE TYPE role_type AS
-    ENUM ('UserAdmin','UserProfile','Cleaner','Homeowner','PlatformManager');
+    ENUM ('UserAdmin','Cleaner','Homeowner','PlatformManager');
 `
 
 
@@ -13,15 +13,17 @@ export const createUserTableQuery = `
     );
 `
 
-export const getUserAdminQuery = ` Select * FROM users WHERE role = 'UserAdmin'`;
+export const createUserAccountQuery = `
+    CREATE TABLE user_account_details(
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(50) NOT NULL,
+        password VARCHAR(50) NOT NULL,
+        email VARCHAR(50) NOT NULL UNIQUE,
+        phone VARCHAR(20); 
+    )
+`
 
-export const getUserProfileQuery = ` Select * FROM users WHERE role = 'UserProfile'`;
-
-export const getCleanerQuery = ` Select * FROM users WHERE role = 'Cleaner'`;
-
-export const getHomeownerQuery = ` Select * FROM users WHERE role = 'Homeowner'`;
-
-export const getPlatformManagerQuery = ` Select * FROM users WHERE role = 'PlatformManager'`;
+export const getUserAccountQuery = ` SELECT username FROM user_account_details`;
 
 export const createUserQuery = `
     INSERT INTO users(user_account,password,role)

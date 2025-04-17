@@ -1,25 +1,8 @@
-import { query } from "../utils/connectToDB.js";
-import { createUserTableQuery,createAccountTypeQuery,getUserAdminQuery} from "../utils/sqlQuery.js";
-import { createError } from "../utils/error.js";
-import { Query } from "pg";
+import express from "express";
+import { createUserAccount,viewUserAccount,searchUserAccount,updateUserAccount,suspendUserAccount } from "../controller/userAdmin.js";
 
-export async function getAllUser(req, res, nest) {
-    try {
-        const response = await query(`
-            SELECT to_regclass('users')
-            `);
-        console.log(response);
-        if (!response.rows[0].to_regclass){
-            await query(createAccountTypeQuery);
-            await query(createUserTableQuery);
-        }
+const router = express.Router();
 
-        const {rows} = await query(getUserAdminQuery);
-        res.status(200).json(rows);
-    } catch (error) {
-        console.log(error.message);
-        return next(createError(400, "Couldnt get UserAmind details!"));
-    }
-}   
+router.post("/", createUserAccount);
 
-e
+export default router;
