@@ -20,7 +20,13 @@ export async function getAllUserAccount(req,res,next){
     }
 }
 
-export async function createUserAccount(req, res, next){}
+export async function createUserAccount(req, res, next){
+    try {
+        
+    } catch (error) {
+        
+    }
+}
 
 export async function viewUserAccount(req, res, next){}
 

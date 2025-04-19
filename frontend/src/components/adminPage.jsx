@@ -1,19 +1,24 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import Create from "./adminComponents/createUser";
+import Search from "./adminComponents/searchUser";
 
-export default function adminPage(){
+export default function AdminPage() {
 
-    const handleLogout = () => {
-        window.location.href = "/login";
-      };
+  return (
+    <div className="admin-page">
+      <div className="admin-header">
+        <h1>Admin Page</h1>
+        <button 
+          onClick={() => (window.location.href = "/login")} 
+          className="logout-button"
+        >
+          Logout
+        </button>
+      </div>
 
+      <Create />
 
-    return (
-        <>
-        <div>
-            <h1>Admin Page</h1>
-
-            <button onClick={handleLogout}>Logout</button>
-        </div>
-        </>
-    )
+      <Search />
+    </div>
+  );
 }

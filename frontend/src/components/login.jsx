@@ -136,8 +136,6 @@ export default function login() {
           <button type="submit" disabled={isLoading}>
             {isLoading ? 'Logging in...' : 'Login'}
           </button>
-
-          <button type="button">Sign up</button>
         </div>
         
         {error && <div className="error-message">{error}</div>}
