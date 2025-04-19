@@ -1,7 +1,7 @@
 import { query } from "../utils/connectToDB.js";
 import { loginQuery } from "../utils/sqlQuery.js";
 import { createError } from "../utils/error.js";
-import { createAccountTypeQuery, createUserTableQuery, createUserQuery } from "../utils/sqlQuery.js";
+// import { createAccountTypeQuery, createUserTableQuery, createUserQuery } from "../utils/sqlQuery.js";
 
 export async function login(req, res, next) {
     const { useraccount: account, password, accountType: account_type } = req.body;

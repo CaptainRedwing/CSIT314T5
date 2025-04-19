@@ -3,3 +3,11 @@ option2|user1|password123|user
 option3|cleaner1|cleanerpass|cleaner
 option4|homeowner1|homepass|homeowner
 option5|manager1|managerpass|manager
+
+
+=============================
+userName|email|password|role
+=============================
+
+tom123|tom123@gmail.com|tom123321tom|admin
+jj123|jj123@gmail.com|jj123321jj|manager
