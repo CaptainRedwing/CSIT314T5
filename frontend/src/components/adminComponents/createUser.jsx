@@ -1,76 +1,78 @@
 import React, { useState } from "react";
 
-export default function CreateUser() {  // Changed to uppercase
-  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+export default function CreateUser() { 
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [errors, setErrors] = useState({});  // Added errors state
   const [newUser, setNewUser] = useState({
     username: '',
     email: '',
-    role: 'user',  // Changed default to match options
     password: '',
-    confirmPassword: ''
+    role: 'UserAdmin'
   });
 
-  const handleInputChange = (e) => {  // Moved outside handleCreateUser
+
+  const handleInputChange = (e) => {  
     const { name, value } = e.target;
     setNewUser(prev => ({...prev, [name]: value}));
-    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+    if (error[name]) setError(prev => ({ ...prev, [name]: '' }));
   };
 
   const handleCreateUser = async(e) => {
     e.preventDefault();
 
-    const newErrors = {};
-    if (!newUser.username) newErrors.username = 'Username is required';
-    if (!newUser.email) newErrors.email = 'Email is required';
-    if (!newUser.password) newErrors.password = 'Password is required';
+    const newError = {};
+    if (!newUser.username) newError.username = 'Username is required';
+    if (!newUser.email) newError.email = 'Email is required';
+    if (!newUser.password) newError.password = 'Password is required';
     if (newUser.password !== newUser.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newError.confirmPassword = 'Passwords do not match';
     }
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    if (Object.keys(newError).length > 0) {
+      setError(newError);
       return;
     }
 
-    setIsLoadingUsers(true);
+    setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3000/api/adminpage/1', {
+      const response = await fetch('http://localhost:3000/api/userAdmin', {
         method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           username: newUser.username,
           email: newUser.email,
-          role: newUser.role,
-          password: newUser.password
-        }),
+          password: newUser.password,
+          role: newUser.role
+        })
       });
 
       if (!response.ok){
         const errorData = await response.json();
+        console.error('Backend error:', errorData);
         throw new Error(errorData.message || 'Failed to create user');
       }
 
-      const createdUser = await response.json();
+      await response.json();
       
       setShowCreateModal(false);
       setNewUser({
         username: '',
         email: '',
-        role: 'option1',
+        role: 'UserAdmin',
         password: '',
         confirmPassword: ''
       });
-      setErrors({});
+      setError({});
       
     } catch (error) {
-      setErrors({form: error.message});
+      setError({form: error.message});
     } finally {
-      setIsLoadingUsers(false);
+      setIsLoading(false);
     }
   };
 
@@ -97,7 +99,7 @@ export default function CreateUser() {  // Changed to uppercase
             </div>
             
             <form onSubmit={handleCreateUser}>
-              {errors.form && <div className="error-message">{errors.form}</div>}
+              {error.form && <div className="error-message">{error.form}</div>}
               
               <div className="form-group">
                 <label>Username</label>
@@ -106,9 +108,9 @@ export default function CreateUser() {  // Changed to uppercase
                   name="username"
                   value={newUser.username}
                   onChange={handleInputChange}
-                  className={errors.username ? 'error' : ''}
+                  className={error.username ? 'error' : ''}
                 />
-                {errors.username && <span className="field-error">{errors.username}</span>}
+                {error.username && <span className="field-error">{error.username}</span>}
               </div>
 
               <div className="form-group">
@@ -118,9 +120,9 @@ export default function CreateUser() {  // Changed to uppercase
                   name="email"
                   value={newUser.email}
                   onChange={handleInputChange}
-                  className={errors.email ? 'error' : ''}
+                  className={error.email ? 'error' : ''}
                 />
-                {errors.email && <span className="field-error">{errors.email}</span>}
+                {error.email && <span className="field-error">{error.email}</span>}
               </div>
 
               <div className="form-group">
@@ -130,10 +132,10 @@ export default function CreateUser() {  // Changed to uppercase
                   value={newUser.role}
                   onChange={handleInputChange}
                 >
-                  <option value="option1">UserAdmin</option>
-                  <option value="option2">Cleaner</option>
-                  <option value="option3">Homeowner</option>
-                  <option value="option4">PlatformManager</option>
+                  <option value="UserAdmin">UserAdmin</option>
+                  <option value="Cleaner">Cleaner</option>
+                  <option value="Homeowner">Homeowner</option>
+                  <option value="PlatformManager">PlatformManager</option>
                 </select>
               </div>
 
@@ -144,9 +146,9 @@ export default function CreateUser() {  // Changed to uppercase
                   name="password"
                   value={newUser.password}
                   onChange={handleInputChange}
-                  className={errors.password ? 'error' : ''}
+                  className={error.password ? 'error' : ''}
                 />
-                {errors.password && <span className="field-error">{errors.password}</span>}
+                {error.password && <span className="field-error">{error.password}</span>}
               </div>
 
               <div className="form-group">
@@ -156,10 +158,10 @@ export default function CreateUser() {  // Changed to uppercase
                   name="confirmPassword"
                   value={newUser.confirmPassword}
                   onChange={handleInputChange}
-                  className={errors.confirmPassword ? 'error' : ''}
+                  className={error.confirmPassword ? 'error' : ''}
                 />
-                {errors.confirmPassword && (
-                  <span className="field-error">{errors.confirmPassword}</span>
+                {error.confirmPassword && (
+                  <span className="field-error">{error.confirmPassword}</span>
                 )}
               </div>
 
@@ -167,15 +169,15 @@ export default function CreateUser() {  // Changed to uppercase
                 <button 
                   type="button" 
                   onClick={() => setShowCreateModal(false)}
-                  disabled={isLoadingUsers}
+                  disabled={isLoading}
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit"
-                  disabled={isLoadingUsers}
+                  disabled={isLoading}
                 >
-                  {isLoadingUsers ? 'Creating...' : 'Create User'}
+                  {isLoading ? 'Creating...' : 'Create User'}
                 </button>
               </div>
             </form>

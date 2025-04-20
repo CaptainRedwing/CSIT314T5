@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
-export default function SearchUser() {  // Fixed typo in "function"
+
+export default function SearchUser() { 
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchAllUsers();
@@ -16,7 +18,7 @@ export default function SearchUser() {  // Fixed typo in "function"
     setError('');
 
     try {
-      const response = await fetch("http://localhost:3000/api/adminpage", { 
+      const response = await fetch("http://localhost:3000/api/userAdmin", { 
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -45,7 +47,7 @@ export default function SearchUser() {  // Fixed typo in "function"
 
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/api/adminpage/1", {
+      const response = await fetch("http://localhost:3000/api/userAdmin", {
         method: "POST",
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ keywords: searchTerm }),
@@ -61,6 +63,35 @@ export default function SearchUser() {  // Fixed typo in "function"
     }
   };
 
+  const handleViewUser = (userId) => {
+    navigate(`/userPage/${userId}`);
+  };
+
+  const handleSuspendUser = async (userId) => {
+  
+    try {
+      const response = await fetch(`http://localhost:3000/api/userAdmin/${userId}`, { 
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to suspend user');
+      }
+  
+      await fetchAllUsers();
+      
+      alert('User suspended successfully');
+      
+    } catch (error) {
+      setError(error.message);
+      console.error('Suspend user error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <div className="search-container">
       <div className="search-controls">
@@ -73,6 +104,14 @@ export default function SearchUser() {  // Fixed typo in "function"
           />
           <button type="submit" disabled={isLoading}>
             {isLoading ? 'Searching...' : 'Search'}
+          </button>
+          <button 
+            type="button" 
+            onClick={fetchAllUsers}
+            disabled={isLoading}
+            className="refresh-button"
+          >
+            {isLoading ? 'Refreshing...' : 'Refresh'}
           </button>
         </form>
       </div>
@@ -96,7 +135,15 @@ export default function SearchUser() {  // Fixed typo in "function"
                 <td>{user.username}</td>
                 <td>{user.role}</td>
                 <td>
-                  <button className="view-button">View</button>
+                  <button 
+                  className="view-button"
+                  onClick={() => (handleViewUser(user.id))}
+                  >View</button>
+                  
+                  <button 
+                  className="suspend"
+                  onClick={() => (handleSuspendUser(user.id))}
+                  >Suspend</button>
                 </td>
               </tr>
             ))}

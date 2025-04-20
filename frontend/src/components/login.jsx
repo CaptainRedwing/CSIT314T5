@@ -1,11 +1,10 @@
 import React, { useState } from "react"
-import AdminPage from "./adminPage";
-import CleanerPage from "./cleanerPage";
-import HomeownerPage from "./homeownerPage";
-import PlatformManagerPage from "./platformManagerPage";
+import { useNavigate } from 'react-router-dom';
 
 
 export default function login() {
+
+  const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
 
@@ -16,9 +15,6 @@ export default function login() {
 
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [currentUser, setCurrentUser] = useState(null);
-
     const handleChange = (e) => {
         const { name, value} = e.target;
         setFormData(prev => ({
@@ -50,9 +46,25 @@ export default function login() {
           if (!response.ok) {
               throw new Error(data.error || 'Login failed');
           }
-  
-          setIsLoggedIn(true);
-          setCurrentUser(data.user);
+        
+          localStorage.setItem('currentUser', JSON.stringify(data.user));
+          
+          switch(data.user.accountType) {
+              case 'UserAdmin':
+                  navigate('/adminPage');
+                  break;
+              case 'Cleaner':
+                  navigate('/cleanerPage');
+                  break;
+              case 'Homeowner':
+                  navigate('/homeownerPage');
+                  break;
+              case 'PlatformManager':
+                  navigate('/platformManagerPage');
+                  break;
+              default:
+                  navigate('/');
+          }
           
       } catch (err) {
           setError(err.message);
@@ -60,86 +72,66 @@ export default function login() {
           setIsLoading(false);
       }
   };
-      
-        const handleLogout = () => {
-          setIsLoggedIn(false);
-          setCurrentUser(null);
-        };
-
-        if (isLoggedIn && currentUser) {
-            switch (currentUser.accountType) {
-              case 'UserAdmin': // Admin
-                return <AdminPage user={currentUser} onLogout={handleLogout} />;
-              case 'Cleaner': // Cleaner
-                return <CleanerPage user={currentUser} onLogout={handleLogout} />;
-              case 'Homeowner': // Homeowner
-                return <HomeownerPage user={currentUser} onLogout={handleLogout} />;
-              case 'PlatformManager': // Platform Manager
-                return <PlatformManagerPage user={currentUser} onLogout={handleLogout} />;
-
-    }};
 
 
-    return(
-        <>
+    return (
+      <div className="login-container">
         <header>
-            <h1>Login Page</h1>
+          <h1>Login Page</h1>
         </header>
-
+  
         <form onSubmit={handleSubmit}>
-        <div className="form-row">
-          <label htmlFor="accountType">Account Type: </label>
-          <select 
-            id="accountType" 
-            name="accountType"
-            value={formData.accountType}
-            onChange={handleChange}
-          >
-            <option value="UserAdmin">User Admin</option> 
-            <option value="Cleaner">Cleaner</option>
-            <option value="Homeowner">Homeowner</option>
-            <option value="PlatformManager">Platform Manager</option>
-          </select>
-        </div>
-
-        <br />
-
-        <div className="form-row">
-          <label htmlFor="useraccount">User Account: </label>
-          <input 
-            type="text" 
-            id="useraccount" 
-            name="useraccount"
-            value={formData.useraccount}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <br />
-
-        <div className="form-row">
-          <label htmlFor="password">Password: </label>
-          <input 
-            type="password" 
-            id="password" 
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <br />
-
-        <div className="form-row">
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? 'Logging in...' : 'Login'}
-          </button>
-        </div>
-        
-        {error && <div className="error-message">{error}</div>}
+          <div className="form-row">
+            <label htmlFor="accountType">Account Type: </label>
+            <select
+              id="accountType" 
+              name="accountType"
+              value={formData.accountType}
+              onChange={handleChange}
+            >
+              <option value="UserAdmin">User Admin</option> 
+              <option value="Cleaner">Cleaner</option>
+              <option value="Homeowner">Homeowner</option>
+              <option value="PlatformManager">Platform Manager</option>
+            </select>
+          </div>
+  
+          <div className="form-row">
+            <label htmlFor="useraccount">User Account: </label>
+            <input 
+              type="text" 
+              id="useraccount" 
+              name="useraccount"
+              value={formData.useraccount}
+              onChange={handleChange}
+              required
+            />
+          </div>
+  
+          <div className="form-row">
+            <label htmlFor="password">Password: </label>
+            <input 
+              type="password" 
+              id="password" 
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
+  
+          <div className="form-row">
+            <button 
+              type="submit" 
+              disabled={isLoading}
+              className={isLoading ? 'logging-in' : ''}
+            >
+              {isLoading ? 'Logging in...' : 'Login'}
+            </button>
+          </div>
+          
+          {error && <div className="error-message">{error}</div>}
         </form>
-        </>
-    )
+      </div>
+    );
 }

@@ -40,7 +40,7 @@ export async function createUserAccount(req, res, next){
         ]);
         res.status(201).json(data.rows[0])
     } catch (error){
-        console.log(error.messgae);
+        console.log('Error creating user:', error.messgae);
         return next(createError(400, error.message));
     }
 }

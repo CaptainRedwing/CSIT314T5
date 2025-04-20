@@ -367,6 +367,8 @@ form {
 .view-button {
   background-color: #3498db;
   color: white;
+  margin-right: 0.8rem; 
+  gap: 0.8rem;
   border: none;
   padding: 6px 12px;
   border-radius: 4px;
@@ -376,6 +378,21 @@ form {
 }
 
 .view-button:hover {
+  background-color: #2980b9;
+}
+
+.suspend {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.suspend:hover {
   background-color: #2980b9;
 }
 
@@ -411,4 +428,223 @@ form {
   .form-group select {
     max-width: 100%;
   }
+}
+
+.user-page-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header styling */
+.user-page-container h1 {
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 0.5rem;
+}
+
+/* User info styling */
+.user-info {
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.user-info p {
+  margin: 0.8rem 0;
+  font-size: 1.1rem;
+  color: #343a40;
+}
+
+.user-info strong {
+  color: #2c3e50;
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+/* Loading spinner */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #3498db;
+  font-size: 1.2rem;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border-left-color: #3498db;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error message styling */
+.error-alert {
+  padding: 1rem;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 5px;
+  margin: 2rem auto;
+  max-width: 500px;
+  text-align: center;
+}
+
+/* Back button styling */
+.back-button {
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.back-button:hover {
+  background-color: #5a6268;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .user-page-container {
+    margin: 1rem;
+    padding: 1rem;
+  }
+  
+  .user-page-container h1 {
+    font-size: 1.5rem;
+  }
+}
+
+.login-container {
+  max-width: 500px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header styles */
+.login-container header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.login-container h1 {
+  color: #2c3e50;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Form styles */
+.login-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row {
+  margin-bottom: 1.2rem;
+}
+
+.form-row label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.form-row input,
+.form-row select {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.form-row input:focus,
+.form-row select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* Button styles */
+.login-container button[type="submit"] {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 0.8rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login-container button[type="submit"]:hover {
+  background-color: #2980b9;
+}
+
+.login-container button[type="submit"]:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
+/* Error message styles */
+.error-message {
+  padding: 0.8rem;
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .login-container {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+  
+  .login-container h1 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Animation for loading state */
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+.logging-in {
+  animation: pulse 1.5s infinite;
 }

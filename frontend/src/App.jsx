@@ -1,17 +1,13 @@
-import { useState } from 'react';
-import './App.css';
-import Login from "./components/login"
+import { Outlet } from 'react-router-dom';
+import Login from './components/login';
+import AdminPage from './components/adminPage';
 
-
-
-function App() {
-
-
+export default function App() {
   return (
-    <div className='App'>
-        <Login />
+    <div className="app-container">
+      <Login />
     </div>
-  )
+  );
 }
 
-export default App;
+// Additional route configuration can be added here using createRoutesFromElements
