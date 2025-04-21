@@ -59,3 +59,9 @@ export const suspendUserAccountQuery = `
     DELETE FROM user_account_details
     WHERE id = $1
 `;
+
+export const viewAccountByUserNameRoleQuery = `
+    SELECT * FROM user_account_details
+    WHERE ($1::VARCHAR IS NULL OR username = $1)
+    AND ($2::role_type IS NULL OR role = $2);
+`;

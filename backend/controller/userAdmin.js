@@ -6,7 +6,8 @@ import {createRoleQuery,
         viewUserAccountQuery,
         updateUserAccountQuery,
         findSpecificUserAccountQuery,
-        suspendUserAccountQuery} from "../utils/sqlQuery.js";
+        suspendUserAccountQuery,
+        viewAccountByUserNameRoleQuery} from "../utils/sqlQuery.js";
 
 export async function viewUserAccount(req,res,next){
     try {
@@ -42,6 +43,20 @@ export async function createUserAccount(req, res, next){
     } catch (error){
         console.log('Error creating user:', error.messgae);
         return next(createError(400, error.message));
+    }
+}
+
+export async function viewAccountByUserNameRole(req, res, next){
+    try{
+        const {username, role} = req.query;
+        const result = await query(viewAccountByUserNameRoleQuery, [
+            username || null,
+            role || null
+        ]);
+        res.status(200).json(result.rows);
+    }catch(error){
+        console.error("Error fetching account by username/role:", error.message);
+        return next(createError(400, "Error fetching account"));
     }
 }
 
