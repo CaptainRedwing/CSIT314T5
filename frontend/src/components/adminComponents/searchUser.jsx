@@ -8,6 +8,11 @@ export default function SearchUser() {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
+  const [searchBy, setSearchBy] = useState('username');
+
+  useEffect(() => {
+    fetchAllUsers();
+  }, []);
 
   useEffect(() => {
     fetchAllUsers();
@@ -46,12 +51,22 @@ export default function SearchUser() {
     }
 
     setIsLoading(true);
+    setError('');
+
     try {
-      const response = await fetch("http://localhost:3000/api/userAdmin", {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ keywords: searchTerm }),
+      // Build URL with query parameters
+      const url = new URL("http://localhost:3000/api/userAdmin/search");
+      url.searchParams.append(searchBy, searchTerm);
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Search failed');
+      }
 
       const data = await response.json();
       setUsers(data);
@@ -95,24 +110,40 @@ export default function SearchUser() {
   return (
     <div className="search-container">
       <div className="search-controls">
-        <form onSubmit={handleSearch}>
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search users..."
-          />
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? 'Searching...' : 'Search'}
-          </button>
-          <button 
-            type="button" 
-            onClick={fetchAllUsers}
-            disabled={isLoading}
-            className="refresh-button"
-          >
-            {isLoading ? 'Refreshing...' : 'Refresh'}
-          </button>
+      <form onSubmit={handleSearch}>
+          <div className="search-options">
+            <select
+              value={searchBy}
+              onChange={(e) => setSearchBy(e.target.value)}
+              className="search-select"
+            >
+              <option value="username">Username</option>
+              <option value="role">Role</option>
+            </select>
+            
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder={`Search by ${searchBy}...`}
+              className="search-input"
+            />
+          </div>
+          
+          <div className="search-buttons">
+            <button type="submit" disabled={isLoading} className="search-button">
+              {isLoading ? 'Searching...' : 'Search'}
+            </button>
+            
+            <button 
+              type="button" 
+              onClick={fetchAllUsers}
+              disabled={isLoading}
+              className="refresh-button"
+            >
+              {isLoading ? 'Refreshing...' : 'Refresh'}
+            </button>
+          </div>
         </form>
       </div>
 
