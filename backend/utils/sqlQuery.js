@@ -3,6 +3,14 @@ export const createRoleQuery = `
     ENUM ('UserAdmin','Cleaner','Homeowner','PlatformManager', 'Pending');
 `;
 
+export const getAllrole = `
+    SELECT enumlabel AS role 
+    FROM pg_enum 
+    JOIN pg_type ON pg_enum.enumtypid = pg_type.oid 
+    WHERE pg_type.typname = 'role_type'
+    ORDER BY enumlabel;
+`;
+
 
 export const createUserTableQuery = `
     CREATE TABLE users(

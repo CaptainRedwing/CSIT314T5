@@ -1,10 +1,11 @@
 import { query } from "../utils/connectToDB.js";
-import { loginQuery } from "../utils/sqlQuery.js";
+import { loginQuery, getAllrole } from "../utils/sqlQuery.js";
 import { createError } from "../utils/error.js";
 import { LoginUser } from "../entity/LoginUser.js";
 
 export async function login(req, res, next) {
   try {
+
     const user = new LoginUser(req.body);
 
     if (!user.isValid()) {
@@ -12,7 +13,7 @@ export async function login(req, res, next) {
     }
 
     const userResult = await query(loginQuery, [
-      user.useraccount,
+      user.userAccount,
       user.password,
       user.accountType,
     ]);
@@ -34,4 +35,11 @@ export async function login(req, res, next) {
     console.error(error.message);
     return next(createError(500, 'Login failed'));
   }
+}
+
+export async function roles(req,res,next){
+  const result = await query(getAllrole);
+  const roles = result.rows.map( row => row.role)
+  res.json({roles})
+
 }

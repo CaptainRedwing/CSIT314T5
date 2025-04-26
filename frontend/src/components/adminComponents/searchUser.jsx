@@ -54,7 +54,6 @@ export default function SearchUser() {
     setError('');
 
     try {
-      // Build URL with query parameters
       const url = new URL("http://localhost:3000/api/userAdmin/search");
       url.searchParams.append(searchBy, searchTerm);
       

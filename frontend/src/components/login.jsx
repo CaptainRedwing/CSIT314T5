@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { useNavigate } from 'react-router-dom';
 
 
@@ -10,11 +10,32 @@ export default function login() {
 
         useraccount : '',
         password: '',
-        accountType : 'UserAdmin'
+        accountType : ''
     });
 
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [roles, setRoles] = useState([]);
+
+    useEffect(() => {
+      const fetchRoles = async () => {
+        const response = await fetch('http://localhost:3000/api/login/roles');
+
+        const data = await response.json();
+        console.log(data);
+        setRoles(data.roles);
+
+
+        if (data.roles.length > 0) {
+          setFormData(prev => ({
+            ...prev,
+            accountType: data.roles[0]
+          }));
+        }
+      };
+      fetchRoles();
+    }, []);
+
     const handleChange = (e) => {
         const { name, value} = e.target;
         setFormData(prev => ({
@@ -35,7 +56,7 @@ export default function login() {
                   'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                  useraccount: formData.useraccount,
+                  userAccount: formData.useraccount,
                   password: formData.password,
                   accountType: formData.accountType
               })
@@ -49,18 +70,19 @@ export default function login() {
         
           localStorage.setItem('currentUser', JSON.stringify(data.user));
           
-          switch(data.user.accountType) {
+          if(response)
+            switch(formData.accountType) {
               case 'UserAdmin':
-                  navigate('/adminPage');
+                  navigate(`UserAdmin/${formData.useraccount}}`);
                   break;
               case 'Cleaner':
-                  navigate('/cleanerPage');
+                  navigate(`Cleaner/${formData.useraccount}}`);
                   break;
               case 'Homeowner':
-                  navigate('/homeownerPage');
+                  navigate(`Homeowner/${formData.useraccount}}`);
                   break;
               case 'PlatformManager':
-                  navigate('/platformManagerPage');
+                  navigate(`PlatformManager/${formData.useraccount}}`);
                   break;
               default:
                   navigate('/');
@@ -81,20 +103,21 @@ export default function login() {
         </header>
   
         <form onSubmit={handleSubmit}>
-          <div className="form-row">
-            <label htmlFor="accountType">Account Type: </label>
-            <select
-              id="accountType" 
-              name="accountType"
-              value={formData.accountType}
-              onChange={handleChange}
-            >
-              <option value="UserAdmin">User Admin</option> 
-              <option value="Cleaner">Cleaner</option>
-              <option value="Homeowner">Homeowner</option>
-              <option value="PlatformManager">Platform Manager</option>
-            </select>
-          </div>
+        <div className="form-group">
+          <label>Account Type</label>
+          <select
+            name="accountType"
+            value={formData.accountType}
+            onChange={handleChange}
+            required
+          >
+            {roles.map(role => (
+              <option key={role} value={role}>
+                {role.replace(/([A-Z])/g, ' $1').trim()}
+              </option>
+            ))}
+          </select>
+        </div>
   
           <div className="form-row">
             <label htmlFor="useraccount">User Account: </label>
