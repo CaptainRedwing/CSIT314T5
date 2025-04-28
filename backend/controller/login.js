@@ -4,6 +4,7 @@ import { createError } from "../utils/error.js";
 import { LoginUser } from "../entity/LoginUser.js";
 
 export class LoginController {
+  
   static async login(req, res, next) {
     try {
       const user = new LoginUser(req.body);
@@ -12,30 +13,20 @@ export class LoginController {
         return res.status(400).json({ error: 'All fields are required and must be valid' });
       }
 
-      const userResult = await query(loginQuery, [
-        user.userAccount,
-        user.password,
-        user.accountType,
-      ]);
+      const isAuthenticated = await user.authenticate(); 
 
-      if (userResult.rows.length === 0) {
-        return res.status(401).json({ error: 'Invalid credentials' });
+      if (isAuthenticated) {
+        return res.status(200).json({ success: true });
+      } else {
+        return res.status(401).json({ success: false, error: 'Authentication failed' });
       }
-
-      const userData = userResult.rows[0];
-      res.status(200).json({
-        message: 'Login successful',
-        user: {
-          ...userData,
-          accountType: user.accountType,
-        }
-      });
 
     } catch (error) {
       console.error(error.message);
       return next(createError(500, 'Login failed'));
     }
   }
+  
 
   static async roles(req, res, next) {
     try {

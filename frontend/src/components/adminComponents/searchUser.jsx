@@ -14,10 +14,7 @@ export default function SearchUser() {
     fetchAllUsers();
   }, []);
 
-  useEffect(() => {
-    fetchAllUsers();
-  }, []);
-
+  
   const fetchAllUsers = async () => {
     setIsLoading(true);
     setError('');

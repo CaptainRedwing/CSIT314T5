@@ -11,7 +11,8 @@ import{
 } from "../utils/sqlQuery.js"
 
 export class UserAccount{
-    constructor({username, email, password, role}){
+    constructor({id,username, email, password, role}){
+        this.id = id
         this.username = username;
         this.email = email;
         this.password = password;
@@ -24,6 +25,7 @@ export class UserAccount{
 
     static fromDB(row){
         return new UserAccount({
+            id : row.id,
             username: row.username,
             email: row.email,
             password: row.password,

@@ -19,18 +19,24 @@ export default function login() {
 
     useEffect(() => {
       const fetchRoles = async () => {
-        const response = await fetch('http://localhost:3000/api/login/roles');
-
-        const data = await response.json();
-        console.log(data);
-        setRoles(data.roles);
-
-
-        if (data.roles.length > 0) {
-          setFormData(prev => ({
-            ...prev,
-            accountType: data.roles[0]
-          }));
+        try {
+          const response = await fetch('http://localhost:3000/api/login/roles');
+          if (!response.ok) {
+            throw new Error('Failed to fetch roles');
+          }
+          const data = await response.json();
+          console.log(data);
+          setRoles(data.roles || []); // Fallback to empty array if roles is undefined
+      
+          if (data.roles && data.roles.length > 0) {
+            setFormData(prev => ({
+              ...prev,
+              accountType: data.roles[0]
+            }));
+          }
+        } catch (error) {
+          console.error('Error fetching roles:', error);
+          setRoles([]); // Set to empty array on error
         }
       };
       fetchRoles();
@@ -48,52 +54,54 @@ export default function login() {
       e.preventDefault();
       setIsLoading(true);
       setError('');
-  
+    
       try {
-          const response = await fetch('http://localhost:3000/api/login', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                  userAccount: formData.useraccount,
-                  password: formData.password,
-                  accountType: formData.accountType
-              })
-          });
-  
-          const data = await response.json();
-  
-          if (!response.ok) {
-              throw new Error(data.error || 'Login failed');
-          }
+        const response = await fetch('http://localhost:3000/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userAccount: formData.useraccount,
+            password: formData.password,
+            accountType: formData.accountType
+          })
+        });
+    
+        const data = await response.json();
+    
+        if (!response.ok) {
+          throw new Error(data.error || 'Login failed');
+        }
         
-          localStorage.setItem('currentUser', JSON.stringify(data.user));
+        if (data.success) {
+          localStorage.setItem('isAuthenticated', 'true');
           
-          if(response)
-            switch(formData.accountType) {
-              case 'UserAdmin':
-                  navigate(`UserAdmin/${formData.useraccount}}`);
-                  break;
-              case 'Cleaner':
-                  navigate(`Cleaner/${formData.useraccount}}`);
-                  break;
-              case 'Homeowner':
-                  navigate(`Homeowner/${formData.useraccount}}`);
-                  break;
-              case 'PlatformManager':
-                  navigate(`PlatformManager/${formData.useraccount}}`);
-                  break;
-              default:
-                  navigate('/');
+          // Navigation based on accountType from form (not from response)
+          switch(formData.accountType) {
+            case 'UserAdmin':
+              navigate('/adminPage');
+              break;
+            case 'Cleaner':
+              navigate('/cleanerPage');
+              break;
+            case 'Homeowner':
+              navigate(`/homeowner/${formData.useraccount}`);
+              break;
+            case 'PlatformManager':
+              navigate(`/platform-manager/${formData.useraccount}`);
+              break;
+            default:
+              navigate('/');
           }
-          
+        }
+        
       } catch (err) {
-          setError(err.message);
+        setError(err.message);
       } finally {
-          setIsLoading(false);
+        setIsLoading(false);
       }
-  };
+    };
 
 
     return (
