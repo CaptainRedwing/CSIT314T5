@@ -26,7 +26,7 @@ export default function login() {
           }
           const data = await response.json();
           console.log(data);
-          setRoles(data.roles || []); // Fallback to empty array if roles is undefined
+          setRoles(data.roles || []);
       
           if (data.roles && data.roles.length > 0) {
             setFormData(prev => ({
@@ -36,7 +36,7 @@ export default function login() {
           }
         } catch (error) {
           console.error('Error fetching roles:', error);
-          setRoles([]); // Set to empty array on error
+          setRoles([]);
         }
       };
       fetchRoles();
@@ -70,14 +70,12 @@ export default function login() {
     
         const data = await response.json();
     
-        if (!response.ok) {
-          throw new Error(data.error || 'Login failed');
-        }
-        
-        if (data.success) {
+
+        if (!data.success) {
+          throw new Error('Authentication failed')
+        } else {
           localStorage.setItem('isAuthenticated', 'true');
           
-          // Navigation based on accountType from form (not from response)
           switch(formData.accountType) {
             case 'UserAdmin':
               navigate('/adminPage');
@@ -95,6 +93,7 @@ export default function login() {
               navigate('/');
           }
         }
+        
         
       } catch (err) {
         setError(err.message);

@@ -20,7 +20,10 @@ export class LoginUser {
   }
 
   async authenticate() {
-    try {
+
+    if (!this.isValid){
+      return false;
+    } else {
       const { rows } = await query(loginQuery, [
         this.userAccount,
         this.password,
@@ -32,9 +35,6 @@ export class LoginUser {
       }
 
       return true; // login successful
-    } catch (error) {
-      console.error(error.message);
-      return false; // query fails == login failed
     }
   }
 }
