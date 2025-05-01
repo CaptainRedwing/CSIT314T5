@@ -26,15 +26,16 @@ export const createUserAccountTableQuery = `
         id SERIAL PRIMARY KEY,
         username VARCHAR(50) NOT NULL UNIQUE,
         email VARCHAR(50) NOT NULL UNIQUE,
-        password VARCHAR(50) NOT NULL,
-        role role_type NOT NULL DEFAULT 'Pending'
+        password VARCHAR(200) NOT NULL,
+        role role_type NOT NULL DEFAULT 'Pending',
+        user_profile_id INT REFERENCES user_profile_details(id) ON DELETE SET NULL
     );
 `;
 
 
 export const createUserAccountQuery = `
-    INSERT INTO user_account_details(username, email, password, role)
-    VALUES($1, $2, $3, COALESCE($4::role_type, 'Pending'::role_type)) RETURNING *
+    INSERT INTO user_account_details(username, email, password, role, user_profile_id)
+    VALUES($1, $2, $3, COALESCE($4::role_type, 'Pending'::role_type), $5) RETURNING *
 `;
 
 
@@ -45,7 +46,7 @@ export const createUserQuery = `
     VALUES($1,$2,COALESCE($3::role_type,'UserAdmin'::role_type)) RETURNING *
 `;
 
-export const loginQuery = ` SELECT * FROM users WHERE user_account=$1 AND password=$2 AND role=$3`;
+export const loginQuery = ` SELECT * FROM users WHERE user_account=$1 AND role = $2`;
 
 export const updateUserAccountQuery = `
     UPDATE user_account_details
@@ -53,8 +54,9 @@ export const updateUserAccountQuery = `
     username = COALESCE($1, username),
     email = COALESCE($2, email),
     password = COALESCE($3, password),
-    role = COALESCE($4, role)
-    WHERE id = $5
+    role = COALESCE($4, role),
+    user_profile_id = COALESCE($5, user_profile_id)
+    WHERE id = $6
     RETURNING *
 `;
 

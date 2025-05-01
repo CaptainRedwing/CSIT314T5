@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import {query} from "../utils/connectToDB.js"
 import{
     createUserAccountQuery,
@@ -11,16 +12,17 @@ import{
 } from "../utils/sqlQuery.js"
 
 export class UserAccount{
-    constructor({id,username, email, password, role}){
+    constructor({id,username, email, password, role, user_profile_id}){
         this.id = id
         this.username = username;
         this.email = email;
         this.password = password;
         this.role = role;
+        this.user_profile_id = user_profile_id;
     }
 
     isValid(){
-        return this.username && this.email && this.password && this.role;
+        return this.username && this.email && this.password && this.role && this.user_profile_id;
     }
 
     static fromDB(row){
@@ -29,15 +31,26 @@ export class UserAccount{
             username: row.username,
             email: row.email,
             password: row.password,
-            role: row.role
+            role: row.role,
+            user_profile_id: row.user_profile_id
         });
     }
+
+    async hashPassword(){
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(this.password, saltRounds);
+        this.password = hashedPassword;
+    }
+
+
     async save(){
+        await this.hashPassword();
         const {rows} = await query(createUserAccountQuery, [
             this.username,
             this.email,
             this.password,
-            this.role
+            this.role,
+            this.user_profile_id
         ]);
         return UserAccount.fromDB(rows[0]);
     }
@@ -70,12 +83,13 @@ export class UserAccount{
         return UserAccount.fromDB(rows[0]);
     }
 
-    static async updateById(id, {username, email, password, role}){
+    static async updateById(id, {username, email, password, role, user_profile_id}){
         const {rowCount, rows} = await query(updateUserAccountQuery, [
             username,
             email,
             password,
             role,
+            user_profile_id,
             id
         ]);
         if (rowCount == 0){
@@ -87,5 +101,10 @@ export class UserAccount{
     static async suspendById(id){
         const {rowCount} = await query(suspendUserAccountQuery, [id]);
         return rowCount > 0;
+    }
+
+    static async comparePassword(enteredPassword, storedHash){
+        const match = await bcrypt.compare(enteredPassword, storedHash);
+        return match;
     }
 }

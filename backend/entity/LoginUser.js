@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import { query } from "../utils/connectToDB.js";
 import { loginQuery } from "../utils/sqlQuery.js";
 
@@ -34,7 +35,10 @@ export class LoginUser {
         return false; // login failed
       }
 
-      return true; // login successful
+      const hashedPassword = rows[0].password;
+
+      const match = await bcrypt.compare(this.password, hashedPassword);
+      return match
     }
   }
 }
