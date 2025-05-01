@@ -2,8 +2,9 @@ import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from "dotenv";
-import loginRoute from "../backend/routes/login.js"
-import userAdminRoute from "../backend/routes/userAdmin.js"
+import loginRoute from "../backend/routes/login.js";
+import userAdminRoute from "../backend/routes/userAdmin.js";
+import userProfileRoute from "../backend/routes/userProfile.js";
 
 dotenv.config();
 
@@ -22,6 +23,8 @@ app.use(bodyParser.json());
 app.use('/api/login', loginRoute);
 
 app.use('/api/userAdmin', userAdminRoute);
+
+app.use('/api/userProfile', userProfileRoute);
 
 
 
