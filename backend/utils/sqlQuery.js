@@ -1,3 +1,5 @@
+
+// User Admin CRUDS and Login
 export const createRoleQuery = `
     CREATE TYPE role_type AS
     ENUM ('UserAdmin','Cleaner','Homeowner','PlatformManager', 'Pending');
@@ -9,16 +11,6 @@ export const getAllrole = `
     JOIN pg_type ON pg_enum.enumtypid = pg_type.oid 
     WHERE pg_type.typname = 'role_type'
     ORDER BY enumlabel;
-`;
-
-
-export const createUserTableQuery = `
-    CREATE TABLE users(
-        id SERIAL PRIMARY KEY,
-        user_account VARCHAR(20) NOT NULL,
-        password VARCHAR(50) NOT NULL,
-        role role_type Not NULL DEFAULT 'Pending'
-    );
 `;
 
 export const createUserAccountTableQuery = `
@@ -40,11 +32,6 @@ export const createUserAccountQuery = `
 
 
 export const viewUserAccountQuery = `SELECT * FROM user_account_details`;
-
-export const createUserQuery = `
-    INSERT INTO users(user_account,password,role)
-    VALUES($1,$2,COALESCE($3::role_type,'UserAdmin'::role_type)) RETURNING *
-`;
 
 export const loginQuery = ` SELECT * FROM users WHERE user_account=$1 AND role = $2`;
 
