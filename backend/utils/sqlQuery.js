@@ -81,6 +81,9 @@ export const createUserProfileQuery = `
 =======
     INSERT INTO user_profile_details(name, profile_type, description, is_active)
     VALUES($1, COALESCE($2::role_type, 'Pending'::role_type), $3, $4) RETURNING *;
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 `;
 
@@ -103,6 +106,9 @@ export const updateUserProfileQuery = `
     is_active = COALESCE($4, is_active)
     WHERE id = $5
     RETURNING *;
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 `;
 
