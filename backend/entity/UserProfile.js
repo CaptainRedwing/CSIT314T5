@@ -31,6 +31,22 @@ export class UserProfile{
     }
 
     async createUserProfile(){
+        const enumExistsQuery = `
+        SELECT EXISTS (
+            SELECT 1
+            FROM pg_type t
+            JOIN pg_enum e ON t.oid = e.enumtypid
+            WHERE t.typname = 'role_type' AND e.enumlabel = $1
+        ) AS exists;
+        `;
+        const enumCheck = await query(enumExistsQuery, [this.name]);
+        const roleExists = enumCheck.rows[0].exists;
+
+        if(!roleExists){
+            const alterEnumQuery = `ALTER TYPE role_type ADD VALUE IF NOT EXISTS '${this.name}'`;
+            await query(alterEnumQuery);
+        }
+
         const {rows} = await query(createUserProfileQuery, [
             this.name,
             this.description,

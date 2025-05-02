@@ -75,16 +75,8 @@ export const createUserProfileTableQuery = `
 `;
 
 export const createUserProfileQuery = `
-<<<<<<< Updated upstream
     INSERT INTO user_profile_details(name, description, is_active)
     VALUES(COALESCE($1::role_type, 'Pending'::role_type), $2, $3) RETURNING *
-=======
-    INSERT INTO user_profile_details(name, profile_type, description, is_active)
-    VALUES($1, COALESCE($2::role_type, 'Pending'::role_type), $3, $4) RETURNING *;
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 `;
 
 export const viewUserProfileQuery = `
@@ -95,21 +87,10 @@ export const updateUserProfileQuery = `
     UPDATE user_profile_details
     SET
     name = COALESCE($1, name),
-<<<<<<< Updated upstream
     description = COALESCE($2, description),
     is_active = COALESCE($3, is_active)
     WHERE id = $4
     RETURNING *
-=======
-    profile_type = COALESCE($2, profile_type),
-    description = COALESCE($3, description),
-    is_active = COALESCE($4, is_active)
-    WHERE id = $5
-    RETURNING *;
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 `;
 
 export const suspendUserProfileQuery = `
@@ -121,4 +102,3 @@ export const searchUserProfileQuery = `
     SELECT * FROM user_profile_details
     WHERE id = $1;
 `;
-
