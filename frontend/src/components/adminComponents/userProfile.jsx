@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import CreateProfile from "./createUserProfile";
+import { useNavigate } from 'react-router-dom';
 
 export default function UserProfile() {
     const [isLoading, setIsLoading] = useState(false);
@@ -12,6 +13,12 @@ export default function UserProfile() {
         description: '',
         is_active: true
     });
+
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        navigate('/adminPage', { replace: true });
+    };
 
     const handleCloseModal = () => {
         setShowUpdateModal(false);
@@ -189,6 +196,10 @@ export default function UserProfile() {
                     </div>
                 ))}
             </div>
+
+            <button className="back-button" onClick={handleLogout}>
+                Go Back
+            </button>
 
             {profilesToRender.length === 0 && !isLoading && (
                 <div className="no-profiles">No profiles available</div>
