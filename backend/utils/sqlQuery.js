@@ -20,20 +20,19 @@ export const createUserAccountTableQuery = `
         email VARCHAR(50) NOT NULL UNIQUE,
         password VARCHAR(200) NOT NULL,
         role role_type NOT NULL DEFAULT 'Pending',
-        user_profile_id INT REFERENCES user_profile_details(id) ON DELETE SET NULL
+        user_profile_id INT REFERENCES user_profile_details(id) ON DELETE SET NULL;
     );
 `;
 
 
 export const createUserAccountQuery = `
     INSERT INTO user_account_details(username, email, password, role, user_profile_id)
-    VALUES($1, $2, $3, COALESCE($4::role_type, 'Pending'::role_type), $5) RETURNING *
+    VALUES($1, $2, $3, COALESCE($4::role_type, 'Pending'::role_type), $5) RETURNING *;
 `;
-
 
 export const viewUserAccountQuery = `SELECT * FROM user_account_details`;
 
-export const loginQuery = ` SELECT * FROM users WHERE user_account=$1 AND role = $2`;
+export const loginQuery = ` SELECT * FROM user_account_details WHERE username=$1 AND role =$2`;
 
 export const updateUserAccountQuery = `
     UPDATE user_account_details
@@ -44,17 +43,17 @@ export const updateUserAccountQuery = `
     role = COALESCE($4, role),
     user_profile_id = COALESCE($5, user_profile_id)
     WHERE id = $6
-    RETURNING *
+    RETURNING *;
 `;
 
 export const findSpecificUserAccountQuery = `
     SELECT * FROM user_account_details 
-    WHERE id = $1
+    WHERE id = $1;
 `;
 
 export const suspendUserAccountQuery = `
     DELETE FROM user_account_details
-    WHERE id = $1
+    WHERE id = $1;
 `;
 
 export const viewAccountByUserNameRoleQuery = `
@@ -71,36 +70,49 @@ export const createUserProfileTableQuery = `
         id SERIAL PRIMARY KEY,
         name role_type NOT NULL DEFAULT 'Pending',
         description VARCHAR(100) NOT NULL,
-        is_active BOOLEAN
+        is_active BOOLEAN;
     );
 `;
 
 export const createUserProfileQuery = `
+<<<<<<< Updated upstream
     INSERT INTO user_profile_details(name, description, is_active)
     VALUES(COALESCE($1::role_type, 'Pending'::role_type), $2, $3) RETURNING *
+=======
+    INSERT INTO user_profile_details(name, profile_type, description, is_active)
+    VALUES($1, COALESCE($2::role_type, 'Pending'::role_type), $3, $4) RETURNING *;
+>>>>>>> Stashed changes
 `;
 
 export const viewUserProfileQuery = `
-    SELECT * FROM user_profile_details
+    SELECT * FROM user_profile_details;
 `;
 
 export const updateUserProfileQuery = `
     UPDATE user_profile_details
     SET
     name = COALESCE($1, name),
+<<<<<<< Updated upstream
     description = COALESCE($2, description),
     is_active = COALESCE($3, is_active)
     WHERE id = $4
     RETURNING *
+=======
+    profile_type = COALESCE($2, profile_type),
+    description = COALESCE($3, description),
+    is_active = COALESCE($4, is_active)
+    WHERE id = $5
+    RETURNING *;
+>>>>>>> Stashed changes
 `;
 
 export const suspendUserProfileQuery = `
     DELETE FROM user_profile_details
-    WHERE id = $1
+    WHERE id = $1;
 `;
 
 export const searchUserProfileQuery = `
     SELECT * FROM user_profile_details
-    WHERE id = $1
+    WHERE id = $1;
 `;
 

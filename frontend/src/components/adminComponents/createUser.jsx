@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export default function CreateUser() { 
 
@@ -6,11 +6,72 @@ export default function CreateUser() {
   const [error, setError] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newUser, setNewUser] = useState({
-    username: '',
-    email: '',
+    username : '',
+    email:'',
     password: '',
-    role: 'UserAdmin'
+    confirmPassword: '',
+    role : '',
+    user_profile_id:''
   });
+
+
+  const [roles, setRoles] = useState([]);
+  const [profiles, setProfiles] = useState([]);
+
+      useEffect(() => {
+        const fetchRoles = async () => {
+          try {
+            const response = await fetch('http://localhost:3000/api/login/roles');
+            if (!response.ok) {
+              throw new Error('Failed to fetch roles');
+            }
+            const data = await response.json();
+            console.log(data);
+            setRoles(data.roles || []);
+        
+            if (data.roles && data.roles.length > 0) {
+              setNewUser(prev => ({
+                ...prev,
+                role: data.roles[0]
+              }));
+            }
+          } catch (error) {
+            console.error('Error fetching roles:', error);
+            setRoles([]);
+          }
+        };
+
+        const fetchProfiles = async () => {
+          try {
+            const response = await fetch("http://localhost:3000/api/userProfile", {
+              method: 'GET',
+              headers: { 'Content-Type': 'application/json' }
+            });
+        
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+            }
+        
+            const data = await response.json();
+            
+            setProfiles(data || []);
+        
+            if (data && data.length > 0) {
+              setNewUser(prev => ({
+                ...prev,
+                user_profile_id: data[0].id
+              }));
+            }
+          } catch (error) {
+            console.error('Error fetching profiles:', error);
+            setError(prev => ({ ...prev, profileError: error.message }));
+          }
+        };
+
+        fetchRoles();
+        fetchProfiles();
+      }, []);
 
 
   const handleInputChange = (e) => {  
@@ -18,6 +79,14 @@ export default function CreateUser() {
     setNewUser(prev => ({...prev, [name]: value}));
     if (error[name]) setError(prev => ({ ...prev, [name]: '' }));
   };
+
+  const handleChange = (e) => {
+    const { name, value} = e.target;
+    setNewUser(prev => ({
+        ...prev,
+        [name]:value
+    }))
+}
 
   const handleCreateUser = async(e) => {
     e.preventDefault();
@@ -47,7 +116,8 @@ export default function CreateUser() {
           username: newUser.username,
           email: newUser.email,
           password: newUser.password,
-          role: newUser.role
+          role: newUser.role,
+          user_profile_id: newUser.user_profile_id
         })
       });
 
@@ -61,11 +131,12 @@ export default function CreateUser() {
       
       setShowCreateModal(false);
       setNewUser({
-        username: '',
-        email: '',
-        role: 'UserAdmin',
+        useraccount : '',
+        email:'',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        role : '',
+        user_profile_id:''
       });
       setError({});
       
@@ -74,6 +145,14 @@ export default function CreateUser() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleProfileChange = (e) => {
+    const selectedId = e.target.value;
+    setNewUser(prev => ({
+      ...prev,
+      user_profile_id: selectedId
+    }));
   };
 
   return (
@@ -125,19 +204,21 @@ export default function CreateUser() {
                 {error.email && <span className="field-error">{error.email}</span>}
               </div>
 
-              <div className="form-group">
-                <label>Role</label>
-                <select
-                  name="role"
-                  value={newUser.role}
-                  onChange={handleInputChange}
-                >
-                  <option value="UserAdmin">UserAdmin</option>
-                  <option value="Cleaner">Cleaner</option>
-                  <option value="Homeowner">Homeowner</option>
-                  <option value="PlatformManager">PlatformManager</option>
-                </select>
-              </div>
+          <div className="form-group">
+          <label>Account Type</label>
+          <select
+            name="role"
+            value={newUser.role}
+            onChange={handleChange}
+            required
+          >
+            {roles.map(role => (
+              <option key={role} value={role}>
+                {role.replace(/([A-Z])/g, ' $1').trim()}
+              </option>
+            ))}
+          </select>
+        </div>
 
               <div className="form-group">
                 <label>Password</label>
@@ -163,6 +244,22 @@ export default function CreateUser() {
                 {error.confirmPassword && (
                   <span className="field-error">{error.confirmPassword}</span>
                 )}
+              </div>
+
+              <div className="form-actions">
+                <label>Profile</label>
+                <select
+                  name="user_profile_id"
+                  value={newUser.user_profile_id}
+                  onChange={handleProfileChange}
+                  required
+                >
+                  {profiles.map(profiles => (
+                    <option key={profiles.id} value={profiles.id}>
+                      {profiles.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="form-actions">

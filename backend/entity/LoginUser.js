@@ -3,32 +3,31 @@ import { query } from "../utils/connectToDB.js";
 import { loginQuery } from "../utils/sqlQuery.js";
 
 export class LoginUser {
-  constructor({ userAccount, password, accountType }) {
-    this.userAccount = userAccount;
+  constructor({ username, password, role }) {
+    this.username = username;
     this.password = password;
-    this.accountType = accountType;
+    this.role = role;
   }
 
   isValid() {
     return (
-      this.userAccount &&
-      typeof this.userAccount === 'string' &&
-      this.password &&
-      typeof this.password === 'string' &&
-      this.accountType &&
-      typeof this.accountType === 'string'
+      this.username &&
+      typeof this.username === 'string' &&
+      this.role &&
+      typeof this.role === 'string'
     );
   }
 
   async authenticate() {
 
-    if (!this.isValid){
-      return false;
-    } else {
+    console.log('Authenticating with:', {
+      username: this.username,
+      role: this.role
+    });
+
       const { rows } = await query(loginQuery, [
-        this.userAccount,
-        this.password,
-        this.accountType,
+        this.username,
+        this.role
       ]);
 
       if (rows.length === 0) {
@@ -39,6 +38,5 @@ export class LoginUser {
 
       const match = await bcrypt.compare(this.password, hashedPassword);
       return match
-    }
   }
 }

@@ -12,6 +12,10 @@ export default function AdminPage() {
     navigate('/login', { replace: true });
 };
 
+  const userProfilePage = () => {
+     navigate('/userProfile', {replace: true});
+  }
+
 
   return (
     <div className="admin-page">
@@ -26,6 +30,14 @@ export default function AdminPage() {
       </div>
 
       <Create />
+      <div>
+        <button
+          onClick={userProfilePage}
+          className="create-button"
+        >
+          View ProfileType
+        </button>
+      </div>
 
       <Search />
     </div>

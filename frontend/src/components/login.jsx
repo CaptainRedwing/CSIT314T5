@@ -8,9 +8,9 @@ export default function login() {
 
     const [formData, setFormData] = useState({
 
-        useraccount : '',
+        username : '',
         password: '',
-        accountType : ''
+        role : ''
     });
 
     const [error, setError] = useState('');
@@ -31,7 +31,7 @@ export default function login() {
           if (data.roles && data.roles.length > 0) {
             setFormData(prev => ({
               ...prev,
-              accountType: data.roles[0]
+              role: data.roles[0]
             }));
           }
         } catch (error) {
@@ -62,9 +62,9 @@ export default function login() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            userAccount: formData.useraccount,
+            username: formData.username,
             password: formData.password,
-            accountType: formData.accountType
+            role: formData.role
           })
         });
     
@@ -76,7 +76,7 @@ export default function login() {
         } else {
           localStorage.setItem('isAuthenticated', 'true');
           
-          switch(formData.accountType) {
+          switch(formData.role) {
             case 'UserAdmin':
               navigate('/adminPage');
               break;
@@ -84,10 +84,10 @@ export default function login() {
               navigate('/cleanerPage');
               break;
             case 'Homeowner':
-              navigate(`/homeowner/${formData.useraccount}`);
+              navigate(`/homeowner/${formData.username}`);
               break;
             case 'PlatformManager':
-              navigate(`/platform-manager/${formData.useraccount}`);
+              navigate(`/platform-manager/${formData.username}`);
               break;
             default:
               navigate('/');
@@ -113,8 +113,8 @@ export default function login() {
         <div className="form-group">
           <label>Account Type</label>
           <select
-            name="accountType"
-            value={formData.accountType}
+            name="role"
+            value={formData.role}
             onChange={handleChange}
             required
           >
@@ -127,12 +127,12 @@ export default function login() {
         </div>
   
           <div className="form-row">
-            <label htmlFor="useraccount">User Account: </label>
+            <label htmlFor="username">User Account: </label>
             <input 
               type="text" 
-              id="useraccount" 
-              name="useraccount"
-              value={formData.useraccount}
+              id="username" 
+              name="username"
+              value={formData.username}
               onChange={handleChange}
               required
             />
