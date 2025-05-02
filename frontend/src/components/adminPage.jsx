@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Create from "./adminComponents/createUser";
 import Search from "./adminComponents/searchUser";
+import UserProfile from "./adminComponents/userProfile";
+import CreateUserProfile from "./adminComponents/createUserProfile";
 import { useNavigate } from "react-router-dom";
 
 export default function AdminPage() {
@@ -11,10 +13,6 @@ export default function AdminPage() {
     localStorage.removeItem('currentUser');
     navigate('/login', { replace: true });
 };
-
-  const userProfilePage = () => {
-     navigate('/userProfile', {replace: true});
-  }
 
 
   return (
@@ -29,17 +27,16 @@ export default function AdminPage() {
         </button>
       </div>
 
+      <div className="side-by-side">
       <Create />
-      <div>
-        <button
-          onClick={userProfilePage}
-          className="create-button"
-        >
-          View ProfileType
-        </button>
+      <CreateUserProfile/>
       </div>
 
+      <div className="side-by-side">
       <Search />
+      <UserProfile />
+      </div>
+
     </div>
   );
 }

@@ -105,6 +105,8 @@ export default function SearchUser() {
 
   return (
     <div className="search-container">
+      <h2>User Accounts</h2>
+      
       <div className="search-controls">
       <form onSubmit={handleSearch}>
           <div className="search-options">
@@ -114,7 +116,7 @@ export default function SearchUser() {
               className="search-select"
             >
               <option value="username">Username</option>
-              <option value="role">Role</option>
+              <option value="role">User Profile</option>
             </select>
             
             <input

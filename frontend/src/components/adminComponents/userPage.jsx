@@ -140,7 +140,8 @@ export default function UserPage() {
     );
 
     return (
-<div className="user-page-container">
+
+        <div className="user-page-container">
             <h1>User Details</h1>
             
             <div className="user-info">

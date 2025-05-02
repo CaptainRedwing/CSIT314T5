@@ -7,12 +7,15 @@ export default function UserProfile() {
     const [error, setError] = useState('');
     const [userProfile, setUserProfile] = useState([]);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
+    const [showViewModal, setShowViewModal] = useState(false);
     const [currentProfileId, setCurrentProfileId] = useState(null);
     const [updateUser, setUpdateUser] = useState({
         name: '',
         description: '',
         is_active: true
     });
+    const [searchTerm, setSearchTerm] = useState('');
+    const [viewUser, setViewUser] = useState(null);
 
     const navigate = useNavigate();
 
@@ -22,15 +25,16 @@ export default function UserProfile() {
 
     const handleCloseModal = () => {
         setShowUpdateModal(false);
+        setShowViewModal(false);
         setError('');
         setCurrentProfileId(null);
     };
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
+        const { name, value, type, checked } = e.target;
         setUpdateUser(prev => ({
             ...prev,
-            [name]: value
+            [name]: type === 'checkbox' ? checked : value
         }));
     };
 
@@ -39,19 +43,18 @@ export default function UserProfile() {
         setError('');
 
         try {
-            const response = await fetch("http://localhost:3000/api/userProfile");
+            const url = searchTerm 
+                ? `http://localhost:3000/api/userProfile/search?name=${encodeURIComponent(searchTerm)}`
+                : "http://localhost:3000/api/userProfile";
+            
+            const response = await fetch(url);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const data = await response.json();
-            
-            if (!Array.isArray(data)) {
-                throw new Error("Expected array but got: " + typeof data);
-            }
-            
-            setUserProfile(data);
+            setUserProfile(Array.isArray(data) ? data : []);
         } catch (error) {
             setError(error.message);
             console.error('Fetch error:', error);
@@ -87,14 +90,22 @@ export default function UserProfile() {
         }
     };
 
-    const handleOpenUpdateModal = (profile) => {
-        setCurrentProfileId(profile.id);
-        setUpdateUser({
-            name: profile.name,
-            description: profile.description,
-            is_active: profile.is_active
-        });
-        setShowUpdateModal(true);
+    const handleViewProfile = async (profileId) => {
+        setIsLoading(true);
+        try {
+            const response = await fetch(`http://localhost:3000/api/userProfile/${profileId}`);
+            
+            if (!response.ok) {
+                throw new Error('Failed to fetch user profile');
+            }
+            const userData = await response.json();
+            setViewUser(userData);
+            setShowViewModal(true);
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -103,7 +114,6 @@ export default function UserProfile() {
         setError('');
 
         try {
-
             const profileTypeExists = userProfile.some(
                 profile => 
                     profile.id !== currentProfileId &&
@@ -130,6 +140,7 @@ export default function UserProfile() {
             
             handleView();
             setShowUpdateModal(false);
+            setShowViewModal(false);
             alert('Profile updated successfully');
             
         } catch (err) {
@@ -139,49 +150,72 @@ export default function UserProfile() {
         }
     };
 
+    const handleSearch = async (e) => {
+        e.preventDefault();
+        handleView();
+    };
 
     if (isLoading) return <div className="loading">Loading profiles...</div>;
     if (error) return <div className="error">Error: {error}</div>;
-    
-    const profilesToRender = Array.isArray(userProfile) ? userProfile : [];
 
     return (
         <div className="search-container">
+            <h2>User Profiles</h2>
+            
+            <div className="search-controls">
+                <form onSubmit={handleSearch} className="search-form">
+                    <div className="search-options">
+                        Profile Type:
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Search by profile name..."
+                            className="search-input"
+                            style={{ marginLeft: '10px' }}
+                        />
+                    </div>
+                    
+                    <div className="search-buttons">
+                        <button type="submit" disabled={isLoading} className="search-button">
+                            {isLoading ? 'Searching...' : 'Search'}
+                        </button>
+                        
+                        <button 
+                            type="button" 
+                            onClick={handleView}
+                            disabled={isLoading}
+                            className="refresh-button"
+                        >
+                            {isLoading ? 'Refreshing...' : 'Refresh'}
+                        </button>
+                    </div>
+                </form>
+            </div>
+
             <CreateProfile onProfileCreated={handleView} />
 
-            <button 
-              type="button" 
-              onClick={handleView}
-              disabled={isLoading}
-              className="view-button"
-            >
-              {isLoading ? 'Refreshing...' : 'Refresh'}
-            </button>
-
             <div className="profile-list">
-                {profilesToRender.map((profile) => (
-                    <div key={profile.id} className="profile-card">
-                        <table className="user-table">
-                            <thead>
-                                <tr>
-                                    <th colSpan="2">Profile Type: {profile.name}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Status</td>
-                                    <td>Description</td>
-                                    <td>Actions</td>
-                                </tr>
-                                <tr>
+                <table className="user-table">
+                    <thead>
+                        <tr>
+                            <th>Profile Type</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {userProfile.length > 0 ? (
+                            userProfile.map((profile) => (
+                                <tr key={profile.id} className="profile-card">
+                                    <td>{profile.name}</td>
                                     <td>{profile.is_active ? 'Active' : 'Inactive'}</td>
-                                    <td>{profile.description}</td>
-                                    <td colSpan="2" className="actions">
+                                    <td className="actions">
                                         <button
-                                            className="update-button"
-                                            onClick={() => handleOpenUpdateModal(profile)}
+                                            className="view-button"
+                                            onClick={() => handleViewProfile(profile.id)}
                                         >
-                                            Update
+                                            View
                                         </button>
                                         <button
                                             className="suspend"
@@ -191,18 +225,68 @@ export default function UserProfile() {
                                         </button>
                                     </td>
                                 </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                ))}
+                            ))
+                        ) : (
+                            <tr>
+                                <td colSpan="3" className="no-profiles">No profiles found</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
             </div>
 
-            <button className="back-button" onClick={handleLogout}>
-                Go Back
-            </button>
-
-            {profilesToRender.length === 0 && !isLoading && (
-                <div className="no-profiles">No profiles available</div>
+            {/* View Profile Modal */}
+            {showViewModal && viewUser && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h1>Profile Details</h1>
+                            <button className="close-button" onClick={handleCloseModal}>
+                                &times;
+                            </button>
+                        </div>
+                        
+                        <div className="user-info">
+                            <div className="detail-row">
+                            <p><strong>Name:</strong>
+                                {viewUser.name}</p>
+                            </div>
+                            <div className="detail-row">
+                            <p><strong>Description:</strong>
+                                {viewUser.description}</p>
+                            </div>
+                            <div className="detail-row">
+                            <p><strong>Status:</strong>
+                                {viewUser.is_active ? 'Active' : 'Inactive'}</p>
+                            </div>
+                        </div>
+                        
+                        <div className="form-actions">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setUpdateUser({
+                                        name: viewUser.name,
+                                        description: viewUser.description
+                                    });
+                                    setCurrentProfileId(viewUser.id);
+                                    setShowViewModal(false);
+                                    setShowUpdateModal(true);
+                                }}
+                                className="update-button"
+                            >
+                                Update
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleCloseModal}
+                                className="cancel-button"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
 
             {showUpdateModal && (
@@ -245,12 +329,14 @@ export default function UserProfile() {
                                     type="button"
                                     onClick={handleCloseModal}
                                     disabled={isLoading}
+                                    className="cancel-button"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={isLoading}
+                                    className="submit-button"
                                 >
                                     {isLoading ? 'Updating...' : 'Update Profile'}
                                 </button>

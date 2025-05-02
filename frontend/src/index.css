@@ -472,6 +472,31 @@ form {
     max-width: 100%;
   }
 }
+.modal-overlay{
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.modal-overlay h1{
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 0.5rem;
+}
+
+.profile-content{
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
 
 .user-page-container {
   max-width: 800px;
@@ -483,7 +508,6 @@ form {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Header styling */
 .user-page-container h1 {
   color: #2c3e50;
   text-align: center;
@@ -493,7 +517,6 @@ form {
   padding-bottom: 0.5rem;
 }
 
-/* User info styling */
 .user-info {
   background-color: #f8f9fa;
   padding: 1.5rem;
@@ -752,3 +775,10 @@ form {
   color: red;
   margin-bottom: 15px;
 }
+
+.side-by-side {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
