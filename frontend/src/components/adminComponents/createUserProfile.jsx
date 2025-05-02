@@ -7,7 +7,6 @@ export default function CreateUser() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newUser, setNewUser] = useState({
     name : '',
-    profile_type:'',
     description:'',
     is_active: true
   });
@@ -56,15 +55,14 @@ export default function CreateUser() {
 
     const newError = {};
     if (!newUser.name) newError.name = 'Name is required';
-    if (!newUser.profile_type) newError.profile_type = 'Profile Type is required';
     if (!newUser.description) newError.description = 'Description is required';
     
     const profileTypeExists = userProfile.some(
-        profile => profile.profile_type.toLowerCase() === newUser.profile_type.toLowerCase()
+        profile => profile.name.toLowerCase() === newUser.name.toLowerCase()
       );
   
       if (profileTypeExists) {
-        setError({form: `Profile type "${newUser.profile_type}" already exists`});
+        setError({form: `Profile type "${newUser.name}" already exists`});
         return;
       }
 
@@ -100,7 +98,6 @@ export default function CreateUser() {
       setShowCreateModal(false);
       setNewUser({
         name : '',
-        profile_type:'',
         description:'',
         is_active: true
       });
@@ -151,17 +148,6 @@ export default function CreateUser() {
                 {error.username && <span className="field-error">{error.name}</span>}
               </div>
 
-              <div className="form-group">
-                <label>Profile Type</label>
-                <input
-                  type="profile_type"
-                  name="profile_type"
-                  value={newUser.profile_type}
-                  onChange={handleInputChange}
-                  className={error.profile_type ? 'error' : ''}
-                />
-                {error.email && <span className="field-error">{error.profile_type}</span>}
-              </div>
               <div className="form-group">
                 <label>Description</label>
                 <textarea

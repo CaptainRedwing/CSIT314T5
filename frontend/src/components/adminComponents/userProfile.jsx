@@ -9,7 +9,6 @@ export default function UserProfile() {
     const [currentProfileId, setCurrentProfileId] = useState(null);
     const [updateUser, setUpdateUser] = useState({
         name: '',
-        profile_type: '',
         description: '',
         is_active: true
     });
@@ -85,7 +84,6 @@ export default function UserProfile() {
         setCurrentProfileId(profile.id);
         setUpdateUser({
             name: profile.name,
-            profile_type: profile.profile_type,
             description: profile.description,
             is_active: profile.is_active
         });
@@ -102,11 +100,11 @@ export default function UserProfile() {
             const profileTypeExists = userProfile.some(
                 profile => 
                     profile.id !== currentProfileId &&
-                    profile.profile_type.toLowerCase() === updateUser.profile_type.toLowerCase()
+                    profile.name.toLowerCase() === updateUser.name.toLowerCase()
             );
     
             if (profileTypeExists) {
-                alert(`Profile type "${updateUser.profile_type}" already exists`);
+                alert(`Profile type "${updateUser.name}" already exists`);
                 return;
             }
 
@@ -159,18 +157,16 @@ export default function UserProfile() {
                         <table className="user-table">
                             <thead>
                                 <tr>
-                                    <th colSpan="2">Profile Type: {profile.profile_type}</th>
+                                    <th colSpan="2">Profile Type: {profile.name}</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>Name</td>
                                     <td>Status</td>
                                     <td>Description</td>
                                     <td>Actions</td>
                                 </tr>
                                 <tr>
-                                    <td>{profile.name}</td>
                                     <td>{profile.is_active ? 'Active' : 'Inactive'}</td>
                                     <td>{profile.description}</td>
                                     <td colSpan="2" className="actions">
@@ -215,17 +211,6 @@ export default function UserProfile() {
                                     type="text"
                                     name="name"
                                     value={updateUser.name}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </div>
-                            
-                            <div className="form-group">
-                                <label>Profile Type:</label>
-                                <input
-                                    type="text"
-                                    name="profile_type"
-                                    value={updateUser.profile_type}
                                     onChange={handleInputChange}
                                     required
                                 />

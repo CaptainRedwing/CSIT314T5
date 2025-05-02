@@ -20,7 +20,7 @@ export const createUserAccountTableQuery = `
         email VARCHAR(50) NOT NULL UNIQUE,
         password VARCHAR(200) NOT NULL,
         role role_type NOT NULL DEFAULT 'Pending',
-        user_profile_id INT REFERENCES user_profile_details(id) ON DELETE SET NULL;
+        user_profile_id INT REFERENCES user_profile_details(id) ON DELETE SET NULL
     );
 `;
 
@@ -70,7 +70,7 @@ export const createUserProfileTableQuery = `
         id SERIAL PRIMARY KEY,
         name role_type NOT NULL DEFAULT 'Pending',
         description VARCHAR(100) NOT NULL,
-        is_active BOOLEAN;
+        is_active BOOLEAN
     );
 `;
 
