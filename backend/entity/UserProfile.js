@@ -10,23 +10,21 @@ import {
 } from "../utils/sqlQuery.js";
 
 export class UserProfile{
-    constructor({id, name, profile_type, description, is_active}){
+    constructor({id, name, description, is_active}){
         this.id = id;
         this.name = name;
-        this.profile_type = profile_type;
         this.description = description;
         this.is_active = is_active;
     }
 
     isValid(){
-        return this.name && this.profile_type && this.description && this.is_active;
+        return this.name && this.description && this.is_active;
     }
     
     static fromDB(row){
         return new UserProfile({
             id : row.id,
             name : row.name,
-            profile_type : row.profile_type,
             description : row.description,
             is_active : row.is_active
         });
@@ -35,7 +33,6 @@ export class UserProfile{
     async createUserProfile(){
         const {rows} = await query(createUserProfileQuery, [
             this.name,
-            this.profile_type,
             this.description,
             this.is_active
         ]);
@@ -54,10 +51,9 @@ export class UserProfile{
         return rows.map(UserProfile.fromDB);
     }
 
-    static async updateUserProfile(id, {name, profile_type, description, is_active}){
+    static async updateUserProfile(id, {name, description, is_active}){
         const {rowCount, rows} = await query(updateUserProfileQuery, [
             name,
-            profile_type,
             description,
             is_active,
             id
