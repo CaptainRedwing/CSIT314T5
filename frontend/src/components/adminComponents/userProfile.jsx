@@ -235,7 +235,6 @@ export default function UserProfile() {
                 </table>
             </div>
 
-            {/* View Profile Modal */}
             {showViewModal && viewUser && (
                 <div className="modal-overlay">
                     <div className="modal-content">

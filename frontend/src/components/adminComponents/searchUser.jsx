@@ -1,20 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-
 
 export default function SearchUser() { 
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const navigate = useNavigate();
   const [searchBy, setSearchBy] = useState('username');
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [updateData, setUpdateData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    role: ''
+  });
 
   useEffect(() => {
     fetchAllUsers();
   }, []);
 
-  
   const fetchAllUsers = async () => {
     setIsLoading(true);
     setError('');
@@ -74,41 +79,106 @@ export default function SearchUser() {
     }
   };
 
-  const handleViewUser = (userId) => {
-    navigate(`/userPage/${userId}`);
+  const handleViewUser = async (userId) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`http://localhost:3000/api/userAdmin/${userId}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch user details');
+      }
+      
+      const userData = await response.json();
+      setSelectedUser(userData);
+      setShowUserModal(true);
+      
+      // Pre-fill update form
+      setUpdateData({
+        username: userData.username,
+        email: userData.email,
+        password: '',
+        role: userData.role
+      });
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSuspendUser = async (userId) => {
-  
+    if (!window.confirm('Are you sure you want to suspend this user?')) return;
+    
     try {
       const response = await fetch(`http://localhost:3000/api/userAdmin/${userId}`, { 
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' }
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to suspend user');
       }
-  
+
       await fetchAllUsers();
-      
       alert('User suspended successfully');
-      
     } catch (error) {
       setError(error.message);
       console.error('Suspend user error:', error);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowUserModal(false);
+    setShowUpdateModal(false);
+    setError('');
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setUpdateData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleUpdateSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch(`http://localhost:3000/api/userAdmin/${selectedUser.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update user');
+      }
+      
+      const updatedUser = await response.json();
+      setSelectedUser(updatedUser);
+      setShowUpdateModal(false);
+      await fetchAllUsers();
+      alert('User updated successfully');
+    } catch (err) {
+      setError(err.message);
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="search-container">
       <h2>User Accounts</h2>
       
       <div className="search-controls">
-      <form onSubmit={handleSearch}>
+        <form onSubmit={handleSearch}>
           <div className="search-options">
             <select
               value={searchBy}
@@ -165,19 +235,140 @@ export default function SearchUser() {
                 <td>{user.role}</td>
                 <td>
                   <button 
-                  className="view-button"
-                  onClick={() => (handleViewUser(user.id))}
-                  >View</button>
+                    className="view-button"
+                    onClick={() => handleViewUser(user.id)}
+                  >
+                    View
+                  </button>
                   
                   <button 
-                  className="suspend"
-                  onClick={() => (handleSuspendUser(user.id))}
-                  >Suspend</button>
+                    className="suspend"
+                    onClick={() => handleSuspendUser(user.id)}
+                  >
+                    Suspend
+                  </button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      )}
+
+      {showUserModal && selectedUser && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2>User Details</h2>
+              <button className="close-button" onClick={handleCloseModal}>
+                &times;
+              </button>
+            </div>
+            
+            <div className="user-info">
+              <p><strong>Username:</strong> {selectedUser.username}</p>
+              <p><strong>Email:</strong> {selectedUser.email}</p>
+              <p><strong>Role:</strong> {selectedUser.role}</p>
+            </div>
+            
+            <div className="form-actions">
+              <button
+                type="button"
+                onClick={() => setShowUpdateModal(true)}
+                className="update-button"
+              >
+                Update
+              </button>
+              <button
+                type="button"
+                onClick={handleCloseModal}
+                className="cancel-button"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Update User Modal */}
+      {showUpdateModal && selectedUser && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2>Update User</h2>
+              <button className="close-button" onClick={handleCloseModal}>
+                &times;
+              </button>
+            </div>
+            
+            <form onSubmit={handleUpdateSubmit}>
+              <div className="form-group">
+                <label>Username:</label>
+                <input
+                  type="text"
+                  name="username"
+                  value={updateData.username}
+                  onChange={handleInputChange}
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>Email:</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={updateData.email}
+                  onChange={handleInputChange}
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>New Password (leave blank to keep current):</label>
+                <input
+                  type="password"
+                  name="password"
+                  value={updateData.password}
+                  onChange={handleInputChange}
+                  placeholder="Enter new password"
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>Role:</label>
+                <select
+                  name="role"
+                  value={updateData.role}
+                  onChange={handleInputChange}
+                >
+                  <option value="UserAdmin">UserAdmin</option>
+                  <option value="Cleaner">Cleaner</option>
+                  <option value="Homeowner">Homeowner</option>
+                  <option value="PlatformManager">Platform Manager</option>
+                </select>
+              </div>
+              
+              {error && <div className="error-message">{error}</div>}
+              
+              <div className="form-actions">
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  disabled={isLoading}
+                  className="cancel-button"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="submit-button"
+                >
+                  {isLoading ? 'Updating...' : 'Update User'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

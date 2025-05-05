@@ -20,18 +20,21 @@ export default function login() {
     useEffect(() => {
       const fetchRoles = async () => {
         try {
-          const response = await fetch('http://localhost:3000/api/login/roles');
+          const response = await fetch('http://localhost:3000/api/userProfile');
           if (!response.ok) {
             throw new Error('Failed to fetch roles');
           }
           const data = await response.json();
-          console.log(data);
-          setRoles(data.roles || []);
-      
-          if (data.roles && data.roles.length > 0) {
+          
+          // Option 1: Store just the role names
+          const roleNames = data.map(role => role.name);
+          setRoles(roleNames);
+          
+          // Set initial role if there are any roles
+          if (roleNames.length > 0) {
             setFormData(prev => ({
               ...prev,
-              role: data.roles[0]
+              role: roleNames[0]
             }));
           }
         } catch (error) {
@@ -71,7 +74,7 @@ export default function login() {
         const data = await response.json();
         const a = true
 
-        if (!a) {
+        if (!data) {
           throw new Error('Authentication failed')
         } else {
           localStorage.setItem('isAuthenticated', 'true');
@@ -118,9 +121,9 @@ export default function login() {
             onChange={handleChange}
             required
           >
-            {roles.map(role => (
-              <option key={role} value={role}>
-                {role.replace(/([A-Z])/g, ' $1').trim()}
+            {roles.map((roleName, index) => (
+              <option key={index} value={roleName}>
+                {roleName}
               </option>
             ))}
           </select>
