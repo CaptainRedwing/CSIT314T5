@@ -4,8 +4,8 @@ import { UserProfile } from "../entity/UserProfile.js";
 export class searchUserProfileController{
     static async searchUserProfile(req, res, next){
         try{
-            const id = req.params.id;
-            const userProfile = await UserProfile.searchUserProfile(id);
+            const name = req.params.name;
+            const userProfile = await UserProfile.searchUserProfile(name);
             if(!userProfile){
                 return next(createError(400, "User Profile Not Found"));
             }

@@ -13,6 +13,6 @@ router.post("/", createUserProfileController.createUserProfile);
 router.get("/", viewUserProfileController.viewUserProfile);
 router.put("/:id", updateUserProfileController.updateUserProfile);
 router.delete("/:id", suspendUserProfileController.suspendUserProfile);
-router.get("/:id", searchUserProfileController.searchUserProfile);
+router.get("/:name", searchUserProfileController.searchUserProfile);
 
 export default router;
