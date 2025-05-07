@@ -5,7 +5,7 @@ export class updateUserAccountController{
     static async updateUserAccount(req, res, next){
         try{
             const id = req.params.id;
-            const updateUser = await UserAccount.updateById(id, req.body);
+            const updateUser = await UserAccount.updateUserAccount(id, req.body);
             if(!updateUser){
                 return res.status(400).json({error: "User Not Found"});
             }

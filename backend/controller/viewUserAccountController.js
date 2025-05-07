@@ -4,7 +4,7 @@ import {UserAccount} from "../entity/UserAccount.js";
 export class viewUserAccountController{
     static async viewUserAccount(req, res, next){
         try{
-            const users = await UserAccount.findAll();
+            const users = await UserAccount.viewUserAccount();
             res.status(200).json(users);
         }catch(error){
             console.log(error.message);

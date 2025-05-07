@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import loginRoute from "../backend/routes/login.js";
 import userAdminRoute from "../backend/routes/userAdmin.js";
 import userProfileRoute from "../backend/routes/userProfile.js";
+import serviceCategoriesRoute from "../backend/routes/serviceCategories.js";
 
 dotenv.config();
 
@@ -25,6 +26,8 @@ app.use('/api/login', loginRoute);
 app.use('/api/userAdmin', userAdminRoute);
 
 app.use('/api/userProfile', userProfileRoute);
+
+app.use('/api/serviceCategories', serviceCategoriesRoute);
 
 
 

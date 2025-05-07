@@ -9,7 +9,7 @@ export class createUserAccountController{
             if(!user.isValid()){
                 return res.status(400).json({error:"Invalid user input"});
             }
-            const newUser = await user.save();
+            const newUser = await user.createUserAccount();
             res.status(201).json(newUser);
         }catch(error){
             console.log(error.message);

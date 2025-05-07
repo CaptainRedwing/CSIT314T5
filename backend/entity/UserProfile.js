@@ -75,9 +75,9 @@ export class UserProfile{
             id
         ]);
         if(rowCount == 0){
-            return null;
+            return false;
         }
-        return UserProfile.fromDB(rows[0]);
+        return true;
     }
 
     static async suspendUserProfile(id){

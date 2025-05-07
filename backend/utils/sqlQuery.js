@@ -76,7 +76,7 @@ export const createUserProfileTableQuery = `
 
 export const createUserProfileQuery = `
     INSERT INTO user_profile_details(name, description, is_active)
-    VALUES(COALESCE($1::role_type, 'Pending'::role_type), $2, $3) RETURNING *
+    VALUES(COALESEC($1::role_type, 'Pending'::role_type) $2, $3) RETURNING *
 `;
 
 export const viewUserProfileQuery = `
@@ -101,4 +101,42 @@ export const suspendUserProfileQuery = `
 export const searchUserProfileQuery = `
     SELECT * FROM user_profile_details
     WHERE name::VARCHAR IS NULL OR name = $1;
+`;
+
+
+// Service Categories CRUDS
+export const createServiceCategoriesTableQuery = `
+    CREATE TABLE IF NOT EXISTS service_categories_details(
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    description VARCHAR(100) NOT NULL
+    );
+`;
+
+export const createServiceCategoriesQuery = `
+    INSERT INTO service_categories_details(name, description)
+    VALUES($1, $2) RETURNING *;
+`;
+
+export const viewServiceCategoriesQuery = `
+    SELECT * FROM service_categories_details;
+`;
+
+export const updateServiceCategoriesQuery = `
+    UPDATE service_categories_details
+    SET
+    name = COALESCE($1, name),
+    description = COALESCE($2, name)
+    WHERE id = $3
+    RETURNING *;
+`;
+
+export const deleteServiceCategoriesQuery = `
+    DELETE FROM service_categories_details
+    WHERE id = $1;
+`;
+
+export const searchServiceCategoriesQuery = `
+    SELECT * FROM service_categories_details
+    WHERE id = $1;
 `;
