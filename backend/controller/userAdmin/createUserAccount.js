@@ -1,5 +1,5 @@
-import { createError } from "../utils/error.js";
-import {UserAccount} from "../entity/UserAccount.js";
+import { createError } from "../../utils/error.js";
+import {UserAccount} from "../../entity/UserAccount.js";
 
 export class createUserAccountController{
     static async createUserAccount(req, res, next){

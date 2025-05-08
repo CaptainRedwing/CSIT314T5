@@ -1,5 +1,5 @@
-import { createError } from "../utils/error.js";
-import { UserProfile } from "../entity/UserProfile.js";
+import { createError } from "../../utils/error.js";
+import { UserProfile } from "../../entity/UserProfile.js";
 
 export class suspendUserProfileController{
     static async suspendUserProfile(req, res, next){

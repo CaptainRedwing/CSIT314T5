@@ -1,5 +1,5 @@
-import { createError } from "../utils/error.js";
-import {ServiceCategories} from "../entity/ServiceCategories.js";
+import { createError } from "../../utils/error.js";
+import {ServiceCategories} from "../../entity/ServiceCategories.js";
 
 export class createServiceCategoriesController{
     static async createServiceCategories(req, res, next){

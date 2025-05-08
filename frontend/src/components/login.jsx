@@ -72,9 +72,9 @@ export default function login() {
         });
     
         const data = await response.json();
-        const a = true
+        console.log(data)
 
-        if (!data) {
+        if (data.success === false) {
           throw new Error('Authentication failed')
         } else {
           localStorage.setItem('isAuthenticated', 'true');
@@ -90,7 +90,7 @@ export default function login() {
               navigate(`/homeowner/${formData.username}`);
               break;
             case 'PlatformManager':
-              navigate(`/platform-manager/${formData.username}`);
+              navigate(`/platformManagerPage`);
               break;
             default:
               navigate('/');

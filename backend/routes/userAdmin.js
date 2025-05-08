@@ -1,10 +1,10 @@
 import express from "express";
-import { createUserAccountController } from "../controller/createUserAccount.js";
-import { viewUserAccountController } from "../controller/viewUserAccountController.js";
-import { viewAccountByUserNameRoleController } from "../controller/viewAccountByUserNameRoleController.js";
-import { findSpecificUserAccountController } from "../controller/findSpecificUserAccountController.js";
-import { suspendUserAccountController } from "../controller/suspendUserAccountController.js";
-import { updateUserAccountController } from "../controller/updateUserAccountController.js";
+import { createUserAccountController } from "../controller/userAdmin/createUserAccount.js";
+import { viewUserAccountController } from "../controller/userAdmin/viewUserAccountController.js";
+import { viewAccountByUserNameRoleController } from "../controller/userAdmin/viewAccountByUserNameRoleController.js";
+import { findSpecificUserAccountController } from "../controller/userAdmin/findSpecificUserAccountController.js";
+import { suspendUserAccountController } from "../controller/userAdmin/suspendUserAccountController.js";
+import { updateUserAccountController } from "../controller/userAdmin/updateUserAccountController.js";
 
 
 

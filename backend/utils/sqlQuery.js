@@ -20,7 +20,7 @@ export const createUserAccountTableQuery = `
         email VARCHAR(50) NOT NULL UNIQUE,
         password VARCHAR(200) NOT NULL,
         role role_type NOT NULL DEFAULT 'Pending',
-        user_profile_id INT REFERENCES user_profile_details(id) ON DELETE SET NULL;
+        user_profile_id INT REFERENCES user_profile_details(id) ON DELETE SET NULL
     );
 `;
 
@@ -76,7 +76,7 @@ export const createUserProfileTableQuery = `
 
 export const createUserProfileQuery = `
     INSERT INTO user_profile_details(name, description, is_active)
-    VALUES(COALESEC($1::role_type, 'Pending'::role_type) $2, $3) RETURNING *
+    VALUES(COALESCE($1::role_type, 'Pending'::role_type), $2, $3) RETURNING *
 `;
 
 export const viewUserProfileQuery = `
@@ -100,7 +100,7 @@ export const suspendUserProfileQuery = `
 
 export const searchUserProfileQuery = `
     SELECT * FROM user_profile_details
-    WHERE name::VARCHAR IS NULL OR name = $1;
+    WHERE id = $1;
 `;
 
 

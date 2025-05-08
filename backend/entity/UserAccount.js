@@ -43,7 +43,7 @@ export class UserAccount{
     }
 
 
-    async save(){
+    async createUserAccount(){
         await this.hashPassword();
         const {rows} = await query(createUserAccountQuery, [
             this.username,
@@ -55,7 +55,7 @@ export class UserAccount{
         return UserAccount.fromDB(rows[0]);
     }
 
-    static async findAll(){
+    static async viewUserAccount(){
         const response = await query(`
            SELECT to_regclass('user_account_details'); 
         `);
@@ -107,4 +107,5 @@ export class UserAccount{
         const match = await bcrypt.compare(enteredPassword, storedHash);
         return match;
     }
+
 }

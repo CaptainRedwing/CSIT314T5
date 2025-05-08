@@ -1,9 +1,9 @@
 import express from "express";
-import { createServiceCategoriesController } from "../controller/createServiceCategoriesController.js";
-import { viewServiceCategoriesController } from "../controller/viewServiceCategoriesController.js";
-import { updateServiceCategoriesController } from "../controller/updateServiceCategoriesController.js";
-import { deleteServiceCategoriesController } from "../controller/deleteServiceCategoriesController.js";
-import { searchServiceCategoriesController } from "../controller/searchServiceCategoriesController.js";
+import { createServiceCategoriesController } from "../controller/serviceCategories/createServiceCategoriesController.js";
+import { viewServiceCategoriesController } from "../controller/serviceCategories/viewServiceCategoriesController.js";
+import { updateServiceCategoriesController } from "../controller/serviceCategories/updateServiceCategoriesController.js";
+import { deleteServiceCategoriesController } from "../controller/serviceCategories/deleteServiceCategoriesController.js";
+import { searchServiceCategoriesController } from "../controller/serviceCategories/searchServiceCategoriesController.js";
 
 
 const router = express.Router();

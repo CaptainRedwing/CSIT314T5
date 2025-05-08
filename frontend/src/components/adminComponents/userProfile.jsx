@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import CreateProfile from "./createUserProfile";
-import { useNavigate } from 'react-router-dom';
+
 
 export default function UserProfile() {
     const [isLoading, setIsLoading] = useState(false);
@@ -12,16 +11,9 @@ export default function UserProfile() {
     const [updateUser, setUpdateUser] = useState({
         name: '',
         description: '',
-        is_active: true
     });
     const [searchTerm, setSearchTerm] = useState('');
     const [viewUser, setViewUser] = useState(null);
-
-    const navigate = useNavigate();
-
-    const handleLogout = () => {
-        navigate('/adminPage', { replace: true });
-    };
 
     const handleCloseModal = () => {
         setShowUpdateModal(false);
@@ -82,7 +74,13 @@ export default function UserProfile() {
                 throw new Error(errorData.message || 'Failed to suspend User Profile');
             }
 
-            alert('User Profile suspended successfully');
+
+            const status = await response.json();
+
+            if (status) {
+                alert("Successfully Active/Inactive User Profile")
+            }
+            
             handleView();
         } catch (error) {
             setError(error.message);
@@ -119,6 +117,7 @@ export default function UserProfile() {
                     profile.id !== currentProfileId &&
                     profile.name.toLowerCase() === updateUser.name.toLowerCase()
             );
+            console.log(updateUser)
     
             if (profileTypeExists) {
                 alert(`Profile type "${updateUser.name}" already exists`);
@@ -193,8 +192,6 @@ export default function UserProfile() {
                 </form>
             </div>
 
-            <CreateProfile onProfileCreated={handleView} />
-
             <div className="profile-list">
                 <table className="user-table">
                     <thead>
@@ -221,7 +218,7 @@ export default function UserProfile() {
                                             className="suspend"
                                             onClick={() => handleSuspendUserProfile(profile.id)}
                                         >
-                                            Suspend
+                                            {profile.is_active ? 'Suspend' : 'Activate'}
                                         </button>
                                     </td>
                                 </tr>

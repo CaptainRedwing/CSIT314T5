@@ -19,27 +19,6 @@ export default function CreateUser() {
   const [profiles, setProfiles] = useState([]);
 
       useEffect(() => {
-        const fetchRoles = async () => {
-          try {
-            const response = await fetch('http://localhost:3000/api/login/roles');
-            if (!response.ok) {
-              throw new Error('Failed to fetch roles');
-            }
-            const data = await response.json();
-            console.log(data);
-            setRoles(data.roles || []);
-        
-            if (data.roles && data.roles.length > 0) {
-              setNewUser(prev => ({
-                ...prev,
-                role: data.roles[0]
-              }));
-            }
-          } catch (error) {
-            console.error('Error fetching roles:', error);
-            setRoles([]);
-          }
-        };
 
         const fetchProfiles = async () => {
           try {
@@ -55,7 +34,9 @@ export default function CreateUser() {
         
             const data = await response.json();
             
-            setProfiles(data || []);
+            setProfiles(data);
+            console.log(data)
+            console.log(profiles)
         
             if (data && data.length > 0) {
               setNewUser(prev => ({
@@ -69,7 +50,6 @@ export default function CreateUser() {
           }
         };
 
-        fetchRoles();
         fetchProfiles();
       }, []);
 
@@ -105,6 +85,12 @@ export default function CreateUser() {
     }
 
     setIsLoading(true);
+    console.log(newUser.username)
+    console.log(newUser.email)
+    console.log(newUser.password)
+    console.log(newUser.role)
+    console.log(newUser.user_profile_id)
+
 
     try {
       const response = await fetch('http://localhost:3000/api/userAdmin', {
@@ -148,10 +134,16 @@ export default function CreateUser() {
   };
 
   const handleProfileChange = (e) => {
+
+
     const selectedId = e.target.value;
+    
+    const selectedProfile = profiles.find(profile => profile.id == selectedId);
+
     setNewUser(prev => ({
       ...prev,
-      user_profile_id: selectedId
+      user_profile_id: selectedId,
+      role: selectedProfile.name
     }));
   };
 
@@ -207,16 +199,16 @@ export default function CreateUser() {
           <div className="form-group">
           <label>Account Type</label>
           <select
-            name="role"
-            value={newUser.role}
-            onChange={handleChange}
+            name="user_profile_id"
+            value={newUser.user_profile_id}
+            onChange={handleProfileChange}
             required
           >
-            {roles.map(role => (
-              <option key={role} value={role}>
-                {role.replace(/([A-Z])/g, ' $1').trim()}
-              </option>
-            ))}
+            {profiles.map(profiles => (
+                <option key={profiles.id} value={profiles.id}>
+                    {profiles.name}
+                </option>
+                  ))}
           </select>
         </div>
 
@@ -244,22 +236,6 @@ export default function CreateUser() {
                 {error.confirmPassword && (
                   <span className="field-error">{error.confirmPassword}</span>
                 )}
-              </div>
-
-              <div className="form-actions">
-                <label>Profile</label>
-                <select
-                  name="user_profile_id"
-                  value={newUser.user_profile_id}
-                  onChange={handleProfileChange}
-                  required
-                >
-                  {profiles.map(profiles => (
-                    <option key={profiles.id} value={profiles.id}>
-                      {profiles.name}
-                    </option>
-                  ))}
-                </select>
               </div>
 
               <div className="form-actions">

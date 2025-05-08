@@ -1,7 +1,7 @@
-import { query } from "../utils/connectToDB.js";
-import { loginQuery, getAllrole } from "../utils/sqlQuery.js";
-import { createError } from "../utils/error.js";
-import { LoginUser } from "../entity/LoginUser.js";
+import { query } from "../../utils/connectToDB.js";
+import { loginQuery, getAllrole } from "../../utils/sqlQuery.js";
+import { createError } from "../../utils/error.js";
+import { LoginUser } from "../../entity/LoginUser.js";
 
 export class LoginController {
   

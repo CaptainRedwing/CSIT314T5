@@ -1,9 +1,9 @@
 import express from "express";
-import { createUserProfileController } from "../controller/createUserProfileController.js";
-import { viewUserProfileController } from "../controller/viewUserProfile.js";
-import { updateUserProfileController } from "../controller/updateUserProfileController.js";
-import { suspendUserProfileController } from "../controller/suspendUserProfileController.js";
-import { searchUserProfileController } from "../controller/searchUserProfileController.js";
+import { createUserProfileController } from "../controller/userAdmin/createUserProfileController.js";
+import { viewUserProfileController } from "../controller/userAdmin/viewUserProfile.js";
+import { updateUserProfileController } from "../controller/userAdmin/updateUserProfileController.js";
+import { suspendUserProfileController } from "../controller/userAdmin/suspendUserProfileController.js";
+import { searchUserProfileController } from "../controller/userAdmin/searchUserProfileController.js";
 
 
 const router = express.Router();
