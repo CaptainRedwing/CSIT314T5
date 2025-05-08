@@ -84,6 +84,7 @@ export class UserAccount{
     }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     static async updateUserAccount(id, { username, email, password, profile_id, is_active }) {
         let hashedPassword = null;
     
@@ -100,6 +101,8 @@ export class UserAccount{
         }
         const { rowCount, rows } = await query(updateUserAccountQuery, [
 =======
+=======
+>>>>>>> Stashed changes
     static async updateUserAccount(id, {username, email, password, role, user_profile_id}){
         const {rowCount, rows} = await query(updateUserAccountQuery, [
 >>>>>>> Stashed changes
