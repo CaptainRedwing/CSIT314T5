@@ -1,10 +1,10 @@
 import express from "express";
-import { createUserAccountController } from "../controller/userAdmin/createUserAccount.js";
-import { viewUserAccountController } from "../controller/userAdmin/viewUserAccountController.js";
-import { viewAccountByUserNameRoleController } from "../controller/userAdmin/viewAccountByUserNameRoleController.js";
-import { findSpecificUserAccountController } from "../controller/userAdmin/findSpecificUserAccountController.js";
-import { suspendUserAccountController } from "../controller/userAdmin/suspendUserAccountController.js";
-import { updateUserAccountController } from "../controller/userAdmin/updateUserAccountController.js";
+import { createUserAccountController } from "../controller/userAccount/createUserAccountController.js";
+import { viewUserAccountController } from "../controller/userAccount/viewUserAccountController.js";
+import { viewAccountByUserNameRoleController } from "../controller/userAccount/viewAccountByUserNameRoleController.js";
+import { searchUserAccountController } from "../controller/userAccount/searchUserAccountController.js";
+import { suspendUserAccountController } from "../controller/userAccount/suspendUserAccountController.js";
+import { updateUserAccountController } from "../controller/userAccount/updateUserAccountController.js";
 
 
 
@@ -14,7 +14,7 @@ router.get("/search", viewAccountByUserNameRoleController.viewAccountByUserNameR
 router.get("/", viewUserAccountController.viewUserAccount);
 router.post("/", createUserAccountController.createUserAccount);
 router.put("/:id", updateUserAccountController.updateUserAccount);
-router.get("/:id", findSpecificUserAccountController.findSpecificUserAccount);
+router.get("/:id", searchUserAccountController.searchUserAccount);
 router.delete("/:id", suspendUserAccountController.suspendUserAccount);
 
 export default router;

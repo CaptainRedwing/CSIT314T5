@@ -10,7 +10,7 @@ export class suspendUserProfileController{
             if(!successs){
                 return next(createError(400, "User Profile Not Found"));
             }
-            res.status(200).json({message: "Deleted Successfully"});
+            res.status(200).json({message: "Suspended Successfully"});
         }catch(error){
             console.log(error.message);
             return next(createError(400, error.message));

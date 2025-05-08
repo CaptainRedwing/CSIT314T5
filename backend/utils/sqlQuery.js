@@ -1,7 +1,7 @@
 
-// User Admin CRUDS and Login
+// User Account CRUDS and Login
 export const createRoleQuery = `
-    CREATE TYPE role_type AS
+    CREATE TYPE profileType AS
     ENUM ('UserAdmin','Cleaner','Homeowner','PlatformManager', 'Pending');
 `;
 
@@ -19,20 +19,20 @@ export const createUserAccountTableQuery = `
         username VARCHAR(50) NOT NULL UNIQUE,
         email VARCHAR(50) NOT NULL UNIQUE,
         password VARCHAR(200) NOT NULL,
-        role role_type NOT NULL DEFAULT 'Pending',
-        user_profile_id INT REFERENCES user_profile_details(id) ON DELETE SET NULL
+        profile_id INT REFERENCES user_profile_details(id) ON DELETE SET NULL,
+        is_active BOOLEAN
     );
 `;
 
 
 export const createUserAccountQuery = `
-    INSERT INTO user_account_details(username, email, password, role, user_profile_id)
-    VALUES($1, $2, $3, COALESCE($4::role_type, 'Pending'::role_type), $5) RETURNING *;
+    INSERT INTO user_account_details(username, email, password, profile_id, is_active)
+    VALUES($1, $2, $3, $4, $5) RETURNING *;
 `;
 
 export const viewUserAccountQuery = `SELECT * FROM user_account_details`;
 
-export const loginQuery = ` SELECT * FROM user_account_details WHERE username=$1 AND role =$2`;
+export const loginQuery = ` SELECT * FROM user_account_details WHERE username=$1 AND profile_id =$2`;
 
 export const updateUserAccountQuery = `
     UPDATE user_account_details
@@ -40,10 +40,13 @@ export const updateUserAccountQuery = `
     username = COALESCE($1, username),
     email = COALESCE($2, email),
     password = COALESCE($3, password),
-    role = COALESCE($4, role),
-    user_profile_id = COALESCE($5, user_profile_id)
+    profile_id = COALESCE($4, profile_id),
+    is_active = CASE
+    WHEN is_active = true AND $5 = false THEN is_active
+    ELSE COALESCE($5, is_active)
+    END
     WHERE id = $6
-    RETURNING *;
+    RETURNING *
 `;
 
 export const findSpecificUserAccountQuery = `
@@ -52,14 +55,16 @@ export const findSpecificUserAccountQuery = `
 `;
 
 export const suspendUserAccountQuery = `
-    DELETE FROM user_account_details
+    UPDATE user_account_details
+    SET
+    is_active = false
     WHERE id = $1;
 `;
 
 export const viewAccountByUserNameRoleQuery = `
     SELECT * FROM user_account_details
     WHERE ($1::VARCHAR IS NULL OR username = $1)
-    AND ($2::role_type IS NULL OR role = $2);
+    AND ($2::role_type IS NULL OR profile_id = $2);
 `;
 
 
@@ -88,14 +93,19 @@ export const updateUserProfileQuery = `
     SET
     name = COALESCE($1, name),
     description = COALESCE($2, description),
-    is_active = COALESCE($3, is_active)
+    is_active = CASE
+    WHEN is_active = true AND $3 = false THEN is_active
+    ELSE COALESCE($3, is_active)
+    END
     WHERE id = $4
     RETURNING *
 `;
 
 export const suspendUserProfileQuery = `
-    DELETE FROM user_profile_details
-    WHERE id = $1;
+    UPDATE user_profile_details
+    SET
+    is_active = false
+    WHERE id = $1
 `;
 
 export const searchUserProfileQuery = `
@@ -138,5 +148,56 @@ export const deleteServiceCategoriesQuery = `
 
 export const searchServiceCategoriesQuery = `
     SELECT * FROM service_categories_details
+    WHERE name = $1;
+`;
+
+
+// Service Listing CRUDS
+export const createServiceListingTableQuery = `
+    CREATE TABLE IF NOT EXISTS service_listing_details(
+    id SERIAL PRIMARY KEY,
+    cleaner_id INT REFERENCES user_account_details(id) ON DELETE SET NULL,
+    title VARCHAR(50) NOT NULL,
+    description VARCHAR(50) NOT NULL,
+    price DOUBLE PRECISION NOT NULL,
+    location VARCHAR(50) NOT NULL,
+    is_active BOOLEAN
+    );
+`;
+
+export const createServiceListingQuery = `
+    INSERT INTO service_listing_details(cleaner_id, title, description, price, location, is_active)
+    VALUES($1, $2, $3, $4, $5, $6) RETURNING *;
+`;
+
+export const viewServiceListingQuery = `
+    SELECT * FROM service_listing_details;
+`;
+
+export const updateServiceListingQuery = `
+    UPDATE service_listing_details
+    SET
+    cleaner_id = COALESCE($1, cleaner_id),
+    title = COALESCE($2, title),
+    description = COALESCE($3, description),
+    price = COALESCE($4, price),
+    location = COALESCE($5, location),
+    is_active = CASE
+    WHEN is_active = true AND $6 = false THEN is_active
+    ELSE COALESCE($6, is_active)
+    END
+    WHERE id = $7
+    RETURNING *
+`;
+
+export const suspendServiceListingQuery = `
+    UPDATE service_listing_details
+    SET
+    is_active = false
+    WHERE id = $1;
+`;
+
+export const searchServiceListingQuery = `
+    SELECT * FROM service_listing_details
     WHERE id = $1;
 `;

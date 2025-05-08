@@ -12,17 +12,17 @@ import{
 } from "../utils/sqlQuery.js"
 
 export class UserAccount{
-    constructor({id,username, email, password, role, user_profile_id}){
+    constructor({id, username, email, password, profile_id, is_active}){
         this.id = id
         this.username = username;
         this.email = email;
         this.password = password;
-        this.role = role;
-        this.user_profile_id = user_profile_id;
+        this.profile_id = profile_id;
+        this.is_active = is_active;
     }
 
     isValid(){
-        return this.username && this.email && this.password && this.role && this.user_profile_id;
+        return this.username && this.email && this.password && this.profile_id && this.is_active;
     }
 
     static fromDB(row){
@@ -31,8 +31,8 @@ export class UserAccount{
             username: row.username,
             email: row.email,
             password: row.password,
-            role: row.role,
-            user_profile_id: row.user_profile_id
+            profile_id: row.profile_id,
+            is_active: row.is_active
         });
     }
 
@@ -49,8 +49,8 @@ export class UserAccount{
             this.username,
             this.email,
             this.password,
-            this.role,
-            this.user_profile_id
+            this.profile_id,
+            this.is_active
         ]);
         return UserAccount.fromDB(rows[0]);
     }
@@ -67,15 +67,15 @@ export class UserAccount{
         return rows.map(UserAccount.fromDB);
     }
 
-    static async findByUsernameAndRole(username, role){
+    static async findByUsernameAndRole(username, profile_id){
         const {rows} = await query(viewAccountByUserNameRoleQuery, [
             username || null,
-            role || null
+            profile_id || null
         ]);
         return rows.map(UserAccount.fromDB);
     }
 
-    static async findById(id){
+    static async searchUserAccount(id){
         const {rows} = await query(findSpecificUserAccountQuery, [id]);
         if(!rows.length){
             return null;
@@ -83,22 +83,38 @@ export class UserAccount{
         return UserAccount.fromDB(rows[0]);
     }
 
-    static async updateById(id, {username, email, password, role, user_profile_id}){
-        const {rowCount, rows} = await query(updateUserAccountQuery, [
+    static async updateUserAccount(id, { username, email, password, profile_id, is_active }) {
+        let hashedPassword = null;
+    
+        if (password) {
+            const existingUser = await this.searchUserAccount(id);
+            if (!existingUser) return false;
+            const isSamePassword = await bcrypt.compare(password, existingUser.password);
+            if (!isSamePassword) {
+                const saltRounds = 10;
+                hashedPassword = await bcrypt.hash(password, saltRounds);
+            } else {
+                hashedPassword = existingUser.password;
+            }
+        }
+        const { rowCount, rows } = await query(updateUserAccountQuery, [
             username,
             email,
-            password,
-            role,
-            user_profile_id,
+            hashedPassword,
+            profile_id,
+            is_active,
             id
         ]);
-        if (rowCount == 0){
-            return null;
+    
+        if (rowCount === 0) {
+            return false;
         }
-        return UserAccount.fromDB(rows[0]);
+    
+        return true;
     }
+    
 
-    static async suspendById(id){
+    static async suspendUserAccount(id){
         const {rowCount} = await query(suspendUserAccountQuery, [id]);
         return rowCount > 0;
     }

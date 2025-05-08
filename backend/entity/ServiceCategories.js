@@ -66,8 +66,8 @@ export class ServiceCategories{
         return true;
     }
 
-    static async searchServiceCategories(id){
-        const {rows} = await query(searchServiceCategoriesQuery, [id]);
+    static async searchServiceCategories(name){
+        const {rows} = await query(searchServiceCategoriesQuery, [name]);
         if(!rows.length){
             return null;
         }

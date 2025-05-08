@@ -4,8 +4,8 @@ import {ServiceCategories} from "../../entity/ServiceCategories.js";
 export class searchServiceCategoriesController{
     static async searchServiceCategories(req, res, next){
         try{
-            const id = req.params.id;
-            const serviceCategories = await ServiceCategories.searchServiceCategories(id);
+            const name = req.params.name;
+            const serviceCategories = await ServiceCategories.searchServiceCategories(name);
             if(!serviceCategories){
                 return next(createError(400, "Service Categories Not Found"));
             }

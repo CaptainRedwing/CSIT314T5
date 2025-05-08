@@ -13,6 +13,6 @@ router.post("/", createServiceCategoriesController.createServiceCategories);
 router.get("/", viewServiceCategoriesController.viewServiceCategories);
 router.put("/:id", updateServiceCategoriesController.updateServiceCategories);
 router.delete("/:id", deleteServiceCategoriesController.deleteServiceCategories);
-router.get("/:id", searchServiceCategoriesController.searchServiceCategories);
+router.get("/:name", searchServiceCategoriesController.searchServiceCategories);
 
 export default router;
