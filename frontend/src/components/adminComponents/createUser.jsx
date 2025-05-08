@@ -85,11 +85,6 @@ export default function CreateUser() {
     }
 
     setIsLoading(true);
-    console.log(newUser.username)
-    console.log(newUser.email)
-    console.log(newUser.password)
-    console.log(newUser.role)
-    console.log(newUser.user_profile_id)
 
 
     try {

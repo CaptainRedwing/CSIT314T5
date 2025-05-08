@@ -7,26 +7,26 @@ export default function UserProfile() {
     const [userProfile, setUserProfile] = useState([]);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [showViewModal, setShowViewModal] = useState(false);
-    const [currentProfileId, setCurrentProfileId] = useState(null);
-    const [updateUser, setUpdateUser] = useState({
-        name: '',
-        description: '',
-    });
     const [searchTerm, setSearchTerm] = useState('');
     const [viewUser, setViewUser] = useState(null);
+    const [updateData, setUpdateData] = useState({
+        id: null,
+        name: '',
+        description: '',
+        is_active: true
+      });
 
     const handleCloseModal = () => {
         setShowUpdateModal(false);
         setShowViewModal(false);
         setError('');
-        setCurrentProfileId(null);
     };
 
     const handleInputChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setUpdateUser(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
+        const { name, value } = e.target;
+        setUpdateData(prev => ({
+          ...prev,
+          [name]: value
         }));
     };
 
@@ -112,24 +112,43 @@ export default function UserProfile() {
         setError('');
 
         try {
-            const profileTypeExists = userProfile.some(
-                profile => 
-                    profile.id !== currentProfileId &&
-                    profile.name.toLowerCase() === updateUser.name.toLowerCase()
-            );
-            console.log(updateUser)
-    
-            if (profileTypeExists) {
-                alert(`Profile type "${updateUser.name}" already exists`);
-                return;
+
+            const currentProfile = userProfile.find(p => p.id === updateData.id);
+            
+            const updatePayload = {};
+            if (updateData.name && updateData.name !== currentProfile.name) {
+            updatePayload.name = updateData.name;
+            }
+            
+            if (updateData.description && updateData.description !== currentProfile.description) {
+            updatePayload.description = updateData.description;
             }
 
-            const response = await fetch(`http://localhost:3000/api/userProfile/${currentProfileId}`, {
+            if (Object.keys(updatePayload).length === 0) {
+            alert('No changes detected');
+            return;
+            }
+
+            if (updatePayload.name) {
+            const profileExists = userProfile.some(
+                profile => 
+                profile.id !== updateData.id &&
+                profile.name.toLowerCase() === updatePayload.name.toLowerCase()
+            );
+            
+            if (profileExists) {
+                throw new Error(`Profile type "${updatePayload.name}" already exists`);
+            }
+            }
+
+            
+
+            const response = await fetch(`http://localhost:3000/api/userProfile/${updateData.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(updateUser)
+                body: JSON.stringify(updatePayload)
             });
             
             if (!response.ok) {
@@ -148,6 +167,16 @@ export default function UserProfile() {
             setIsLoading(false);
         }
     };
+
+    const handleUpdateButton = (profile) => {
+        setUpdateData({
+          id: profile.id,
+          name: profile.name,
+          description: profile.description,
+          is_active: profile.is_active
+        });
+        setShowUpdateModal(true);
+      };
 
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -260,15 +289,7 @@ export default function UserProfile() {
                         <div className="form-actions">
                             <button
                                 type="button"
-                                onClick={() => {
-                                    setUpdateUser({
-                                        name: viewUser.name,
-                                        description: viewUser.description
-                                    });
-                                    setCurrentProfileId(viewUser.id);
-                                    setShowViewModal(false);
-                                    setShowUpdateModal(true);
-                                }}
+                                onClick={() => handleUpdateButton(viewUser)}
                                 className="update-button"
                             >
                                 Update
@@ -301,9 +322,8 @@ export default function UserProfile() {
                                 <input
                                     type="text"
                                     name="name"
-                                    value={updateUser.name}
+                                    value={updateData.name}
                                     onChange={handleInputChange}
-                                    required
                                 />
                             </div>
                             
@@ -311,10 +331,9 @@ export default function UserProfile() {
                                 <label>Description:</label>
                                 <textarea
                                     name="description"
-                                    value={updateUser.description}
+                                    value={updateData.description}
                                     onChange={handleInputChange}
                                     rows={4}
-                                    required
                                 />
                             </div>
                             
