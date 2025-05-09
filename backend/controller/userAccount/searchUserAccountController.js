@@ -5,6 +5,7 @@ export class searchUserAccountController{
     static async searchUserAccount(req, res, next){
         try{
             const id = req.params.id;
+            console.log(id)
             const user = await UserAccount.searchUserAccount(id);
 
             if(!user){

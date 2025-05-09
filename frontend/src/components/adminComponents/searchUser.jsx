@@ -13,14 +13,36 @@ export default function SearchUser() {
     username: '',
     email: '',
     password: '',
-    role: ''
+    profile_id: '',
+    is_active: true
   });
 
+  const [profiles, setProfiles] = useState([]);
+
   useEffect(() => {
-    fetchAllUsers();
+    viewAllUserAccount();
+    viewAllUserProfile();
   }, []);
 
-  const fetchAllUsers = async () => {
+  const viewAllUserProfile = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('http://localhost:3000/api/userProfile');
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch profiles');
+      }
+
+      const data = await response.json();
+      setProfiles(data);
+    } catch (error) {
+      console.error('Error fetching profiles:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const viewAllUserAccount = async () => {
     setIsLoading(true);
     setError('');
 
@@ -30,7 +52,6 @@ export default function SearchUser() {
         headers: { 'Content-Type': 'application/json' }
       });
       
-      console.log(response)
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to fetch users');
@@ -49,38 +70,43 @@ export default function SearchUser() {
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchTerm.trim()) {
-      fetchAllUsers();
+      viewAllUserAccount();
       return;
     }
-
+  
     setIsLoading(true);
     setError('');
-
+  
     try {
-      const url = new URL("http://localhost:3000/api/userAdmin/search");
-      url.searchParams.append(searchBy, searchTerm);
-      
-      const response = await fetch(url, {
+      const params = new URLSearchParams();
+      if (searchBy === 'username') {
+        params.append('username', searchTerm);
+      } else if (searchBy === 'profile_id') {
+        params.append('profile_id', searchTerm); // Changed from 'role' to 'profile_id'
+      }
+  
+      const response = await fetch(`http://localhost:3000/api/userAdmin/search?${params.toString()}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Search failed');
       }
-
+  
       const data = await response.json();
-      setUsers(data);
+      setUsers(data.length ? data : []); // Handle empty results
     } catch (error) {
       setError("Search failed: " + error.message);
       console.error("Search failed:", error);
+      setUsers([]); // Clear results on error
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleViewUser = async (userId) => {
+  const viewSpecifyUser = async (userId) => {
     setIsLoading(true);
     try {
       const response = await fetch(`http://localhost:3000/api/userAdmin/${userId}`);
@@ -93,12 +119,12 @@ export default function SearchUser() {
       setSelectedUser(userData);
       setShowUserModal(true);
       
-      // Pre-fill update form
       setUpdateData({
         username: userData.username,
         email: userData.email,
         password: '',
-        role: userData.role
+        profile_id: userData.profile_id,
+        is_active: userData.is_active // Add this line
       });
     } catch (error) {
       setError(error.message);
@@ -107,7 +133,12 @@ export default function SearchUser() {
     }
   };
 
-  const handleSuspendUser = async (userId) => {
+  const getProfileNameById = (profileId) => {
+    const profile = profiles.find(profile => profile.id === profileId);
+    return profile ? profile.name : 'Unknown';
+  };
+
+  const suspendUserAccount = async (userId) => {
     if (!window.confirm('Are you sure you want to suspend this user?')) return;
     
     try {
@@ -121,7 +152,7 @@ export default function SearchUser() {
         throw new Error(errorData.message || 'Failed to suspend user');
       }
 
-      await fetchAllUsers();
+      await viewAllUserAccount();
       alert('User suspended successfully');
     } catch (error) {
       setError(error.message);
@@ -143,18 +174,24 @@ export default function SearchUser() {
     }));
   };
 
-  const handleUpdateSubmit = async (e) => {
+  const updateUserAccount = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-
+    
     try {
       const response = await fetch(`http://localhost:3000/api/userAdmin/${selectedUser.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updateData)
+        body: JSON.stringify({
+          username: updateData.username,
+          email: updateData.email,
+          password: updateData.password,
+          profile_id: updateData.profile_id,
+          is_active: updateData.is_active // Add this line
+        })
       });
       
       if (!response.ok) {
@@ -164,8 +201,10 @@ export default function SearchUser() {
       
       const updatedUser = await response.json();
       setSelectedUser(updatedUser);
+      // Close both modals after successful update
       setShowUpdateModal(false);
-      await fetchAllUsers();
+      setShowUserModal(false);
+      await viewAllUserAccount();
       alert('User updated successfully');
     } catch (err) {
       setError(err.message);
@@ -187,16 +226,31 @@ export default function SearchUser() {
               className="search-select"
             >
               <option value="username">Username</option>
-              <option value="role">User Profile</option>
+              <option value="profile_id">User Profile</option>
             </select>
             
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder={`Search by ${searchBy}...`}
-              className="search-input"
-            />
+            {searchBy === 'profile_id' ? (
+              <select
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input"
+              >
+                <option value="">Select a profile</option>
+                {profiles.map(profile => (
+                  <option key={profile.id} value={profile.id}>
+                    {profile.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Enter username..."
+                className="search-input"
+              />
+            )}
           </div>
           
           <div className="search-buttons">
@@ -206,7 +260,7 @@ export default function SearchUser() {
             
             <button 
               type="button" 
-              onClick={fetchAllUsers}
+              onClick={viewAllUserAccount}
               disabled={isLoading}
               className="refresh-button"
             >
@@ -233,18 +287,18 @@ export default function SearchUser() {
             {users.map(user => (
               <tr key={user.id}>
                 <td>{user.username}</td>
-                <td>{user.role}</td>
+                <td>{getProfileNameById(user.profile_id)}</td>
                 <td>
                   <button 
                     className="view-button"
-                    onClick={() => handleViewUser(user.id)}
+                    onClick={() => viewSpecifyUser(user.id)}
                   >
                     View
                   </button>
                   
                   <button 
                     className="suspend"
-                    onClick={() => handleSuspendUser(user.id)}
+                    onClick={() => suspendUserAccount(user.id)}
                   >
                     Suspend
                   </button>
@@ -268,7 +322,8 @@ export default function SearchUser() {
             <div className="user-info">
               <p><strong>Username:</strong> {selectedUser.username}</p>
               <p><strong>Email:</strong> {selectedUser.email}</p>
-              <p><strong>Role:</strong> {selectedUser.role}</p>
+              <p><strong>Role:</strong> {getProfileNameById(selectedUser.profile_id)}</p>
+              <p><strong>Status:</strong> {selectedUser.is_active ? 'Active' : 'Inactive'}</p>
             </div>
             
             <div className="form-actions">
@@ -291,7 +346,6 @@ export default function SearchUser() {
         </div>
       )}
 
-      {/* Update User Modal */}
       {showUpdateModal && selectedUser && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -302,7 +356,7 @@ export default function SearchUser() {
               </button>
             </div>
             
-            <form onSubmit={handleUpdateSubmit}>
+            <form onSubmit={updateUserAccount}>
               <div className="form-group">
                 <label>Username:</label>
                 <input
@@ -337,15 +391,34 @@ export default function SearchUser() {
               <div className="form-group">
                 <label>Role:</label>
                 <select
-                  name="role"
-                  value={updateData.role}
+                  name="profile_id"
+                  value={updateData.profile_id}
                   onChange={handleInputChange}
                 >
-                  <option value="UserAdmin">UserAdmin</option>
-                  <option value="Cleaner">Cleaner</option>
-                  <option value="Homeowner">Homeowner</option>
-                  <option value="PlatformManager">Platform Manager</option>
+                  {profiles.map(profile => (
+                    <option key={profile.id} value={profile.id}>
+                      {profile.name}
+                    </option>
+                  ))}
                 </select>
+              </div>
+
+              <div className="form-group">
+                <label>Status:</label>
+                <div className="status-toggle">
+                  <label>
+                    <input
+                      type="checkbox"
+                      name="is_active"
+                      checked={updateData.is_active}
+                      onChange={(e) => setUpdateData(prev => ({
+                        ...prev,
+                        is_active: e.target.checked
+                      }))}
+                    />
+                    {updateData.is_active ? 'Active' : 'Inactive'}
+                  </label>
+                </div>
               </div>
               
               {error && <div className="error-message">{error}</div>}

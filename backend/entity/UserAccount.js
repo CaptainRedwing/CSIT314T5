@@ -83,8 +83,6 @@ export class UserAccount{
         return UserAccount.fromDB(rows[0]);
     }
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     static async updateUserAccount(id, { username, email, password, profile_id, is_active }) {
         let hashedPassword = null;
     
@@ -100,12 +98,6 @@ export class UserAccount{
             }
         }
         const { rowCount, rows } = await query(updateUserAccountQuery, [
-=======
-=======
->>>>>>> Stashed changes
-    static async updateUserAccount(id, {username, email, password, role, user_profile_id}){
-        const {rowCount, rows} = await query(updateUserAccountQuery, [
->>>>>>> Stashed changes
             username,
             email,
             hashedPassword,
@@ -113,11 +105,11 @@ export class UserAccount{
             is_active,
             id
         ]);
-    
+
         if (rowCount === 0) {
             return false;
         }
-    
+
         return true;
     }
     

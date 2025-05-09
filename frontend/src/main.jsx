@@ -12,6 +12,7 @@ import UserProfile from './components/adminComponents/userProfile';
 import './index.css';
 
 const router = createBrowserRouter([
+  
   { path: "/", element: <App />},
   { path: "/login", element: <Login />},
   { path: "/adminPage", element: <AdminPage />},

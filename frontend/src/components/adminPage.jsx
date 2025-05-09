@@ -32,10 +32,9 @@ export default function AdminPage() {
       <CreateUserProfile/>
       </div>
 
-      <div className="side-by-side">
+
       <Search />
       <UserProfile />
-      </div>
 
     </div>
   );

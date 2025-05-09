@@ -12,7 +12,7 @@ const router = express.Router();
 router.post("/", createUserProfileController.createUserProfile);
 router.get("/", viewUserProfileController.viewUserProfile);
 router.put("/:id", updateUserProfileController.updateUserProfile);
-router.put("/:id", suspendUserProfileController.suspendUserProfile);
+router.delete("/:id", suspendUserProfileController.suspendUserProfile);
 router.get("/:name", searchUserProfileController.searchUserProfile);
 
 export default router;

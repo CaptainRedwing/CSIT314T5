@@ -20,7 +20,7 @@ export class LoginController {
 
   static async roles(req, res, next) {
       const result = await query(getAllrole);
-      const roles = result.rows.map(row => row.role);
+      const roles = result.rows.map(row => row.profile_id);
       res.json({ roles });
   }
 }

@@ -10,12 +10,11 @@ export default function CreateUser() {
     email:'',
     password: '',
     confirmPassword: '',
-    role : '',
-    user_profile_id:''
+    profile_id:'',
+    is_active:true
   });
 
 
-  const [roles, setRoles] = useState([]);
   const [profiles, setProfiles] = useState([]);
 
       useEffect(() => {
@@ -41,7 +40,7 @@ export default function CreateUser() {
             if (data && data.length > 0) {
               setNewUser(prev => ({
                 ...prev,
-                user_profile_id: data[0].id
+                profile_id: data[0].id
               }));
             }
           } catch (error) {
@@ -97,8 +96,8 @@ export default function CreateUser() {
           username: newUser.username,
           email: newUser.email,
           password: newUser.password,
-          role: newUser.role,
-          user_profile_id: newUser.user_profile_id
+          profile_id: newUser.profile_id,
+          is_active: newUser.is_active
         })
       });
 
@@ -116,8 +115,8 @@ export default function CreateUser() {
         email:'',
         password: '',
         confirmPassword: '',
-        role : '',
-        user_profile_id:''
+        profile_id:'',
+        is_active: true
       });
       setError({});
       
@@ -132,13 +131,10 @@ export default function CreateUser() {
 
 
     const selectedId = e.target.value;
-    
-    const selectedProfile = profiles.find(profile => profile.id == selectedId);
 
     setNewUser(prev => ({
       ...prev,
-      user_profile_id: selectedId,
-      role: selectedProfile.name
+      profile_id: selectedId
     }));
   };
 
@@ -194,8 +190,8 @@ export default function CreateUser() {
           <div className="form-group">
           <label>Account Type</label>
           <select
-            name="user_profile_id"
-            value={newUser.user_profile_id}
+            name="profile_id"
+            value={newUser.profile_id}
             onChange={handleProfileChange}
             required
           >

@@ -7,6 +7,12 @@ export class createUserAccountController{
             const user = new UserAccount(req.body);
 
             if(!user.isValid()){
+                console.log(user.username)
+                console.log(user.email)
+                console.log(user.password)
+                console.log(user.profile_id)
+                console.log(user.is_active)
+
                 return res.status(400).json({error:"Invalid user input"});
             }
             const newUser = await user.createUserAccount();

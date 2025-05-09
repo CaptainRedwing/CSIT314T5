@@ -63,8 +63,10 @@ export const suspendUserAccountQuery = `
 
 export const viewAccountByUserNameRoleQuery = `
     SELECT * FROM user_account_details
-    WHERE ($1::VARCHAR IS NULL OR username = $1)
-    AND ($2::role_type IS NULL OR profile_id = $2);
+    WHERE
+        (username = $1 OR $1 IS NULL) 
+        AND 
+        (profile_id = $2 OR $2 IS NULL)
 `;
 
 
@@ -105,12 +107,12 @@ export const suspendUserProfileQuery = `
     UPDATE user_profile_details
     SET
     is_active = false
-    WHERE id = $1
+    WHERE id = $1;
 `;
 
 export const searchUserProfileQuery = `
     SELECT * FROM user_profile_details
-    WHERE id = $1;
+    WHERE name = $1;
 `;
 
 
@@ -199,5 +201,5 @@ export const suspendServiceListingQuery = `
 
 export const searchServiceListingQuery = `
     SELECT * FROM service_listing_details
-    WHERE id = $1;
+    WHERE title = $1;
 `;

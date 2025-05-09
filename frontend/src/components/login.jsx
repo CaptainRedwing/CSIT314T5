@@ -1,170 +1,189 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 
-
-export default function login() {
-
+export default function Login() {
   const navigate = useNavigate();
 
-    const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+    profile_id: ''
+  });
 
-        username : '',
-        password: '',
-        role : ''
-    });
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [profiles, setProfiles] = useState([]);
 
-    const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const [roles, setRoles] = useState([]);
-
-    useEffect(() => {
-      const fetchRoles = async () => {
-        try {
-          const response = await fetch('http://localhost:3000/api/userProfile');
-          if (!response.ok) {
-            throw new Error('Failed to fetch roles');
-          }
-          const data = await response.json();
-          
-          // Option 1: Store just the role names
-          const roleNames = data.map(role => role.name);
-          setRoles(roleNames);
-          
-          // Set initial role if there are any roles
-          if (roleNames.length > 0) {
-            setFormData(prev => ({
-              ...prev,
-              role: roleNames[0]
-            }));
-          }
-        } catch (error) {
-          console.error('Error fetching roles:', error);
-          setRoles([]);
-        }
-      };
-      fetchRoles();
-    }, []);
-
-    const handleChange = (e) => {
-        const { name, value} = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]:value
-        }))
-    }
-
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-      setIsLoading(true);
-      setError('');
-    
+  useEffect(() => {
+    const fetchProfiles = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            username: formData.username,
-            password: formData.password,
-            role: formData.role
-          })
-        });
-    
-        const data = await response.json();
-        console.log(data)
-
-        if (data.success === false) {
-          throw new Error('Authentication failed')
-        } else {
-          localStorage.setItem('isAuthenticated', 'true');
-          
-          switch(formData.role) {
-            case 'UserAdmin':
-              navigate('/adminPage');
-              break;
-            case 'Cleaner':
-              navigate('/cleanerPage');
-              break;
-            case 'Homeowner':
-              navigate(`/homeowner/${formData.username}`);
-              break;
-            case 'PlatformManager':
-              navigate(`/platformManagerPage`);
-              break;
-            default:
-              navigate('/');
-          }
+        setIsLoading(true);
+        const response = await fetch('http://localhost:3000/api/userProfile');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch profiles');
         }
+
+        const data = await response.json();
+        setProfiles(data);
         
-        
-      } catch (err) {
-        setError(err.message);
+        if (data.length > 0) {
+          setFormData(prev => ({
+            ...prev,
+            profile_id: String(data[0].id)
+          }));
+        }
+      } catch (error) {
+        console.error('Error fetching profiles:', error);
+        setError('Failed to load profile options. Please try again later.');
       } finally {
         setIsLoading(false);
       }
     };
+    
+    fetchProfiles();
+  }, []);
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user makes changes
+    if (error) setError('');
+  };
 
-    return (
-      <div className="login-container">
-        <header>
-          <h1>Login Page</h1>
-        </header>
-  
-        <form onSubmit={handleSubmit}>
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    // Basic validation
+    if (!formData.username || !formData.password || !formData.profile_id) {
+      setError('Please fill in all fields');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('http://localhost:3000/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password,
+          profile_id: formData.profile_id
+        })
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok || data.success === false) {
+        throw new Error(data.message || 'Authentication failed. Please check your credentials.');
+      }
+      
+      // Store authentication data
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('username', formData.username);
+      localStorage.setItem('profile_id', formData.profile_id);
+
+      // Navigation based on profile_id
+      switch(formData.profile_id) {
+        case '1': // Admin
+          navigate('/adminPage');
+          break;
+        case '2': // Cleaner
+          navigate('/cleanerPage');
+          break;
+        case '3': // Homeowner
+          navigate(`/homeowner/${formData.username}`);
+          break;
+        case '4': // Platform Manager
+          navigate('/platformManagerPage');
+          break;
+        default:
+          navigate('/');
+      }
+    } catch (err) {
+      setError(err.message);
+      // Reset form but keep entered values
+      setFormData(prev => ({
+        ...prev,
+        password: '' // Clear password for security
+      }));
+    } finally {
+      setIsLoading(false); // Always reset loading state
+    }
+  };
+
+  return (
+    <div className="login-container">
+      <header>
+        <h1>Login Page</h1>
+      </header>
+
+      {isLoading && !profiles.length ? (
+        <div>Loading profile options...</div>
+      ) : error ? (
+        <div className="error-message">{error}</div>
+      ) : null}
+
+      <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Account Type</label>
           <select
-            name="role"
-            value={formData.role}
+            name="profile_id"
+            value={formData.profile_id}
             onChange={handleChange}
             required
+            disabled={isLoading}
           >
-            {roles.map((roleName, index) => (
-              <option key={index} value={roleName}>
-                {roleName}
+            {profiles.map((profile) => (
+              <option key={String(profile.id)} value={String(profile.id)}>
+                {profile.name}
               </option>
             ))}
           </select>
         </div>
-  
-          <div className="form-row">
-            <label htmlFor="username">User Account: </label>
-            <input 
-              type="text" 
-              id="username" 
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              required
-            />
-          </div>
-  
-          <div className="form-row">
-            <label htmlFor="password">Password: </label>
-            <input 
-              type="password" 
-              id="password" 
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
-  
-          <div className="form-row">
-            <button 
-              type="submit" 
-              disabled={isLoading}
-              className={isLoading ? 'logging-in' : ''}
-            >
-              {isLoading ? 'Logging in...' : 'Login'}
-            </button>
-          </div>
-          
-          {error && <div className="error-message">{error}</div>}
-        </form>
-      </div>
-    );
+
+        <div className="form-row">
+          <label htmlFor="username">Username: </label>
+          <input 
+            type="text" 
+            id="username" 
+            name="username"
+            value={formData.username}
+            onChange={handleChange}
+            required
+            disabled={isLoading}
+          />
+        </div>
+
+        <div className="form-row">
+          <label htmlFor="password">Password: </label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            disabled={isLoading}
+          />
+        </div>
+
+        <div className="form-row">
+          <button 
+            type="submit" 
+            disabled={isLoading || !formData.username || !formData.password || !formData.profile_id}
+          >
+            {isLoading ? 'Logging in...' : 'Login'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
 }

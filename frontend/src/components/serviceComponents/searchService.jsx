@@ -158,12 +158,29 @@ export default function ServiceCategories() {
         }));
       };
 
-    const suspendServiceCategories = async() => {
+    const suspendServiceCategories = async(serviceId) => {
+        if (!window.confirm('Are you sure you want to suspend this service?')) return;
 
+        try {
+            const response = await fetch(`http://localhost:3000/api/serviceCategories/${serviceId}`, {
+                method:'DELETE',
+                headers: {'Content-Type':'application/json'}
+            });
+
+            if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to suspend user');
+            }
+
+            await viewServiceCategories();
+            alert('Service category suspended successfully')
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     return (
-        <div className="admin-container">
+        <>
             <h2>Service Category</h2>
 
             <button
@@ -237,14 +254,15 @@ export default function ServiceCategories() {
             <button
                 type="button"
                 onClick={handleChange}
-                className="refresh-button"
+                className="create-button"
+                style={{ marginLeft: '10px' }}
             >View Service Category
             </button>
-
-            <div className="seach-controls">
-                <form onSubmit={handleSearch} className="search-form">
-                    <div className="search-options">
-                        Service:
+            <div className="search-container">
+                <div className="search-controls">
+                    <form onSubmit={handleSearch}>
+                        <div className="search-options">
+                        <span className="search-label">Service:</span>
                         <input
                             type="text"
                             value={searchTerm}
@@ -253,52 +271,56 @@ export default function ServiceCategories() {
                             className="search-input"
                             style={{ marginLeft: '10px' }}
                         />
-
-                        <div className="search-buttons">
-                            <button 
-                                type="submit" 
-                                disabled={isLoading}
-                                className="search-button"
-                            >
-                                {isLoading ? 'Searching...' : 'Search'}
-                            </button>
                         </div>
-                    </div>
-                </form>
-            </div>
+                        
+                        <div className="search-actions">
+                        <button 
+                            type="submit" 
+                            className="search-button"
+                        >
+                            {isLoading ? 'Searching...' : 'Search'}
+                        </button>
+                        </div>
+                    </form>
+                </div>
 
-            <div className="profile-list">
-                <table className="user-table">
-                    <thead>
-                        <tr>
-                            <th>Service Category</th>
-                            <th>Description</th>
-                            {/* <th>Status</th> */}
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    {showServiceList && (
-                        <tbody>
-                            {serviceCategories.map((category) => (
-                                <tr key={category.id} className="profile-card">
-                                    <td>{category.name}</td>
-                                    <td>{category.description}</td>
-                                    {/* <td>{category.status}</td> */}
-                                    <td>
-                                        <button
-                                            className="view-button"
-                                            onClick={() => handleUpdateButton(category)}
-                                        >
-                                            Update
-                                        </button>
-                                        <button>delete</button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    )}
-                </table>
-            </div>
+                <div className="profile-list">
+                    <table className="user-table">
+                        <thead>
+                            <tr>
+                                <th>Service Category</th>
+                                <th>Description</th>
+                                {/* <th>Status</th> */}
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        {showServiceList && (
+                            <tbody>
+                                {serviceCategories.map((category) => (
+                                    <tr key={category.id} className="profile-card">
+                                        <td>{category.name}</td>
+                                        <td>{category.description}</td>
+                                        {/* <td>{category.status}</td> */}
+                                        <td>
+                                            <button
+                                                className="view-button"
+                                                onClick={() => handleUpdateButton(category)}
+                                            >
+                                                Update
+                                            </button>
+                                            <button
+                                                className="suspend"
+                                                onClick={() => suspendServiceCategories(category.id)}
+                                            >
+                                                Suspend
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        )}
+                    </table>
+                </div>
 
         {showUpdateModal && (
             <div className="modal-overlay">
@@ -358,6 +380,7 @@ export default function ServiceCategories() {
                 </div>
             </div>
         )}
-        </div>
+            </div>
+    </>
     );
 }

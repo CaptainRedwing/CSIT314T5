@@ -3,18 +3,18 @@ import { query } from "../utils/connectToDB.js";
 import { loginQuery } from "../utils/sqlQuery.js";
 
 export class LoginUser {
-  constructor({ username, password, role }) {
+  constructor({ username, password, profile_id }) {
     this.username = username;
     this.password = password;
-    this.role = role;
+    this.profile_id = profile_id;
   }
 
   isValid() {
     return (
       this.username &&
       typeof this.username === 'string' &&
-      this.role &&
-      typeof this.role === 'string'
+      this.profile_id &&
+      typeof this.profile_id === 'string'
     );
   }
 
@@ -22,12 +22,12 @@ export class LoginUser {
 
     console.log('Authenticating with:', {
       username: this.username,
-      role: this.role
+      profile_id: this.profile_id
     });
 
       const { rows } = await query(loginQuery, [
         this.username,
-        this.role
+        this.profile_id
       ]);
 
       if (rows.length === 0) {
