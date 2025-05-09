@@ -13,6 +13,6 @@ router.post("/", createServiceListingController.createServiceListing);
 router.get("/", viewServiceListingController.viewServiceListing);
 router.put("/:id", updateServiceListingController.updateServiceListing);
 router.delete("/:id", suspendServiceListingController.suspendServiceListing);
-router.get("/:id", searchServiceListingController.searchServiceListing);
+router.get("/:title", searchServiceListingController.searchServiceListing);
 
 export default router;

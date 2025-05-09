@@ -203,3 +203,43 @@ export const searchServiceListingQuery = `
     SELECT * FROM service_listing_details
     WHERE title = $1;
 `;
+
+
+export const roleCheckingTriggerAndTriggerFunction = `
+    DO $$
+    BEGIN
+        IF EXISTS (
+            SELECT 1 FROM pg_trigger WHERE tgname = 'trg_check_cleaner_role'
+        ) THEN
+            DROP TRIGGER trg_check_cleaner_role ON service_listing_details;
+        END IF;
+    EXCEPTION WHEN undefined_table THEN
+        NULL;
+    END
+    $$;
+
+    DROP FUNCTION IF EXISTS ensure_cleaner_role() CASCADE;
+
+    CREATE OR REPLACE FUNCTION ensure_cleaner_role()
+    RETURNS TRIGGER AS $$
+    DECLARE
+        role_name role_type;
+    BEGIN
+        SELECT upd.name
+        INTO role_name
+        FROM user_account_details uad
+        JOIN user_profile_details upd ON uad.profile_id = upd.id
+        WHERE uad.id = NEW.cleaner_id;
+        IF role_name IS DISTINCT FROM 'Cleaner' THEN
+            RAISE EXCEPTION 'User with ID % does not have the Cleaner role.', NEW.cleaner_id;
+        END IF;
+
+        RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql;
+
+    CREATE TRIGGER trg_check_cleaner_role
+    BEFORE INSERT ON service_listing_details
+    FOR EACH ROW
+    EXECUTE FUNCTION ensure_cleaner_role();
+`;

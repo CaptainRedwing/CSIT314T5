@@ -5,7 +5,8 @@ import {
     viewServiceListingQuery,
     updateServiceListingQuery,
     suspendServiceListingQuery,
-    searchServiceListingQuery
+    searchServiceListingQuery,
+    roleCheckingTriggerAndTriggerFunction
 } from "../utils/sqlQuery.js";
 
 export class ServiceListing{
@@ -36,6 +37,7 @@ export class ServiceListing{
     }
 
     async createServiceLisitng(){
+        await query(roleCheckingTriggerAndTriggerFunction);
         const {rows} = await query(createServiceListingQuery, [
             this.cleaner_id,
             this.title,
@@ -82,8 +84,8 @@ export class ServiceListing{
         return true;
     }
 
-    static async searchServiceListing(id){
-        const {rows} = await query(searchServiceListingQuery, [id]);
+    static async searchServiceListing(name){
+        const {rows} = await query(searchServiceListingQuery, [name]);
         if(!rows.length){
             return null;
         }

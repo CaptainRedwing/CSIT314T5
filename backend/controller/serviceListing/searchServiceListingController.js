@@ -4,8 +4,8 @@ import { ServiceListing } from "../../entity/ServiceListing.js";
 export class searchServiceListingController{
     static async searchServiceListing(req, res, next){
         try{
-            const id = req.params.id;
-            const serviceListing = await ServiceListing.searchServiceListing(id);
+            const title = req.params.title;
+            const serviceListing = await ServiceListing.searchServiceListing(title);
             if(!serviceListing){
                 return next(createError(400, "Service Listing Not Found"));
             }
