@@ -1,5 +1,4 @@
-import React from "react";
-import SearchService from "./serviceComponents/searchService";
+import ServiceCategories from "./serviceComponents/ServiceCategories";
 
 export default function platformManagerPage(){
 
@@ -20,7 +19,7 @@ export default function platformManagerPage(){
             </button>
             </div>
         
-            <SearchService />
+            <ServiceCategories />
         
         </div>
         </>

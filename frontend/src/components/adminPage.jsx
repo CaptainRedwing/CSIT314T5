@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Create from "./adminComponents/createUser";
-import Search from "./adminComponents/searchUser";
+import CreateUserAccount from "./adminComponents/createUserAccount"
+import UserAccount from "./adminComponents/UserAccount";
 import UserProfile from "./adminComponents/userProfile";
 import CreateUserProfile from "./adminComponents/createUserProfile";
 import { useNavigate } from "react-router-dom";
@@ -28,12 +28,12 @@ export default function AdminPage() {
       </div>
 
       <div className="side-by-side">
-      <Create />
+      <CreateUserAccount />
       <CreateUserProfile/>
       </div>
 
 
-      <Search />
+      <UserAccount />
       <UserProfile />
 
     </div>

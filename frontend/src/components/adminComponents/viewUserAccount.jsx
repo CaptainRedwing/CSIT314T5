@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
-export default function UserPage() {
+export default function ViewUserProfile() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -16,7 +16,8 @@ export default function UserPage() {
     });
 
     useEffect(() => {
-        const fetchUserData = async () => {
+
+        const viewUserAccount = async () => {
             try {
                 const response = await fetch(`http://localhost:3000/api/userAdmin/${userId}`);
                 
@@ -42,7 +43,7 @@ export default function UserPage() {
             }
         };
 
-        fetchUserData();
+        viewUserAccount();
     }, [userId, navigate]);
 
     if (loading) return (
@@ -79,7 +80,7 @@ export default function UserPage() {
         }));
     };
 
-    const handleSubmit = async (e) => {
+    const updateUserAccount = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError('');
@@ -168,7 +169,7 @@ export default function UserPage() {
                             &times;
                         </button>
                         
-                        <form onSubmit={handleSubmit}>
+                        <form onSubmit={updateUserAccount}>
                             <div className="form-group">
                                 <label htmlFor="username">Username (leave blank to keep current):</label>
                                 <input

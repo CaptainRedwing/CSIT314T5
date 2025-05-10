@@ -1,0 +1,481 @@
+import React, { useEffect, useState } from "react";
+import { useParams } from 'react-router-dom';
+
+export default function ServiceListing() {
+    const {profile_id} = useParams();
+    const [isLoading, setIsLoading] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [serviceListing, setServiceListing] = useState([]);
+    const [newServiceListing, setNewServiceListing] = useState({
+        cleaner_id: profile_id,
+        title:'',
+        description:'',
+        price:'',
+        location:'',
+        is_active: true
+    })
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [error, setError] = useState('');
+    const [updateData, setUpdateData] = useState({
+        id: null,
+        cleaner_id: profile_id,
+        title: '',
+        description: '',
+        price:'',
+        location:'',
+        is_active: true
+      });
+
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
+
+    useEffect(() => {
+        viewServiceListing();
+    }, []);
+
+    const viewServiceListing = async () => {
+        try {
+            const response = await fetch(`http://localhost:3000/api/serviceListing`)
+            
+            const data = await response.json()
+            setServiceListing(data.filter(service => service.cleaner_id == profile_id));
+
+        } catch (error) {
+            console.log(error);
+            setServiceListing([]);
+        }
+    }
+
+    const handleChange = () => {
+        viewServiceListing();
+    }
+    const handleSearch = async (e) => {
+        e.preventDefault();
+        searchServiceListing();
+    };
+
+    const searchServiceListing = async() => {
+        try {
+
+            const response = await fetch(`http://localhost:3000/api/serviceListing/${searchTerm}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+              });
+            
+            const data = await response.json();
+
+            const servicesArray = Array.isArray(data) ? data : [data].filter(Boolean);
+    
+            // Filter by cleaner_id and search term
+            const filteredServices = servicesArray.filter(service => 
+            service && 
+            String(service.cleaner_id) === String(profile_id) &&
+            service.title.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+    
+            setServiceListing(filteredServices);
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const createServiceListing = async(e) => {
+        e.preventDefault();
+
+        const newError = {};
+        if (!newServiceListing.title) newError.title = 'Title is required';
+        if (!newServiceListing.description) newError.description = 'Description is required';
+        if (!newServiceListing.price) newError.price = 'Price is required';
+        if (!newServiceListing.location) newError.location = 'Location is required';
+
+        if (Object.keys(newError).length > 0) {
+            setError(newError);
+            return;
+        }
+
+
+        try {
+            const response = await fetch('http://localhost:3000/api/serviceListing', {
+                method: "POST",
+                headers: {
+                    'Content-Type' : 'application/json'
+                },
+                body: JSON.stringify({
+                    cleaner_id: newServiceListing.cleaner_id,
+                    title: newServiceListing.title,
+                    description: newServiceListing.description,
+                    price: newServiceListing.price,
+                    location: newServiceListing.location,
+                    is_active: newServiceListing.is_active
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to create service')
+            }
+            
+            setShowCreateModal(false)
+            setNewServiceListing({
+                cleaner_id: profile_id,
+                title:'',
+                description:'',
+                price:'',
+                location:'',
+                is_active: true
+            })
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const handleInputChange = (e) => {  
+        const { name, value } = e.target;
+        setNewServiceListing(prev => ({...prev, [name]: value}));
+        if (error[name]) setError(prev => ({ ...prev, [name]: '' }));
+      };
+
+    const updateServiceListing = async(e) => {
+        e.preventDefault();
+
+        try {
+
+            const updatePayload = {};
+            if (updateData.title) updatePayload.title = updateData.title;
+            if (updateData.description) updatePayload.description = updateData.description;
+            if (updateData.price) updatePayload.price = updateData.price;
+            if (updateData.location) updatePayload.location = updateData.location;
+            if (updateData.is_active) updatePayload.is_active = updateData.is_active;
+
+            const response = await fetch(`http://localhost:3000/api/serviceListing/${updateData.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updatePayload)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to update service')
+            }
+            
+            setShowUpdateModal(false);
+            viewServiceListing();
+            alert('Profile updated successfully')
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const handleUpdateButton = (service) => {
+        setUpdateData({
+            id: service.id,
+            cleaner_id: service.cleaner_id,
+            title: service.title,
+            description: service.description,
+            price: service.price,
+            location: service.location,
+            is_active: service.is_active
+          });
+        setShowUpdateModal(true);
+    }
+
+    const handleUpdateInputChange = (e) => {  
+        const { name, value } = e.target;
+        setUpdateData(prev => ({
+          ...prev,
+          [name]: value
+        }));
+      };
+
+    const suspendServiceListing = async(serviceId) => {
+        if (!window.confirm('Are you sure you want to suspend this service?')) return;
+
+        try {
+            const response = await fetch(`http://localhost:3000/api/serviceListing/${serviceId}`, {
+                method:'DELETE',
+                headers: {'Content-Type':'application/json'}
+            });
+
+            if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to suspend user');
+            }
+
+            await viewServiceListing();
+            alert('Service suspended successfully')
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    return (
+        <>
+            <h2>Service Listing</h2>
+
+            <button
+                type="button"
+                onClick={() => setShowCreateModal(true)}
+                className="create-button"
+            >
+            Create Service Listing
+            </button>
+            
+            {showCreateModal && (
+                <div className="modal-overlay">
+                    <div className="modal">
+                        <div className="modal-header">
+                            <h3>Create New Service</h3>
+                            <button
+                                onClick={() => setShowCreateModal(false)}
+                                className="close-button"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <form onSubmit={createServiceListing}>
+                            {error.form && <div className="error-message">{error.form}</div>}
+
+                            <div className="form-group">
+                                <label>Title</label>
+                                <input
+                                    type="text"
+                                    name="title"
+                                    value={newServiceListing.title}
+                                    onChange={handleInputChange}
+                                    className={error.title ? 'error' : ''}
+                                />
+                                {error.title && <span className="field-error">{error.title}</span>}
+                            </div>
+
+                            <div className="form-group">
+                                <label>Description</label>
+                                <textarea
+                                    name="description"
+                                    value={newServiceListing.description}
+                                    onChange={handleInputChange}
+                                    className={error.description ? 'error' : ''}
+                                    rows={4}
+                                />
+                                {error.description && <span className="field-error">{error.description}</span>}
+                            </div>
+
+                            <div className="form-group">
+                                <label>Price</label>
+                                <input
+                                    type="text"
+                                    name="price"
+                                    value={newServiceListing.price}
+                                    onChange={handleInputChange}
+                                    className={error.price ? 'error' : ''}
+                                />
+                                {error.price && <span className="field-error">{error.price}</span>}
+                            </div>
+
+                            <div className="form-group">
+                                <label>Location</label>
+                               <input
+                                    type="text"
+                                    name="location"
+                                    value={newServiceListing.location}
+                                    onChange={handleInputChange}
+                                    className={error.location ? 'error' : ''}
+                                />
+                                {error.location && <span className="field-error">{error.location}</span>}
+                            </div>
+
+                            <div className="form-actions">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowCreateModal(false)}
+                                    disabled={isLoading}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? 'Creating..' : 'Create User'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            <button
+                type="button"
+                onClick={handleChange}
+                className="create-button"
+                style={{ marginLeft: '10px' }}
+            >Refresh
+            </button>
+            <div className="search-container">
+                <div className="search-controls">
+                    <form onSubmit={handleSearch}>
+                        <div className="search-options">
+                        <span className="search-label">Service Title:</span>
+                        <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Search by Service name..."
+                            className="search-input"
+                            style={{ marginLeft: '10px' }}
+                        />
+                        </div>
+                        
+                        <div className="search-actions">
+                        <button 
+                            type="submit" 
+                            className="search-button"
+                        >
+                            {isLoading ? 'Searching...' : 'Search'}
+                        </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div className="profile-list">
+                    <table className="user-table">
+                        <thead>
+                            <tr>
+                                <th>Service Title</th>
+                                <th>Description</th>
+                                <th>Price</th>
+                                <th>Location</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                            <tbody>
+                                {serviceListing.map((service) => (
+                                    <tr key={service.id} className="profile-card">
+                                        <td>{service.title}</td>
+                                        <td>{service.description}</td>
+                                        <td>{service.price}</td>
+                                        <td>{service.location}</td>
+                                        <td>{service.is_active? 'Active' : 'Inactive'}</td>
+                                        <td>
+                                            <button
+                                                className="view-button"
+                                                onClick={() => handleUpdateButton(service)}
+                                            >
+                                                Update
+                                            </button>
+                                            <button
+                                                className="suspend"
+                                                onClick={() => suspendServiceListing(service.id)}
+                                            >
+                                                Suspend
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                    </table>
+                </div>
+
+        {showUpdateModal && (
+            <div className="modal-overlay">
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h2>Update Service</h2>
+                        <button 
+                            className="close-button"
+                            onClick={() => setShowUpdateModal(false)}
+                        >
+                            ×
+                        </button>
+                    </div>
+
+                    <form onSubmit={updateServiceListing}>
+                        <div className="form-group">
+                            <label>Title:</label>
+                            <input
+                                type="text"
+                                name="title"
+                                value={updateData.title}
+                                onChange={handleUpdateInputChange}
+
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label>Description</label>
+                            <textarea
+                                name="description"
+                                value={updateData.description}
+                                onChange={handleUpdateInputChange}
+                                rows={4}
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label>Price:</label>
+                            <input
+                                type="text"
+                                name="price"
+                                value={updateData.price}
+                                onChange={handleUpdateInputChange}
+
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label>Location:</label>
+                            <input
+                                type="text"
+                                name="location"
+                                value={updateData.location}
+                                onChange={handleUpdateInputChange}
+
+                            />
+                        </div>
+
+                        {error && <div className="error-message">{error}</div>}
+
+                        <div className="form-group">
+                            <label>
+                                Active Service
+                                <input
+                                    type="checkbox"
+                                    name="is_active"
+                                    checked={updateData.is_active}
+                                    onChange={(e) => setUpdateData(prev => ({
+                                        ...prev,
+                                        is_active: e.target.checked
+                                    }))}
+                                />
+                            </label>
+                        </div>
+
+                        <div className="form-actions">
+                            <button
+                                type="button"
+                                onClick={()=>setShowUpdateModal(false)}
+                                disabled={isLoading}
+                                className="cancel-button"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="submit-button"
+                            >
+                                {isLoading ? 'Updating...' : 'Update'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        )}
+            </div>
+    </>
+    );
+}

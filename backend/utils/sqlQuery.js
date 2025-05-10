@@ -229,7 +229,7 @@ export const roleCheckingTriggerAndTriggerFunction = `
         INTO role_name
         FROM user_account_details uad
         JOIN user_profile_details upd ON uad.profile_id = upd.id
-        WHERE uad.id = NEW.cleaner_id;
+        WHERE uad.profile_id = NEW.cleaner_id;
         IF role_name IS DISTINCT FROM 'Cleaner' THEN
             RAISE EXCEPTION 'User with ID % does not have the Cleaner role.', NEW.cleaner_id;
         END IF;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-export default function CreateUser() { 
+export default function CreateUserProfile() { 
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -14,7 +14,7 @@ export default function CreateUser() {
 
   
       useEffect(() => {
-        const handleView = async () => {
+        const viewAllUserProfile = async () => {
             setIsLoading(true);
             setError('');
     
@@ -40,7 +40,7 @@ export default function CreateUser() {
                 setIsLoading(false);
             }
         };
-        handleView();
+        viewAllUserProfile();
       }, []);
 
 
@@ -50,7 +50,7 @@ export default function CreateUser() {
     if (error[name]) setError(prev => ({ ...prev, [name]: '' }));
   };
 
-  const handleCreateUser = async(e) => {
+  const createUserProfile = async(e) => {
     e.preventDefault();
 
     const newError = {};
@@ -133,7 +133,7 @@ export default function CreateUser() {
               </button>
             </div>
             
-            <form onSubmit={handleCreateUser}>
+            <form onSubmit={createUserProfile}>
               {error.form && <div className="error-message">{error.form}</div>}
               
               <div className="form-group">

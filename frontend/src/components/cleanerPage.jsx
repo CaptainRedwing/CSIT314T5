@@ -1,4 +1,5 @@
 import React from "react";
+import ServiceListing from "./serviceListingComponents/searchListing";
 
 export default function cleanerPage(){
 
@@ -8,11 +9,14 @@ export default function cleanerPage(){
 
     return (
         <>
-        <div>
-            <h1>Cleaner Page</h1>
+        <div className="admin-page">
+            <div className="admin-header">
+                <h1>Cleaner Page</h1>
 
-            <button onClick={handleLogout}>Logout</button>
+                <button className="logout-button" onClick={handleLogout}>Logout</button>
+            </div>
         </div>
+        <ServiceListing />
         </>
     )
 }

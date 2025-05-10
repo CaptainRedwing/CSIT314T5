@@ -78,7 +78,7 @@ export default function UserProfile() {
       };
     
 
-    const handleUpdateProfile = (profile) => {
+    const handleUpdate = (profile) => {
         setUpdateData({
             id: profile.id,
             name: profile.name,
@@ -88,7 +88,7 @@ export default function UserProfile() {
         setShowUpdateModal(true);
     };
 
-    const handleSubmit = async (e) => {
+    const updateUserProfile = async (e) => {
         e.preventDefault();
         setIsLoading(true);
         try {
@@ -152,7 +152,7 @@ export default function UserProfile() {
                                     <td>
                                         <button 
                                             className="update-button"
-                                            onClick={() => handleUpdateProfile(profile)}
+                                            onClick={() => handleUpdate(profile)}
                                         >
                                             Update
                                         </button>
@@ -181,7 +181,7 @@ export default function UserProfile() {
                             <h3>Update Profile</h3>
                             <button onClick={() => setShowUpdateModal(false)}>×</button>
                         </div>
-                        <form onSubmit={handleSubmit}>
+                        <form onSubmit={updateUserProfile}>
                             <div className="form-group">
                                 <label>Name:</label>
                                 <input

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-export default function SearchUser() { 
+export default function UserAccount() { 
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');

@@ -18,10 +18,6 @@ export default function ServiceCategories() {
         description: ''
       });
 
-    const [updateServiceCategory, setUpdateServiceCategory] = useState({
-        name:'',
-        description:''
-    })
     const [showUpdateModal, setShowUpdateModal] = useState(false);
 
     useEffect(() => {

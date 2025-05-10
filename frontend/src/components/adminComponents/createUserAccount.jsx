@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-export default function CreateUser() { 
+export default function CreateUserAccount() { 
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -19,7 +19,7 @@ export default function CreateUser() {
 
       useEffect(() => {
 
-        const fetchProfiles = async () => {
+        const viewAllUserAccount = async () => {
           try {
             const response = await fetch("http://localhost:3000/api/userProfile", {
               method: 'GET',
@@ -49,7 +49,7 @@ export default function CreateUser() {
           }
         };
 
-        fetchProfiles();
+        viewAllUserAccount();
       }, []);
 
 
@@ -59,15 +59,7 @@ export default function CreateUser() {
     if (error[name]) setError(prev => ({ ...prev, [name]: '' }));
   };
 
-  const handleChange = (e) => {
-    const { name, value} = e.target;
-    setNewUser(prev => ({
-        ...prev,
-        [name]:value
-    }))
-}
-
-  const handleCreateUser = async(e) => {
+  const createUserAccount = async(e) => {
     e.preventDefault();
 
     const newError = {};
@@ -129,7 +121,6 @@ export default function CreateUser() {
 
   const handleProfileChange = (e) => {
 
-
     const selectedId = e.target.value;
 
     setNewUser(prev => ({
@@ -160,7 +151,7 @@ export default function CreateUser() {
               </button>
             </div>
             
-            <form onSubmit={handleCreateUser}>
+            <form onSubmit={createUserAccount}>
               {error.form && <div className="error-message">{error.form}</div>}
               
               <div className="form-group">

@@ -16,7 +16,7 @@ const router = createBrowserRouter([
   { path: "/", element: <App />},
   { path: "/login", element: <Login />},
   { path: "/adminPage", element: <AdminPage />},
-  { path: "/cleanerPage", element: <Cleaner />},
+  { path: "/cleanerPage/:profile_id", element: <Cleaner />},
   { path: "/homeownerPage", element: <HomeownerPage />},
   { path: "/platformManagerPage", element: <PlatformManagerPage />},
   { path: "/userPage/:userId", element: <UserPage />},

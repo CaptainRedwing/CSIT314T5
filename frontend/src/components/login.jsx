@@ -96,10 +96,10 @@ export default function Login() {
           navigate('/adminPage');
           break;
         case '2': // Cleaner
-          navigate('/cleanerPage');
+          navigate(`/cleanerPage/${formData.profile_id}`);
           break;
         case '3': // Homeowner
-          navigate(`/homeowner/${formData.username}`);
+          navigate(`/homeowner/${formData.profile_id}`);
           break;
         case '4': // Platform Manager
           navigate('/platformManagerPage');
