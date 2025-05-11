@@ -7,6 +7,7 @@ import userAdminRoute from "../backend/routes/userAdmin.js";
 import userProfileRoute from "../backend/routes/userProfile.js";
 import serviceCategoriesRoute from "../backend/routes/serviceCategories.js";
 import serviceListingRoute from "../backend/routes/serviceListing.js";
+import favouriteListingRoute from "../backend/routes/favouriteListing.js";
 
 dotenv.config();
 
@@ -31,6 +32,8 @@ app.use('/api/userProfile', userProfileRoute);
 app.use('/api/serviceCategories', serviceCategoriesRoute);
 
 app.use('/api/serviceListing', serviceListingRoute);
+
+app.use('/api/favouriteListing', favouriteListingRoute);
 
 
 

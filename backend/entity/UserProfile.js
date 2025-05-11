@@ -36,7 +36,7 @@ export class UserProfile{
             SELECT 1
             FROM pg_type t
             JOIN pg_enum e ON t.oid = e.enumtypid
-            WHERE t.typname = 'role_type' AND e.enumlabel = $1
+            WHERE t.typname = 'profile_type' AND e.enumlabel = $1
         ) AS exists;
         `;
         const enumCheck = await query(enumExistsQuery, [this.name]);
