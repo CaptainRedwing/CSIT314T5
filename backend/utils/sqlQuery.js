@@ -1,3 +1,5 @@
+import e from "express";
+
 // User Account CRUDS and Login
 export const createRoleQuery = `
     CREATE TYPE profile_type AS
@@ -156,14 +158,13 @@ export const createServiceListingTableQuery = `
     title VARCHAR(50) NOT NULL,
     description VARCHAR(50) NOT NULL,
     price DOUBLE PRECISION NOT NULL,
-    location VARCHAR(50) NOT NULL,
-    is_active BOOLEAN
+    location VARCHAR(50) NOT NULL
     );
 `;
 
 export const createServiceListingQuery = `
-    INSERT INTO service_listing_details(cleaner_id, title, description, price, location, is_active)
-    VALUES($1, $2, $3, $4, $5, $6) RETURNING *;
+    INSERT INTO service_listing_details(cleaner_id, title, description, price, location)
+    VALUES($1, $2, $3, $4, $5) RETURNING *;
 `;
 
 export const viewServiceListingQuery = `
@@ -178,24 +179,23 @@ export const updateServiceListingQuery = `
     description = COALESCE($3, description),
     price = COALESCE($4, price),
     location = COALESCE($5, location),
-    is_active = CASE
-    WHEN is_active = true AND $6 = false THEN is_active
-    ELSE COALESCE($6, is_active)
-    END
-    WHERE id = $7
+    WHERE id = $6
     RETURNING *
 `;
 
-export const suspendServiceListingQuery = `
-    UPDATE service_listing_details
-    SET
-    is_active = false
+export const deleteServiceListingQuery = `
+    DELETE FROM service_listing_details 
     WHERE id = $1;
 `;
 
 export const searchServiceListingQuery = `
     SELECT * FROM service_listing_details
     WHERE title = $1;
+`;
+
+export const viewServiceListingByIdQuery = `
+    SELECT * FROM service_listing_details
+    WHERE id = $1;
 `;
 
 export const cleanerCheckingTriggerAndTriggerFunction = `

@@ -4,24 +4,24 @@ import {
     createServiceListingQuery,
     viewServiceListingQuery,
     updateServiceListingQuery,
-    suspendServiceListingQuery,
+    deleteServiceListingQuery,
     searchServiceListingQuery,
+    viewServiceListingByIdQuery,
     cleanerCheckingTriggerAndTriggerFunction
 } from "../utils/sqlQuery.js";
 
 export class ServiceListing{
-    constructor({id, cleaner_id, title, description, price, location, is_active}){
+    constructor({id, cleaner_id, title, description, price, location}){
         this.id = id;
         this.cleaner_id = cleaner_id;
         this.title = title;
         this.description = description;
         this.price = price;
         this.location = location;
-        this.is_active = is_active;
     }
 
     isValid(){
-        return this.cleaner_id && this.title && this.description && this.price && this.location && this.is_active;
+        return this.cleaner_id && this.title && this.description && this.price && this.location;
     }
 
     static fromDB(row){
@@ -31,8 +31,7 @@ export class ServiceListing{
             title: row.title,
             description: row.description,
             price: row.price,
-            location: row.location,
-            is_active: row.is_active
+            location: row.location
         });
     }
 
@@ -43,8 +42,7 @@ export class ServiceListing{
             this.title,
             this.description,
             this.price,
-            this.location,
-            this.is_active
+            this.location
         ]);
         return ServiceListing.fromDB(rows[0]);
     }
@@ -60,14 +58,13 @@ export class ServiceListing{
         return rows.map(ServiceListing.fromDB);
     }
 
-    static async updateServiceListing(id, {cleaner_id, title, description, price, location, is_active}){
+    static async updateServiceListing(id, {cleaner_id, title, description, price, location}){
         const {rowCount, rows} = await query(updateServiceListingQuery, [
             cleaner_id,
             title,
             description,
             price,
             location,
-            is_active,
             id
         ]);
         if(rowCount == 0){
@@ -76,8 +73,8 @@ export class ServiceListing{
         return true;
     }
 
-    static async suspendServiceListing(id){
-        const {rowCount} = await query(suspendServiceListingQuery, [id]);
+    static async deleteServiceListing(id){
+        const {rowCount} = await query(deleteServiceListingQuery, [id]);
         if(rowCount == 0){
             return false;
         }
@@ -92,6 +89,13 @@ export class ServiceListing{
         return ServiceListing.fromDB(rows[0]);
     }
 
+    static async viewServiceListingById(id){
+        const {rows} = await query(viewServiceListingByIdQuery, [id]);
+        if(!rows.length){
+            return null;
+        }
+        return ServiceListing.fromDB(rows[0]);
+    }
 
 
 
