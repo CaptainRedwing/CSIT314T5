@@ -5,7 +5,8 @@ import { updateServiceListingController } from "../controller/serviceListing/upd
 import { deleteServiceListingController } from "../controller/serviceListing/deleteServiceListingController.js";
 import { searchServiceListingController } from "../controller/serviceListing/searchServiceListingController.js";
 import { viewServiceListingByIdController } from "../controller/serviceListing/viewServiceListingByIdController.js";
-
+import { viewServiceListingCountController } from "../controller/serviceListing/viewServiceListingCountController.js";
+import { shortListedCountController } from "../controller/serviceListing/shortListedCountController.js";
 
 const router =  express.Router();
 
@@ -16,5 +17,7 @@ router.put("/:id", updateServiceListingController.updateServiceListing);
 router.delete("/:id", deleteServiceListingController.deleteServiceListing);
 router.get("/:title", searchServiceListingController.searchServiceListing);
 router.get("/id/:id", viewServiceListingByIdController.viewServiceListingById);
+router.post("/service-listing/:id/view", viewServiceListingCountController.viewServiceListingCount);
+router.post("/service-listing/:id/short-listed", shortListedCountController.shortListedCount);
 
 export default router;

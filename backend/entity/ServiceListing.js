@@ -6,22 +6,28 @@ import {
     updateServiceListingQuery,
     deleteServiceListingQuery,
     searchServiceListingQuery,
-    viewServiceListingByIdQuery,
-    cleanerCheckingTriggerAndTriggerFunction
+    cleanerCheckingTriggerAndTriggerFunction,
+    incrementViewCountQuery,
+    getViewCountQuery,
+    incrementListedCountQuery,
+    getListedCountQuery
 } from "../utils/sqlQuery.js";
 
 export class ServiceListing{
-    constructor({id, cleaner_id, title, description, price, location}){
+    constructor({id, cleaner_id, title, description, price, location, view_count, listed_count, service_categories_name}){
         this.id = id;
         this.cleaner_id = cleaner_id;
         this.title = title;
         this.description = description;
         this.price = price;
         this.location = location;
+        this.view_count = view_count;
+        this.listed_count = listed_count;
+        this.service_categories_name = service_categories_name;
     }
 
     isValid(){
-        return this.cleaner_id && this.title && this.description && this.price && this.location;
+        return this.cleaner_id && this.title && this.description && this.price && this.location && this.view_count && this.listed_count && this.service_categories_name;
     }
 
     static fromDB(row){
@@ -31,7 +37,10 @@ export class ServiceListing{
             title: row.title,
             description: row.description,
             price: row.price,
-            location: row.location
+            location: row.location,
+            view_count: row.view_count,
+            listed_count: row.listed_count,
+            service_categories_name: row.service_categories_name
         });
     }
 
@@ -42,7 +51,10 @@ export class ServiceListing{
             this.title,
             this.description,
             this.price,
-            this.location
+            this.location,
+            this.view_count,
+            this.listed_count,
+            this.service_categories_name
         ]);
         return ServiceListing.fromDB(rows[0]);
     }
@@ -58,13 +70,14 @@ export class ServiceListing{
         return rows.map(ServiceListing.fromDB);
     }
 
-    static async updateServiceListing(id, {cleaner_id, title, description, price, location}){
+    static async updateServiceListing(id, {cleaner_id, title, description, price, location, service_categories_name}){
         const {rowCount, rows} = await query(updateServiceListingQuery, [
             cleaner_id,
             title,
             description,
             price,
             location,
+            service_categories_name,
             id
         ]);
         if(rowCount == 0){
@@ -73,7 +86,7 @@ export class ServiceListing{
         return true;
     }
 
-    static async deleteServiceListing(id){
+    static async suspendServiceListing(id){
         const {rowCount} = await query(deleteServiceListingQuery, [id]);
         if(rowCount == 0){
             return false;
@@ -81,22 +94,39 @@ export class ServiceListing{
         return true;
     }
 
-    static async searchServiceListing(name){
-        const {rows} = await query(searchServiceListingQuery, [name]);
+    static async searchServiceListing(title){
+        const {rows} = await query(searchServiceListingQuery, [title]);
         if(!rows.length){
             return null;
         }
         return ServiceListing.fromDB(rows[0]);
     }
 
-    static async viewServiceListingById(id){
-        const {rows} = await query(viewServiceListingByIdQuery, [id]);
-        if(!rows.length){
+    static async updateAndGetViewCount(id){
+        const {rows: incrementedRows} = await query(incrementViewCountQuery, [id]);
+        if(!incrementedRows.length){
             return null;
         }
-        return ServiceListing.fromDB(rows[0]);
+        const updatedViewCount = incrementedRows[0].view_count;
+        const {rows: countRows} = await query(getViewCountQuery, [id]);
+        if(!countRows.length){
+            return null;
+        }
+        return countRows[0].view_count;
     }
 
+    static async updateAndGetListedCount(id){
+        const {rows: incrementedRows} = await query(incrementListedCountQuery, [id]);
+        if(!incrementedRows.length){
+            return null;
+        }
+        const updatedListedCount = incrementedRows[0].listed_count;
+        const {rows: countRows} = await query(getListedCountQuery, [id]);
+        if(!countRows.length){
+            return null;
+        }
+        return countRows[0].listed_count;
+    }
 
 
 

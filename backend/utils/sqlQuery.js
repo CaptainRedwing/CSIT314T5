@@ -1,4 +1,46 @@
-import e from "express";
+// Drop all tables
+export const dropAllQuery = `
+DO $$
+DECLARE
+    tbl TEXT;
+BEGIN
+    -- Drop all tables
+    FOR tbl IN
+        SELECT tablename FROM pg_tables
+        WHERE schemaname = 'public'
+    LOOP
+        EXECUTE 'DROP TABLE IF EXISTS public.' || quote_ident(tbl) || ' CASCADE';
+    END LOOP;
+END
+$$;
+
+`;
+
+//Drop All type
+export const dropTypeQuery = `
+DO $$
+DECLARE
+    typ TEXT;
+BEGIN
+    -- Drop all user-defined types
+    FOR typ IN
+        SELECT t.typname
+        FROM pg_type t
+        LEFT JOIN pg_catalog.pg_namespace n ON n.oid = t.typnamespace
+        WHERE (t.typrelid = 0 OR (SELECT c.relkind = 'c' FROM pg_catalog.pg_class c WHERE c.oid = t.typrelid))
+          AND NOT EXISTS (
+              SELECT 1 FROM pg_catalog.pg_type el WHERE el.oid = t.typelem AND el.typarray = t.oid
+          )
+          AND n.nspname = 'public'
+          AND t.typname NOT LIKE '_%' -- skip array types
+          AND t.typcategory NOT IN ('A', 'P', 'B') -- skip arrays, pseudo, base types
+    LOOP
+        EXECUTE 'DROP TYPE IF EXISTS public.' || quote_ident(typ) || ' CASCADE';
+    END LOOP;
+END
+$$;
+
+`
 
 // User Account CRUDS and Login
 export const createRoleQuery = `
@@ -84,7 +126,6 @@ export const createUserProfileQuery = `
     VALUES(COALESCE($1::profile_type, 'Pending'::profile_type), $2, $3) RETURNING *
 `;
 
-
 export const viewUserProfileQuery = `
     SELECT * FROM user_profile_details;
 `;
@@ -159,13 +200,16 @@ export const createServiceListingTableQuery = `
     title VARCHAR(50) NOT NULL,
     description VARCHAR(50) NOT NULL,
     price DOUBLE PRECISION NOT NULL,
-    location VARCHAR(50) NOT NULL
+    location VARCHAR(50) NOT NULL,
+    view_count INTEGER DEFAULT 0,
+    listed_count INTEGER DEFAULT 0,
+    service_categories_name VARCHAR REFERENCES service_categories_details(name) ON DELETE SET NULL
     );
 `;
 
 export const createServiceListingQuery = `
-    INSERT INTO service_listing_details(cleaner_id, title, description, price, location)
-    VALUES($1, $2, $3, $4, $5) RETURNING *;
+    INSERT INTO service_listing_details(cleaner_id, title, description, price, location, view_count, listed_count, service_categories_name)
+    VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;
 `;
 
 export const viewServiceListingQuery = `
@@ -180,7 +224,8 @@ export const updateServiceListingQuery = `
     description = COALESCE($3, description),
     price = COALESCE($4, price),
     location = COALESCE($5, location),
-    WHERE id = $6
+    service_categories_name = COALESCE($6, service_categories_name)
+    WHERE id = $7
     RETURNING *
 `;
 
@@ -240,6 +285,34 @@ export const cleanerCheckingTriggerAndTriggerFunction = `
     BEFORE INSERT ON service_listing_details
     FOR EACH ROW
     EXECUTE FUNCTION ensure_cleaner_role();
+`;
+
+export const incrementViewCountQuery = `
+    UPDATE service_listing_details
+    SET
+    view_count = view_count + 1
+    WHERE id = $1
+    RETURNING view_count;
+`;
+
+export const getViewCountQuery = `
+    SELECT view_count
+    FROM service_listing_details
+    WHERE id = $1;
+`;
+
+export const incrementListedCountQuery = `
+    UPDATE service_listing_details
+    SET
+    listed_count = listed_count + 1
+    WHERE id = $1
+    RETURNING listed_count;
+`;
+
+export const getListedCountQuery = `
+    SELECT listed_count
+    FROM service_listing_details
+    WHERE id = $1;
 `;
 
 
@@ -309,3 +382,115 @@ export const homeownerCheckingTriggerAndTriggerFunction = `
     EXECUTE FUNCTION ensure_homeowner_role();
 `;
 
+
+//Match History
+export const createMatchHistoryTableQuery = `
+    CREATE TABLE IF NOT EXISTS match_history(
+    id SERIAL PRIMARY KEY,
+    service_listing_id INT REFERENCES service_listing_details(id) ON DELETE SET NULL,
+    homeowner_id INT REFERENCES user_account_details(id) ON DELETE SET NULL,
+    date_confirmed DATE DEFAULT CURRENT_DATE,
+    service_date DATE DEFAULT CURRENT_DATE,
+    status BOOLEAN 
+    );
+`;
+
+export const cleanerViewMatchHistoryQuery = `
+    SELECT 
+        mh.id,
+        mh.service_listing_id,
+        mh.homeowner_id,
+        mh.date_confirmed,
+        mh.service_date,
+        mh.status
+    FROM match_history mh
+    JOIN service_listing_details sld
+        ON mh.service_listing_id = sld.id
+    WHERE sld.cleaner_id = $1
+    AND mh.status = true
+    ORDER BY date_confirmed DESC;
+`;
+
+export const cleanerSearchMatchHistoryQuery = `
+    SELECT 
+        mh.id,
+        mh.service_listing_id,
+        mh.homeowner_id,
+        mh.date_confirmed,
+        mh.service_date,
+        mh.status
+    FROM match_history mh
+    JOIN service_listing_details sld
+        ON mh.service_listing_id = sld.id
+    WHERE sld.cleaner_id = $1;
+`;
+
+export const homeownerSearchMatchHistoryQuery = `
+    SELECT * 
+    FROM match_history mh
+    JOIN service_listing_details sld
+        ON mh.service_listing_id = sld.id
+    WHERE mh.homeowner_id = $1;
+`;
+
+export const homeownerViewMatchHistoryQuery = `
+    SELECT * 
+    FROM match_history mh
+    JOIN service_listing_details sld
+        ON mh.service_listing_id = sld.id
+    WHERE mh.homeowner_id = $1 
+    AND mh.status = true
+    ORDER BY date_confirmed DESC;
+`;
+
+// US 30
+export const cleanerViewPageAttributes = `
+    SELECT 
+        sld.title, 
+        mh.service_date,
+        sld.homeowner_id,
+        sld.description,
+        sld.price
+    FROM service_listing_details sld
+    JOIN match_history mh 
+        ON mh.service_listing_id = sld.id
+    WHERE mh.cleaner_id = $1;
+`;
+
+// US 31
+export const cleanerSearchPageAttributes = `
+    SELECT
+        sld.title,
+        sld.service_categories,
+        sld.price
+    FROM service_listing_id sld
+    JOIN match_history mh
+        ON mh.service_listing_id = sld.id
+    WHERE mh.cleaner_id = $1;
+`;
+
+
+// US 32
+export const homeownerViewMatchHistoryAttributes = `
+    SELECT
+        sld.title,
+        mh.cleaner_id,
+        sld.description,
+        sld.price
+    FROM service_listing_id sld
+    JOIN match_history mh
+        ON mh.service_listing_id = sld.id
+    WHERE mh.homeowner_id = $1;
+`;
+
+// US 31
+export const homeownerSearchMatchHistoryAttributes= `
+    SELECT
+        sld.title,
+        sld.categories,
+        sld.price
+    FROM service_listing_id sld
+    JOIN match_history mh
+        ON mh.service_listing_id = sld.id
+    WHERE mh.homeowner_id = $1;
+`
