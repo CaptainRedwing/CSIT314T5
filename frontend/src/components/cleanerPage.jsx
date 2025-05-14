@@ -1,5 +1,5 @@
 import React from "react";
-import ServiceListing from "./serviceListingComponents/searchListing";
+import ServiceListing from "./serviceListingComponents/ServiceListing";
 
 export default function cleanerPage(){
 

@@ -84,6 +84,7 @@ export const createUserProfileQuery = `
     VALUES(COALESCE($1::profile_type, 'Pending'::profile_type), $2, $3) RETURNING *
 `;
 
+
 export const viewUserProfileQuery = `
     SELECT * FROM user_profile_details;
 `;

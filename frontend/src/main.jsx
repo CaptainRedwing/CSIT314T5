@@ -7,8 +7,6 @@ import AdminPage from './components/adminPage';
 import Cleaner from './components/cleanerPage';
 import HomeownerPage from './components/homeownerPage';
 import PlatformManagerPage from './components/platformManagerPage';
-import UserPage from './components/adminComponents/userPage';
-import UserProfile from './components/adminComponents/userProfile';
 import './index.css';
 
 const router = createBrowserRouter([
@@ -17,10 +15,8 @@ const router = createBrowserRouter([
   { path: "/login", element: <Login />},
   { path: "/adminPage", element: <AdminPage />},
   { path: "/cleanerPage/:profile_id", element: <Cleaner />},
-  { path: "/homeownerPage", element: <HomeownerPage />},
+  { path: "/homeownerPage/:profile_id", element: <HomeownerPage />},
   { path: "/platformManagerPage", element: <PlatformManagerPage />},
-  { path: "/userPage/:userId", element: <UserPage />},
-  { path: "/userProfile", element: <UserProfile />}
 
 ]);
 

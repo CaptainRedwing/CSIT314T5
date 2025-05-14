@@ -10,6 +10,10 @@ export default function Login() {
     profile_id: ''
   });
 
+  const [users, setUsers] = useState([]);
+
+
+
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [profiles, setProfiles] = useState([]);
@@ -42,6 +46,7 @@ export default function Login() {
     };
     
     fetchProfiles();
+    viewAllUserAccount();
   }, []);
 
   const handleChange = (e) => {
@@ -52,6 +57,31 @@ export default function Login() {
     }));
     // Clear error when user makes changes
     if (error) setError('');
+  };
+
+  const viewAllUserAccount = async () => {
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch("http://localhost:3000/api/userAdmin", { 
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch users');
+      }
+
+      const data = await response.json();
+      setUsers(data);
+    } catch (error) {
+      setError(error.message);
+      console.error('Fetch users error:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -76,10 +106,13 @@ export default function Login() {
           username: formData.username,
           password: formData.password,
           profile_id: formData.profile_id
-        })
+        })  
       });
 
+      
+
       const data = await response.json();
+
       
       if (!response.ok || data.success === false) {
         throw new Error(data.message || 'Authentication failed. Please check your credentials.');
@@ -91,15 +124,19 @@ export default function Login() {
       localStorage.setItem('profile_id', formData.profile_id);
 
       // Navigation based on profile_id
+
+      const currentUser = users.find(user => user.username === formData.username);
+      const user_id = currentUser?.id; 
+
       switch(formData.profile_id) {
         case '1': // Admin
           navigate('/adminPage');
           break;
         case '2': // Cleaner
-          navigate(`/cleanerPage/${formData.profile_id}`);
+          navigate(`/cleanerPage/${user_id}`);
           break;
         case '3': // Homeowner
-          navigate(`/homeowner/${formData.profile_id}`);
+          navigate(`/homeownerPage/${user_id}`);
           break;
         case '4': // Platform Manager
           navigate('/platformManagerPage');

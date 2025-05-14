@@ -6,6 +6,7 @@ export default function ServiceListing() {
     const [isLoading, setIsLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [serviceListing, setServiceListing] = useState([]);
+    const [showServiceList, setShowServiceList] = useState(false);
     const [newServiceListing, setNewServiceListing] = useState({
         cleaner_id: profile_id,
         title:'',
@@ -47,6 +48,7 @@ export default function ServiceListing() {
 
     const handleChange = () => {
         viewServiceListing();
+        setShowServiceList(true);
     }
     const handleSearch = async (e) => {
         e.preventDefault();
@@ -146,7 +148,6 @@ export default function ServiceListing() {
             if (updateData.description) updatePayload.description = updateData.description;
             if (updateData.price) updatePayload.price = updateData.price;
             if (updateData.location) updatePayload.location = updateData.location;
-            if (updateData.is_active) updatePayload.is_active = updateData.is_active;
 
             const response = await fetch(`http://localhost:3000/api/serviceListing/${updateData.id}`, {
                 method: 'PUT',
@@ -177,7 +178,6 @@ export default function ServiceListing() {
             description: service.description,
             price: service.price,
             location: service.location,
-            is_active: service.is_active
           });
         setShowUpdateModal(true);
     }
@@ -312,7 +312,7 @@ export default function ServiceListing() {
                 onClick={handleChange}
                 className="create-button"
                 style={{ marginLeft: '10px' }}
-            >Refresh
+            >View Service Listing
             </button>
             <div className="search-container">
                 <div className="search-controls">
@@ -348,10 +348,10 @@ export default function ServiceListing() {
                                 <th>Description</th>
                                 <th>Price</th>
                                 <th>Location</th>
-                                <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
+                        {showServiceList && (
                             <tbody>
                                 {serviceListing.map((service) => (
                                     <tr key={service.id} className="profile-card">
@@ -359,7 +359,6 @@ export default function ServiceListing() {
                                         <td>{service.description}</td>
                                         <td>{service.price}</td>
                                         <td>{service.location}</td>
-                                        <td>{service.is_active? 'Active' : 'Inactive'}</td>
                                         <td>
                                             <button
                                                 className="view-button"
@@ -377,6 +376,7 @@ export default function ServiceListing() {
                                     </tr>
                                 ))}
                             </tbody>
+                        )}
                     </table>
                 </div>
 
@@ -438,21 +438,6 @@ export default function ServiceListing() {
                         </div>
 
                         {error && <div className="error-message">{error}</div>}
-
-                        <div className="form-group">
-                            <label>
-                                Active Service
-                                <input
-                                    type="checkbox"
-                                    name="is_active"
-                                    checked={updateData.is_active}
-                                    onChange={(e) => setUpdateData(prev => ({
-                                        ...prev,
-                                        is_active: e.target.checked
-                                    }))}
-                                />
-                            </label>
-                        </div>
 
                         <div className="form-actions">
                             <button

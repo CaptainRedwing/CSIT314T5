@@ -5,6 +5,7 @@ export default function UserProfile() {
     const [error, setError] = useState('');
     const [userProfile, setUserProfile] = useState([]);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
+    const [showUserProfile, setShowUserProfile] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [updateData, setUpdateData] = useState({
         id: null,
@@ -111,6 +112,12 @@ export default function UserProfile() {
         viewAllUserProfile();
     }, []);
 
+    
+    const handleChange = () => {
+        viewAllUserProfile();
+        setShowUserProfile(true);
+    }
+
     return (
         <div className="user-profile-container">
             <h2>User Profiles</h2>
@@ -124,7 +131,10 @@ export default function UserProfile() {
                         placeholder="Search by profile name..."
                     />
                     <button type="submit">Search</button>
-                    <button type="button" onClick={viewAllUserProfile}>Refresh</button>
+                    <button type="button" 
+                        onClick={handleChange}
+                        >View User Profile
+                    </button>
                 </form>
             </div>
 
@@ -142,6 +152,7 @@ export default function UserProfile() {
                             <th>Actions</th>
                         </tr>
                     </thead>
+                    {showUserProfile && (
                     <tbody>
                         {userProfile.length > 0 ? (
                             userProfile.map(profile => (
@@ -171,6 +182,7 @@ export default function UserProfile() {
                             </tr>
                         )}
                     </tbody>
+                )}
                 </table>
             )}
 

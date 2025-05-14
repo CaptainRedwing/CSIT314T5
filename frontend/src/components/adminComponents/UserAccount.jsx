@@ -6,6 +6,7 @@ export default function UserAccount() {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [searchBy, setSearchBy] = useState('username');
+  const [showUserAccount, setShowUserAccount] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showUserModal, setShowUserModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -213,6 +214,11 @@ export default function UserAccount() {
     }
   };
 
+    const handleChange = () => {
+        viewAllUserAccount();
+        setShowUserAccount(true);
+    }
+
   return (
     <div className="search-container">
       <h2>User Accounts</h2>
@@ -260,11 +266,11 @@ export default function UserAccount() {
             
             <button 
               type="button" 
-              onClick={viewAllUserAccount}
+              onClick={handleChange}
               disabled={isLoading}
               className="refresh-button"
             >
-              {isLoading ? 'Refreshing...' : 'Refresh'}
+              View User Account
             </button>
           </div>
         </form>
@@ -283,6 +289,7 @@ export default function UserAccount() {
               <th>Actions</th>
             </tr>
           </thead>
+          {showUserAccount && (
           <tbody>
             {users.map(user => (
               <tr key={user.id}>
@@ -306,6 +313,7 @@ export default function UserAccount() {
               </tr>
             ))}
           </tbody>
+          )}
         </table>
       )}
 
