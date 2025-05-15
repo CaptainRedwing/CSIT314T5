@@ -68,7 +68,7 @@ export default function UserAccount() {
     }
   };
 
-  const handleSearch = async (e) => {
+  const searchUserAccount = async (e) => {
     e.preventDefault();
     if (!searchTerm.trim()) {
       viewAllUserAccount();
@@ -135,6 +135,9 @@ export default function UserAccount() {
   };
 
   const getProfileNameById = (profileId) => {
+    console.log(users)
+    console.log(profiles)
+    console.log(profileId)
     const profile = profiles.find(profile => profile.id === profileId);
     return profile ? profile.name : 'Unknown';
   };
@@ -224,7 +227,7 @@ export default function UserAccount() {
       <h2>User Accounts</h2>
       
       <div className="search-controls">
-        <form onSubmit={handleSearch}>
+        <form onSubmit={searchUserAccount}>
           <div className="search-options">
             <select
               value={searchBy}
@@ -294,7 +297,7 @@ export default function UserAccount() {
             {users.map(user => (
               <tr key={user.id}>
                 <td>{user.username}</td>
-                <td>{getProfileNameById(user.profile_id)}</td>
+                <td>{getProfileNameById(user.user_profile_id)}</td>
                 <td>
                   <button 
                     className="view-button"

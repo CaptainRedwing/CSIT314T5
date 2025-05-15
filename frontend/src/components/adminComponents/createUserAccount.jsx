@@ -34,8 +34,7 @@ export default function CreateUserAccount() {
             const data = await response.json();
             
             setProfiles(data);
-            console.log(data)
-            console.log(profiles)
+
         
             if (data && data.length > 0) {
               setNewUser(prev => ({
@@ -88,7 +87,7 @@ export default function CreateUserAccount() {
           username: newUser.username,
           email: newUser.email,
           password: newUser.password,
-          profile_id: newUser.profile_id,
+          user_profile_id: newUser.profile_id,
           is_active: newUser.is_active
         })
       });
@@ -135,7 +134,7 @@ export default function CreateUserAccount() {
         onClick={() => setShowCreateModal(true)}
         className="create-button"
       >
-        Create User
+        Create User Account
       </button>
 
       {showCreateModal && (

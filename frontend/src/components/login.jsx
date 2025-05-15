@@ -89,7 +89,7 @@ export default function Login() {
     
     // Basic validation
     if (!formData.username || !formData.password || !formData.profile_id) {
-      setError('Please fill in all fields');
+      setError('Please enter username or password');
       return;
     }
 
@@ -115,7 +115,7 @@ export default function Login() {
 
       
       if (!response.ok || data.success === false) {
-        throw new Error(data.message || 'Authentication failed. Please check your credentials.');
+        throw new Error(data.message || 'Invalid usernamd or password');
       }
       
       // Store authentication data
@@ -169,7 +169,7 @@ export default function Login() {
       ) : null}
 
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
+        <div className="form-login">
           <label>Account Type</label>
           <select
             name="profile_id"
@@ -194,7 +194,6 @@ export default function Login() {
             name="username"
             value={formData.username}
             onChange={handleChange}
-            required
             disabled={isLoading}
           />
         </div>
@@ -207,7 +206,6 @@ export default function Login() {
             name="password"
             value={formData.password}
             onChange={handleChange}
-            required
             disabled={isLoading}
           />
         </div>
@@ -215,7 +213,7 @@ export default function Login() {
         <div className="form-row">
           <button 
             type="submit" 
-            disabled={isLoading || !formData.username || !formData.password || !formData.profile_id}
+            aria-label="Login button"
           >
             {isLoading ? 'Logging in...' : 'Login'}
           </button>

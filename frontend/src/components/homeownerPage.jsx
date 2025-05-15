@@ -1,5 +1,6 @@
 import React from "react";
 import FavouriteListing from "./favoriteListingComponents/FavorateSerive"
+import HomeownerMatchHistory from "./matchHistory/homeownerMatchHistory";
 
 export default function homeownerPage(){
 
@@ -22,6 +23,7 @@ export default function homeownerPage(){
         </div>
 
         <FavouriteListing />
+        <HomeownerMatchHistory />
         </>
     )
 }

@@ -7,13 +7,16 @@ export default function ServiceListing() {
     const [searchTerm, setSearchTerm] = useState('');
     const [serviceListing, setServiceListing] = useState([]);
     const [showServiceList, setShowServiceList] = useState(false);
+    const [serviceCategories, setserviceCategories] = useState([]);
     const [newServiceListing, setNewServiceListing] = useState({
         cleaner_id: profile_id,
         title:'',
         description:'',
         price:'',
         location:'',
-        is_active: true
+        view_count: '0',
+        listed_count: '0',
+        service_categories_name:''
     })
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [error, setError] = useState('');
@@ -24,13 +27,16 @@ export default function ServiceListing() {
         description: '',
         price:'',
         location:'',
-        is_active: true
+        view_count: '0',
+        listed_count: '0',
+        service_categories_name:''
       });
 
     const [showUpdateModal, setShowUpdateModal] = useState(false);
 
     useEffect(() => {
         viewServiceListing();
+        viewServiceCategories();
     }, []);
 
     const viewServiceListing = async () => {
@@ -39,6 +45,19 @@ export default function ServiceListing() {
             
             const data = await response.json()
             setServiceListing(data.filter(service => service.cleaner_id == profile_id));
+
+        } catch (error) {
+            console.log(error);
+            setServiceListing([]);
+        }
+    }
+
+    const viewServiceCategories = async () => {
+        try {
+            const response = await fetch(`http://localhost:3000/api/serviceCategories`)
+            
+            const data = await response.json()
+            setserviceCategories(data);
 
         } catch (error) {
             console.log(error);
@@ -89,6 +108,7 @@ export default function ServiceListing() {
         if (!newServiceListing.description) newError.description = 'Description is required';
         if (!newServiceListing.price) newError.price = 'Price is required';
         if (!newServiceListing.location) newError.location = 'Location is required';
+        if (!newServiceListing.service_categories_name) newError.service_categories_name = 'Category is required';
 
         if (Object.keys(newError).length > 0) {
             setError(newError);
@@ -108,7 +128,10 @@ export default function ServiceListing() {
                     description: newServiceListing.description,
                     price: newServiceListing.price,
                     location: newServiceListing.location,
-                    is_active: newServiceListing.is_active
+                    view_count: newServiceListing.view_count,
+                    listed_count: newServiceListing.listed_count,
+                    service_categories_name: newServiceListing.service_categories_name
+
                 })
             });
 
@@ -148,6 +171,7 @@ export default function ServiceListing() {
             if (updateData.description) updatePayload.description = updateData.description;
             if (updateData.price) updatePayload.price = updateData.price;
             if (updateData.location) updatePayload.location = updateData.location;
+            if (updateData.service_categories_name) updatePayload.service_categories_name = updateData.service_categories_name;
 
             const response = await fetch(`http://localhost:3000/api/serviceListing/${updateData.id}`, {
                 method: 'PUT',
@@ -178,6 +202,9 @@ export default function ServiceListing() {
             description: service.description,
             price: service.price,
             location: service.location,
+            view_count: service.view_count,
+            listed_count: service.listed_count,
+            service_categories_name: service.service_categories_name
           });
         setShowUpdateModal(true);
     }
@@ -287,6 +314,23 @@ export default function ServiceListing() {
                                 {error.location && <span className="field-error">{error.location}</span>}
                             </div>
 
+                            <div className="form-group">
+                                <label>Service Category</label>
+                                    <select
+                                        name="service_categories_name"
+                                        value={newServiceListing.service_categories_name}
+                                        onChange={handleInputChange}
+                                        required
+                                    >
+                                        {serviceCategories.map(serviceCategory => (
+                                            <option key={serviceCategory.name} value={serviceCategory.name}>
+                                                {serviceCategory.name}
+                                            </option>
+                                            ))}
+                                    </select>
+                                {error.location && <span className="field-error">{error.location}</span>}
+                            </div>
+
                             <div className="form-actions">
                                 <button
                                     type="button"
@@ -348,6 +392,9 @@ export default function ServiceListing() {
                                 <th>Description</th>
                                 <th>Price</th>
                                 <th>Location</th>
+                                <th>View Count</th>
+                                <th>Listed Count</th>
+                                <th>Service Category</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -359,6 +406,9 @@ export default function ServiceListing() {
                                         <td>{service.description}</td>
                                         <td>{service.price}</td>
                                         <td>{service.location}</td>
+                                        <td>{service.view_count}</td>
+                                        <td>{service.listed_count}</td>
+                                        <td>{service.service_categories_name}</td>
                                         <td>
                                             <button
                                                 className="view-button"
@@ -438,6 +488,23 @@ export default function ServiceListing() {
                         </div>
 
                         {error && <div className="error-message">{error}</div>}
+
+                        <div className="form-group">
+                            <label>Service Category</label>
+                                <select
+                                    name="service_categories_name"
+                                    value={newServiceListing.service_categories_name}
+                                    onChange={handleUpdateInputChange}
+                                    required
+                                >
+                                    {serviceCategories.map(serviceCategory => (
+                                        <option key={serviceCategory.name} value={serviceCategory.name}>
+                                            {serviceCategory.name}
+                                        </option>
+                                        ))}
+                                </select>
+                            {error.location && <span className="field-error">{error.location}</span>}
+                        </div>
 
                         <div className="form-actions">
                             <button

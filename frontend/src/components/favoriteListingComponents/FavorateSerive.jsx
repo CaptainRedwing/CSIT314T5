@@ -21,6 +21,41 @@ export default function ServiceListing() {
     const handleChange = () => {
         viewServiceListing();
         setShowServiceList(true);
+        serviceViewCount();
+    }
+
+    const serviceViewCount = async () => {
+        try {
+            await Promise.all(serviceListing.map(async (service) => {
+            const response = await fetch(
+                `http://localhost:3000/api/serviceListing/service-listing/${service.id}/view`,
+                { method: 'POST' } 
+            );
+            if (!response.ok) {
+                console.error(`Failed to update view count for service ${service.id}`);
+            }
+        }));
+
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const serviceListedCount = async (serviceId) => {
+        try {
+
+            const response = await fetch(
+                `http://localhost:3000/api/serviceListing/service-listing/${serviceId}/short-listed`,
+                { method: 'POST' }
+            );
+
+            if (!response.ok) {
+                console.error(`Failed to update view count for service ${serviceId}`);
+            };
+
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     // all favourite listing homeowner and service id
@@ -154,6 +189,8 @@ export default function ServiceListing() {
 
     const addToFavorite = async(serviceId) => {
 
+        serviceListedCount(serviceId);
+
         const isAlreadyFavorite = favoriteServiceListing.some(
                 fav => fav.service_listing_id === serviceId && fav.homeowner_id === profile_id
             );
@@ -186,9 +223,9 @@ export default function ServiceListing() {
 
     return (
         <>
-            <h2>All Service Listing</h2>
 
             <div className="search-container">
+                <h2>All Service Listing</h2>
                 <div className="search-controls">
                     <form onSubmit={handleSearch}>
                         <div className="search-options">
@@ -230,6 +267,7 @@ export default function ServiceListing() {
                                 <th>Description</th>
                                 <th>Price</th>
                                 <th>Location</th>
+                                <th>Service Category</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -241,6 +279,7 @@ export default function ServiceListing() {
                                         <td>{service.description}</td>
                                         <td>{service.price}</td>
                                         <td>{service.location}</td>
+                                        <td>{service.service_categories_name}</td>
                                         <td>
                                             <button
                                                 className="view-button"
@@ -299,6 +338,7 @@ export default function ServiceListing() {
                                 <th>Description</th>
                                 <th>Price</th>
                                 <th>Location</th>
+                                <th>Service Category</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -310,6 +350,7 @@ export default function ServiceListing() {
                                         <td>{service.description}</td>
                                         <td>{service.price}</td>
                                         <td>{service.location}</td>
+                                        <td>{service.service_categories_name}</td>
                                     </tr>
                                 ))}
                             </tbody>

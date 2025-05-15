@@ -1,5 +1,6 @@
 import React from "react";
 import ServiceListing from "./serviceListingComponents/ServiceListing";
+import MatchHistory from "./matchHistory/cleanerMatchHistory";
 
 export default function cleanerPage(){
 
@@ -17,6 +18,7 @@ export default function cleanerPage(){
             </div>
         </div>
         <ServiceListing />
+        <MatchHistory />
         </>
     )
 }

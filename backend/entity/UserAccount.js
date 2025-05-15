@@ -12,18 +12,17 @@ import{
 } from "../utils/sqlQuery.js"
 
 export class UserAccount{
-    constructor({id,username, email, password, role, user_profile_id, is_active}){
+    constructor({id,username, email, password, user_profile_id, is_active}){
         this.id = id
         this.username = username;
         this.email = email;
         this.password = password;
-        this.role = role;
         this.user_profile_id = user_profile_id;
         this.is_active = is_active;
     }
 
     isValid(){
-        return this.username && this.email && this.password && this.role && this.user_profile_id && this.is_active;
+        return this.username && this.email && this.password && this.user_profile_id && this.is_active;
     }
 
     static fromDB(row){
@@ -32,7 +31,6 @@ export class UserAccount{
             username: row.username,
             email: row.email,
             password: row.password,
-            role: row.role,
             user_profile_id: row.user_profile_id,
             is_active: row.is_active
         });
@@ -51,7 +49,6 @@ export class UserAccount{
             this.username,
             this.email,
             this.password,
-            this.role,
             this.user_profile_id,
             this.is_active
         ]);
@@ -70,13 +67,13 @@ export class UserAccount{
         return rows.map(UserAccount.fromDB);
     }
 
-    static async findByUsernameAndRole(username, role){
-        const {rows} = await query(viewAccountByUserNameRoleQuery, [
-            username || null,
-            role || null
-        ]);
-        return rows.map(UserAccount.fromDB);
-    }
+    // static async findByUsernameAndRole(username, role){
+    //     const {rows} = await query(viewAccountByUserNameRoleQuery, [
+    //         username || null,
+    //         role || null
+    //     ]);
+    //     return rows.map(UserAccount.fromDB);
+    // }
 
     static async searchUserAccount(id){
         const {rows} = await query(findSpecificUserAccountQuery, [id]);
@@ -86,12 +83,11 @@ export class UserAccount{
         return UserAccount.fromDB(rows[0]);
     }
 
-    static async updateUserAccount(id, {username, email, password, role, user_profile_id, is_active}){
+    static async updateUserAccount(id, {username, email, password, user_profile_id, is_active}){
         const {rowCount, rows} = await query(updateUserAccountQuery, [
             username,
             email,
             password,
-            role,
             user_profile_id,
             is_active,
             id

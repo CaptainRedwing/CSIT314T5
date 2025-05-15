@@ -10,7 +10,8 @@ export class createUserAccountController{
                 console.log(user.username)
                 console.log(user.email)
                 console.log(user.password)
-                console.log(user.profile_id)
+                console.log(user.role)
+                console.log(user.user_profile_id)
                 console.log(user.is_active)
 
                 return res.status(400).json({error:"Invalid user input"});

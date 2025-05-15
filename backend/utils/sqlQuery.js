@@ -212,6 +212,7 @@ export const createServiceListingQuery = `
     VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;
 `;
 
+
 export const viewServiceListingQuery = `
     SELECT * FROM service_listing_details;
 `;
