@@ -6,6 +6,7 @@ export default function ServiceCategories() {
     const [searchTerm, setSearchTerm] = useState('');
     const [serviceCategories, setServiceCategories] = useState([]);
     const [showServiceList, setShowServiceList] = useState(false);
+    const [fieldErr, setFieldError] = useState({});
     const [newServiceCategory, setNewServiceCategory] = useState({
         name:'',
         description:''
@@ -64,15 +65,19 @@ export default function ServiceCategories() {
     const createServiceCategories = async(e) => {
         e.preventDefault();
 
+        if (!newServiceCategory.name && !newServiceCategory.description) {
+            setError('Category name and description is required');
+            return;
+            }
+
         const newError = {};
-        if (!newServiceCategory.name) newError.name = 'Name is required';
+        if (!newServiceCategory.name) newError.name = 'Category Name is required';
         if (!newServiceCategory.description) newError.description = 'Description is required';
 
         if (Object.keys(newError).length > 0) {
-            setError(newError);
+            setFieldError(newError);
             return;
         }
-
 
         try {
             const response = await fetch('http://localhost:3000/api/serviceCategories', {
@@ -86,9 +91,14 @@ export default function ServiceCategories() {
                 })
             });
 
+            const data = await response.json()
+
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to create service')
+                if (response.status === 400) {
+                    throw new Error(data.message || 'Duplicate Category Name');
+                } else if (response.status === 401) {
+                    throw new Error(data.message || 'Invalid Category name and description is required');
+                }
             }
             
             setShowCreateModal(false)
@@ -96,8 +106,9 @@ export default function ServiceCategories() {
                 name:'',
                 description:''
             })
-
+            alert('Service Category Created')
         } catch (error) {
+            setError(error.message)
             console.log(error);
         }
     }
@@ -201,7 +212,7 @@ export default function ServiceCategories() {
                         </div>
 
                         <form onSubmit={createServiceCategories}>
-                            {error.form && <div className="error-message">{error.form}</div>}
+                            {error && <div className="error-message">{error}</div>}
 
                             <div className="form-group">
                                 <label>Name</label>
@@ -210,9 +221,9 @@ export default function ServiceCategories() {
                                     name="name"
                                     value={newServiceCategory.name}
                                     onChange={handleInputChange}
-                                    className={error.name ? 'error' : ''}
+                                    className={fieldErr.name ? 'Required' : ''}
                                 />
-                                {error.name && <span className="field-error">{error.name}</span>}
+                                {fieldErr.name && <span className="field-error">{fieldErr.name}</span>}
                             </div>
 
                             <div className="form-group">
@@ -221,10 +232,10 @@ export default function ServiceCategories() {
                                     name="description"
                                     value={newServiceCategory.description}
                                     onChange={handleInputChange}
-                                    className={error.description ? 'error' : ''}
+                                    className={fieldErr.description ? 'Required' : ''}
                                     rows={4}
                                 />
-                                {error.description && <span className="field-error">{error.description}</span>}
+                                {fieldErr.description && <span className="field-error">{fieldErr.description}</span>}
                             </div>
 
                             <div className="form-actions">

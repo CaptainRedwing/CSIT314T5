@@ -4,6 +4,7 @@ export default function CreateUserAccount() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErr, setFieldError] = useState({});
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [newUser, setNewUser] = useState({
     username : '',
@@ -58,19 +59,46 @@ export default function CreateUserAccount() {
     if (error[name]) setError(prev => ({ ...prev, [name]: '' }));
   };
 
+  const validateEmail = (email) => {
+  // Basic email regex pattern
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // Gmail-specific pattern (simplified)
+  const gmailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@gmail\.com$/;
+  
+  return emailRegex.test(email) && gmailRegex.test(email);
+  };
+
   const createUserAccount = async(e) => {
     e.preventDefault();
 
+    setError('')
+    setFieldError({})
+
+    if (!newUser.username && 
+            !newUser.email &&
+            !newUser.password
+        ) {
+            setError(
+                "Please fill in all required fills"
+            );
+            setIsLoading(false);
+            return;
+        }
+
     const newError = {};
     if (!newUser.username) newError.username = 'Username is required';
-    if (!newUser.email) newError.email = 'Email is required';
+    if (!newUser.email.trim()) {
+      newError.email = 'Email is required';
+    } else if (!validateEmail(newUser.email)) {
+      newError.email = 'Please enter a valid Gmail address';
+    }
     if (!newUser.password) newError.password = 'Password is required';
     if (newUser.password !== newUser.confirmPassword) {
       newError.confirmPassword = 'Passwords do not match';
     }
 
     if (Object.keys(newError).length > 0) {
-      setError(newError);
+      setFieldError(newError);
       return;
     }
 
@@ -92,13 +120,13 @@ export default function CreateUserAccount() {
         })
       });
 
-      if (!response.ok){
-        const errorData = await response.json();
-        console.error('Backend error:', errorData);
-        throw new Error(errorData.message || 'Failed to create user');
-      }
+      const errorData = await response.json();
 
-      await response.json();
+      if (response.status === 400){
+        throw new Error(errorData.message || 'Username alr exsits');
+      } else if(!response.ok) {
+        throw new Error('Failed to create user');
+      }
       
       setShowCreateModal(false);
       setNewUser({
@@ -109,10 +137,10 @@ export default function CreateUserAccount() {
         profile_id:'',
         is_active: true
       });
-      setError({});
-      
+      setError('');
+      alert('User Account Successfully Created')
     } catch (error) {
-      setError({form: error.message});
+      setError(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -151,7 +179,7 @@ export default function CreateUserAccount() {
             </div>
             
             <form onSubmit={createUserAccount}>
-              {error.form && <div className="error-message">{error.form}</div>}
+              {error && <div className="error-message">{error}</div>}
               
               <div className="form-group">
                 <label>Username</label>
@@ -160,9 +188,9 @@ export default function CreateUserAccount() {
                   name="username"
                   value={newUser.username}
                   onChange={handleInputChange}
-                  className={error.username ? 'error' : ''}
+                  className={fieldErr.username ? 'error' : ''}
                 />
-                {error.username && <span className="field-error">{error.username}</span>}
+                {fieldErr.username && <span className="field-error">{fieldErr.username}</span>}
               </div>
 
               <div className="form-group">
@@ -172,9 +200,9 @@ export default function CreateUserAccount() {
                   name="email"
                   value={newUser.email}
                   onChange={handleInputChange}
-                  className={error.email ? 'error' : ''}
+                  className={fieldErr.email ? 'error' : ''}
                 />
-                {error.email && <span className="field-error">{error.email}</span>}
+                {fieldErr.email && <span className="field-error">{fieldErr.email}</span>}
               </div>
 
           <div className="form-group">
@@ -200,9 +228,9 @@ export default function CreateUserAccount() {
                   name="password"
                   value={newUser.password}
                   onChange={handleInputChange}
-                  className={error.password ? 'error' : ''}
+                  className={fieldErr.password ? 'error' : ''}
                 />
-                {error.password && <span className="field-error">{error.password}</span>}
+                {fieldErr.password && <span className="field-error">{fieldErr.password}</span>}
               </div>
 
               <div className="form-group">
@@ -212,10 +240,10 @@ export default function CreateUserAccount() {
                   name="confirmPassword"
                   value={newUser.confirmPassword}
                   onChange={handleInputChange}
-                  className={error.confirmPassword ? 'error' : ''}
+                  className={fieldErr.confirmPassword ? 'error' : ''}
                 />
-                {error.confirmPassword && (
-                  <span className="field-error">{error.confirmPassword}</span>
+                {fieldErr.confirmPassword && (
+                  <span className="field-error">{fieldErr.confirmPassword}</span>
                 )}
               </div>
 

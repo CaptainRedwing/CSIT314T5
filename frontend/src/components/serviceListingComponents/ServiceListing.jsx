@@ -18,6 +18,7 @@ export default function ServiceListing() {
         listed_count: '0',
         service_categories_name:''
     })
+    const [fieldErr, setFieldError] = useState({});
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [error, setError] = useState('');
     const [updateData, setUpdateData] = useState({
@@ -103,6 +104,18 @@ export default function ServiceListing() {
     const createServiceListing = async(e) => {
         e.preventDefault();
 
+        if (!newServiceListing.title && 
+            !newServiceListing.description &&
+            !newServiceListing.price &&
+            !newServiceListing.location &&
+            !newServiceListing.service_categories_name) {
+            setError(
+                "All fields are required"
+            );
+            setIsLoading(false);
+            return;
+        }
+
         const newError = {};
         if (!newServiceListing.title) newError.title = 'Title is required';
         if (!newServiceListing.description) newError.description = 'Description is required';
@@ -111,7 +124,7 @@ export default function ServiceListing() {
         if (!newServiceListing.service_categories_name) newError.service_categories_name = 'Category is required';
 
         if (Object.keys(newError).length > 0) {
-            setError(newError);
+            setFieldError(newError);
             return;
         }
 
@@ -147,8 +160,11 @@ export default function ServiceListing() {
                 description:'',
                 price:'',
                 location:'',
-                is_active: true
+                view_count: '0',
+                listed_count: '0',
+                service_categories_name:''
             })
+            alert("Service Listing Created")
 
         } catch (error) {
             console.log(error);
@@ -264,8 +280,7 @@ export default function ServiceListing() {
                         </div>
 
                         <form onSubmit={createServiceListing}>
-                            {error.form && <div className="error-message">{error.form}</div>}
-
+                            {error&& <div className="error-message">{error}</div>}
                             <div className="form-group">
                                 <label>Title</label>
                                 <input
@@ -273,9 +288,9 @@ export default function ServiceListing() {
                                     name="title"
                                     value={newServiceListing.title}
                                     onChange={handleInputChange}
-                                    className={error.title ? 'error' : ''}
+                                    className={fieldErr.title ? 'error' : ''}
                                 />
-                                {error.title && <span className="field-error">{error.title}</span>}
+                                {fieldErr.title && <span className="field-error">{fieldErr.title}</span>}
                             </div>
 
                             <div className="form-group">
@@ -284,10 +299,10 @@ export default function ServiceListing() {
                                     name="description"
                                     value={newServiceListing.description}
                                     onChange={handleInputChange}
-                                    className={error.description ? 'error' : ''}
+                                    className={fieldErr.description ? 'error' : ''}
                                     rows={4}
                                 />
-                                {error.description && <span className="field-error">{error.description}</span>}
+                                {fieldErr.description && <span className="field-error">{fieldErr.description}</span>}
                             </div>
 
                             <div className="form-group">
@@ -297,9 +312,9 @@ export default function ServiceListing() {
                                     name="price"
                                     value={newServiceListing.price}
                                     onChange={handleInputChange}
-                                    className={error.price ? 'error' : ''}
+                                    className={fieldErr.price ? 'error' : ''}
                                 />
-                                {error.price && <span className="field-error">{error.price}</span>}
+                                {fieldErr.price && <span className="field-error">{fieldErr.price}</span>}
                             </div>
 
                             <div className="form-group">
@@ -309,9 +324,9 @@ export default function ServiceListing() {
                                     name="location"
                                     value={newServiceListing.location}
                                     onChange={handleInputChange}
-                                    className={error.location ? 'error' : ''}
+                                    className={fieldErr.location ? 'error' : ''}
                                 />
-                                {error.location && <span className="field-error">{error.location}</span>}
+                                {fieldErr.location && <span className="field-error">{fieldErr.location}</span>}
                             </div>
 
                             <div className="form-group">
@@ -328,7 +343,6 @@ export default function ServiceListing() {
                                             </option>
                                             ))}
                                     </select>
-                                {error.location && <span className="field-error">{error.location}</span>}
                             </div>
 
                             <div className="form-actions">
