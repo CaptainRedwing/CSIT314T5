@@ -5,7 +5,9 @@ export class searchServiceCategoriesController{
     static async searchServiceCategories(req, res, next){
         try{
             const name = req.params.name;
+            console.log(name)
             const serviceCategories = await ServiceCategories.searchServiceCategories(name);
+            console.log(serviceCategories)
             if(!serviceCategories){
                 return next(createError(400, "Service Categories Not Found"));
             }

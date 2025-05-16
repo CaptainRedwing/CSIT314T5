@@ -5,7 +5,7 @@ export class viewSpecifyByIdController{
     static async viewSpecifyById(req, res, next){
         try{
             const id = req.params.id;
-            const userProfile = await UserProfile.searchUserProfile(id);
+            const userProfile = await UserProfile.viewSpecifyById(id);
             if(!userProfile){
                 return next(createError(400, "User Profile Not Found"));
             }

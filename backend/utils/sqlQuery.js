@@ -106,9 +106,9 @@ export const suspendUserAccountQuery = `
 export const viewAccountByUserNameRoleQuery = `
     SELECT * FROM user_account_details
     WHERE
-        (username = $1 OR $1 IS NULL) 
+        (username ILIKE '%' || $1 || '%' OR $1 IS NULL) 
         AND 
-        (profile_id = $2 OR $2 IS NULL)
+        (profile_id = $2 OR $2 IS NULL);
 `;
 
 // User Profile CRUDS
@@ -151,9 +151,10 @@ export const suspendUserProfileQuery = `
 `;
 
 export const searchUserProfileQuery = `
-    SELECT * FROM user_profile_details
-    WHERE name = $1;
+    SELECT * FROM user_profile_details WHERE name::text ILIKE '%' || $1 || '%';
 `;
+
+
 
 export const viewProfileByIdQuery = `
     SELECT * FROM user_profile_details
@@ -193,8 +194,12 @@ export const deleteServiceCategoriesQuery = `
 `;
 
 export const searchServiceCategoriesQuery = `
+    SELECT * FROM service_categories_details WHERE name::text ILIKE '%' || $1 || '%';
+`;
+
+export const viewServiceCategoryByIdQuery = `
     SELECT * FROM service_categories_details
-    WHERE name = $1;
+    WHERE id = $1;
 `;
 
 // Service Listing CRUDS
@@ -453,49 +458,49 @@ export const cleanerViewPageAttributes = `
     SELECT 
         sld.title, 
         mh.service_date,
-        sld.homeowner_id,
+        mh.homeowner_id,
         sld.description,
         sld.price
     FROM service_listing_details sld
     JOIN match_history mh 
         ON mh.service_listing_id = sld.id
-    WHERE mh.cleaner_id = $1;
+    WHERE sld.title = $1;
 `;
 
 // US 31
 export const cleanerSearchPageAttributes = `
     SELECT
         sld.title,
-        sld.service_categories,
+        sld.service_categories_name,
         sld.price
-    FROM service_listing_id sld
+    FROM service_listing_details sld
     JOIN match_history mh
         ON mh.service_listing_id = sld.id
-    WHERE mh.cleaner_id = $1;
+    WHERE sld.title = $1;
 `;
 
 
 // US 32
 export const homeownerViewMatchHistoryAttributes = `
-    SELECT
-        sld.title,
-        mh.cleaner_id,
+    SELECT 
+        sld.title, 
+        sld.cleaner_id,
         sld.description,
         sld.price
-    FROM service_listing_id sld
-    JOIN match_history mh
+    FROM service_listing_details sld
+    JOIN match_history mh 
         ON mh.service_listing_id = sld.id
-    WHERE mh.homeowner_id = $1;
+    WHERE sld.title = $1;
 `;
 
 // US 31
 export const homeownerSearchMatchHistoryAttributes= `
     SELECT
         sld.title,
-        sld.categories,
+        sld.service_categories_name,
         sld.price
-    FROM service_listing_id sld
+    FROM service_listing_details sld
     JOIN match_history mh
         ON mh.service_listing_id = sld.id
-    WHERE mh.homeowner_id = $1;
+    WHERE sld.title = $1;
 `

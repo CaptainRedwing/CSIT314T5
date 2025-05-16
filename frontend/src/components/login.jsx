@@ -29,14 +29,17 @@ export default function Login() {
         }
 
         const data = await response.json();
-        setProfiles(data);
-        
-        if (data.length > 0) {
+        const activeProfiles = data.filter(profile => profile.is_active === true);
+            
+        setProfiles(activeProfiles);
+
+        if (activeProfiles.length > 0) {
           setFormData(prev => ({
             ...prev,
-            profile_id: String(data[0].id)
-          }));
-        }
+              profile_id: activeProfiles[0].id
+            }));
+          }
+            setError(''); // Clear errors on success
       } catch (error) {
         console.error('Error fetching profiles:', error);
         setError('Failed to load profile options. Please try again later.');
@@ -117,6 +120,16 @@ export default function Login() {
       if (!response.ok || data.success === false) {
         throw new Error(data.message || 'Invalid usernamd or password');
       }
+
+      const currentUser = users.find(user => user.username === formData.username);
+      if (currentUser && !currentUser.is_active) {
+      setError('Account is suspended');
+      setFormData(prev => ({
+        ...prev,
+        password: '' // Clear password for security
+      }));
+      return;
+      }
       
       // Store authentication data
       localStorage.setItem('isAuthenticated', 'true');
@@ -124,8 +137,6 @@ export default function Login() {
       localStorage.setItem('profile_id', formData.profile_id);
 
       // Navigation based on profile_id
-
-      const currentUser = users.find(user => user.username === formData.username);
       const user_id = currentUser?.id; 
 
       switch(formData.profile_id) {

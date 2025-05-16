@@ -7,6 +7,8 @@ export default function UserProfile() {
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [showUserProfile, setShowUserProfile] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedUserProfile, setSelectedUserProfile] = useState(null);
+    const [showSelectedUserProfile, setShowSelectedUserProfile] = useState(false);
     const [updateData, setUpdateData] = useState({
         id: null,
         name: '',
@@ -38,16 +40,18 @@ export default function UserProfile() {
         setError('');
         
         try {
-            const response = await fetch(`http://localhost:3000/api/userProfile/${encodeURIComponent(searchTerm)}`);
+            const response = await fetch(`http://localhost:3000/api/userProfile/search/${encodeURIComponent(searchTerm)}`);
             
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.message || 'Profile not found');
             }
-
+            
             const data = await response.json();
+            console.log(data)
             // Convert single profile to array for consistent table rendering
-            setUserProfile([data]);
+            setUserProfile(data);
+            setShowUserProfile(true);
         } catch (error) {
             setError(error.message);
             setUserProfile([]);
@@ -71,7 +75,7 @@ export default function UserProfile() {
           }
     
           await viewAllUserProfile();
-          alert('User suspended successfully');
+          alert('User Profile is suspended');
         } catch (error) {
           setError(error.message);
           console.error('Suspend user error:', error);
@@ -101,6 +105,7 @@ export default function UserProfile() {
             if (!response.ok) throw new Error('Update failed');
             await viewAllUserProfile();
             setShowUpdateModal(false);
+            alert('Profile Detailed updated')
         } catch (error) {
             setError(error.message);
         } finally {
@@ -112,11 +117,40 @@ export default function UserProfile() {
         viewAllUserProfile();
     }, []);
 
+    const handleCloseModal = () => {
+        setShowSelectedUserProfile(false);
+        setShowUpdateModal(false);
+        setError('');
+    };
+
     
     const handleChange = () => {
         viewAllUserProfile();
         setShowUserProfile(true);
     }
+
+    const viewSpecifyUserProfile = async (profileId) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`http://localhost:3000/api/userProfile/${profileId}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch user profile details');
+      }
+      
+      const userData = await response.json();
+      setSelectedUserProfile(userData);
+      setShowSelectedUserProfile(true);
+    
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
     return (
         <div className="user-profile-container">
@@ -147,7 +181,6 @@ export default function UserProfile() {
                     <thead>
                         <tr>
                             <th>Name</th>
-                            <th>Description</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -158,20 +191,19 @@ export default function UserProfile() {
                             userProfile.map(profile => (
                                 <tr key={profile.id}>
                                     <td>{profile.name}</td>
-                                    <td>{profile.description}</td>
-                                    <td>{profile.is_active ? 'Active' : 'Inactive'}</td>
+                                    <td>{profile.is_active ? 'Active' : 'Suspended'}</td>
                                     <td>
                                         <button 
-                                            className="update-button"
-                                            onClick={() => handleUpdate(profile)}
+                                            className="view-button"
+                                            onClick={() => viewSpecifyUserProfile(profile.id)}
                                         >
-                                            Update
+                                            View
                                         </button>
                                         <button 
                                             className={profile.is_active ? 'suspend' : 'suspend'}
                                             onClick={() => suspendUserProfile(profile.id)}
                                         >
-                                            {profile.is_active ? 'Suspend' : 'Activate'}
+                                            Suspend
                                         </button>
                                     </td>
                                 </tr>
@@ -185,6 +217,39 @@ export default function UserProfile() {
                 )}
                 </table>
             )}
+
+        {showSelectedUserProfile && selectedUserProfile && (
+            <div className="modal-overlay">
+            <div className="modal-content">
+                <div className="modal-header">
+                <h2>User Profile Details</h2>
+                    <button onClick={handleCloseModal}>×</button>
+                </div>
+                
+                <div className="user-info">
+                <p><strong>Username:</strong> {selectedUserProfile.name}</p>
+                <p><strong>Email:</strong> {selectedUserProfile.description}</p>
+                <p><strong>Status:</strong> {selectedUserProfile.is_active ? 'Active' : 'Suspended'}</p>
+                </div>
+                
+                <div className="form-actions">
+                <button 
+                    className="update-button"
+                    onClick={() => handleUpdate(selectedUserProfile)}
+                >
+                    Update
+                </button>
+                <button
+                    type="button"
+                    onClick={handleCloseModal}
+                    className="cancel-button"
+                >
+                    Close
+                </button>
+                </div>
+            </div>
+            </div>
+        )}
 
             {showUpdateModal && (
                 <div className="modal-overlay">

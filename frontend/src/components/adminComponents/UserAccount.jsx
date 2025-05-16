@@ -60,6 +60,7 @@ export default function UserAccount() {
 
       const data = await response.json();
       setUsers(data);
+      console.log(data)
     } catch (error) {
       setError(error.message);
       console.error('Fetch users error:', error);
@@ -97,6 +98,7 @@ export default function UserAccount() {
       }
   
       const data = await response.json();
+      setShowUserAccount(true);
       setUsers(data.length ? data : []); // Handle empty results
     } catch (error) {
       setError("Search failed: " + error.message);
@@ -178,12 +180,44 @@ export default function UserAccount() {
     }));
   };
 
+  const validateEmail = (email) => {
+  // Basic email regex pattern
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  // Gmail-specific pattern (simplified)
+  const gmailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@gmail\.com$/;
+  
+  return emailRegex.test(email) && gmailRegex.test(email);
+  };
+
   const updateUserAccount = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
     
     try {
+      
+      if (!validateEmail(updateData.email)) {
+        setError('Please enter a valid Gmail address');
+        return
+      }
+
+      const usernameExists = users.some(
+        user => user.username === updateData.username && user.id !== selectedUser.id
+      );
+      
+      if (usernameExists) {
+        setError('Username is already in use');
+        return
+      }
+      
+      const emailExists = users.some(
+        user => user.email === updateData.email && user.id !== selectedUser.id
+      );
+      
+      if (emailExists) {
+        setError('Email is already in use');
+        return
+      }
       const response = await fetch(`http://localhost:3000/api/userAdmin/${selectedUser.id}`, {
         method: 'PUT',
         headers: {
@@ -197,19 +231,18 @@ export default function UserAccount() {
           is_active: updateData.is_active // Add this line
         })
       });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update user');
+
+      const data = await response.json();
+
+      if(!response.ok) {
+        throw new Error('Failed to create user');
       }
       
-      const updatedUser = await response.json();
-      setSelectedUser(updatedUser);
-      // Close both modals after successful update
+      setSelectedUser(data);
       setShowUpdateModal(false);
       setShowUserModal(false);
       await viewAllUserAccount();
-      alert('User updated successfully');
+      alert('User account details successfully updated ');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -297,7 +330,7 @@ export default function UserAccount() {
             {users.map(user => (
               <tr key={user.id}>
                 <td>{user.username}</td>
-                <td>{getProfileNameById(user.user_profile_id)}</td>
+                <td>{getProfileNameById(user.profile_id)}</td>
                 <td>
                   <button 
                     className="view-button"
@@ -334,7 +367,7 @@ export default function UserAccount() {
               <p><strong>Username:</strong> {selectedUser.username}</p>
               <p><strong>Email:</strong> {selectedUser.email}</p>
               <p><strong>Role:</strong> {getProfileNameById(selectedUser.profile_id)}</p>
-              <p><strong>Status:</strong> {selectedUser.is_active ? 'Active' : 'Inactive'}</p>
+              <p><strong>Status:</strong> {selectedUser.is_active ? 'Active' : 'Suspended'}</p>
             </div>
             
             <div className="form-actions">

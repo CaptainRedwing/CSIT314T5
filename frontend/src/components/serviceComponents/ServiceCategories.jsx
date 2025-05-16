@@ -20,6 +20,8 @@ export default function ServiceCategories() {
       });
 
     const [showUpdateModal, setShowUpdateModal] = useState(false);
+    const [selectedCategory, setSelectedCateogry] = useState(null);
+    const [showSelectedCategory, setShowSelectedCategory] = useState(false);
 
     useEffect(() => {
         viewServiceCategories();
@@ -50,14 +52,22 @@ export default function ServiceCategories() {
     const searchServiceCategories = async() => {
         try {
 
-            const response = await fetch(`http://localhost:3000/api/serviceCategories/${searchTerm}`, {
+            const response = await fetch(`http://localhost:3000/api/serviceCategories/search/${searchTerm}`, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' }
               });
 
             const data = await response.json();
+
+            if(!response.ok){
+                throw new Error(data.message || 'No Service Category Found');
+            }
+
             setServiceCategories(Array.isArray(data) ? data : [data]);
+            setError('');
+            setShowServiceList(true);
         } catch (error) {
+            setError(error.message);
             console.log(error);
         }
     }
@@ -124,6 +134,15 @@ export default function ServiceCategories() {
 
         try {
 
+            const usernameExists = serviceCategories.some(
+                service => service.name === updateData.name
+            );
+      
+            if (usernameExists) {
+                setError('Name is already in use');
+                return
+            }
+
             const updatePayload = {};
             if (updateData.name) updatePayload.name = updateData.name;
             if (updateData.description) updatePayload.description = updateData.description;
@@ -142,7 +161,7 @@ export default function ServiceCategories() {
             }
             
             setShowUpdateModal(false);
-            alert('Profile updated successfully')
+            alert('Service Category updated successfully')
         } catch (error) {
             console.log(error);
         }
@@ -180,11 +199,37 @@ export default function ServiceCategories() {
             }
 
             await viewServiceCategories();
-            alert('Service category suspended successfully')
+            alert('Service category deleted successfully')
         } catch (error) {
             console.error(error);
         }
     }
+
+    const handleCloseModal = () => {
+        setShowSelectedCategory(false);
+        setShowUpdateModal(false);
+        setError('');
+    };
+
+    const viewSpecifyCategory = async (categoryId) => {
+        setIsLoading(true);
+        try {
+        const response = await fetch(`http://localhost:3000/api/serviceCategories/${categoryId}`);
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch service category details');
+        }
+        
+        const userData = await response.json();
+        setSelectedCateogry(userData);
+        setShowSelectedCategory(true);
+        
+        } catch (error) {
+        setError(error.message);
+        } finally {
+        setIsLoading(false);
+        }
+    };
 
     return (
         <>
@@ -291,6 +336,8 @@ export default function ServiceCategories() {
                     </form>
                 </div>
 
+                {error && <div className="error-message">{error}</div>}
+
                 <div className="profile-list">
                     <table className="user-table">
                         <thead>
@@ -309,17 +356,17 @@ export default function ServiceCategories() {
                                         <td>{category.description}</td>
                                         {/* <td>{category.status}</td> */}
                                         <td>
-                                            <button
-                                                className="view-button"
-                                                onClick={() => handleUpdateButton(category)}
-                                            >
-                                                Update
-                                            </button>
+                                        <button 
+                                            className="view-button"
+                                            onClick={() => viewSpecifyCategory(category.id)}
+                                        >
+                                            View
+                                        </button>
                                             <button
                                                 className="suspend"
                                                 onClick={() => suspendServiceCategories(category.id)}
                                             >
-                                                Suspend
+                                                Delete
                                             </button>
                                         </td>
                                     </tr>
@@ -328,6 +375,42 @@ export default function ServiceCategories() {
                         )}
                     </table>
                 </div>
+        {showSelectedCategory && selectedCategory && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2>Service Category</h2>
+                <button 
+                    className="close-button"
+                    onClick={handleCloseModal}
+                >
+                    ×
+                </button>
+            </div>
+            
+            <div className="user-info">
+              <p><strong>Name:</strong> {selectedCategory.name}</p>
+              <p><strong>Description:</strong> {selectedCategory.description}</p>
+            </div>
+            
+            <div className="form-actions">
+                <button
+                    className="view-button"
+                    onClick={() => handleUpdateButton(selectedCategory)}
+                >
+                    Update
+                </button>
+              <button
+                type="button"
+                onClick={handleCloseModal}
+                className="cancel-button"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
         {showUpdateModal && (
             <div className="modal-overlay">
@@ -369,7 +452,7 @@ export default function ServiceCategories() {
                         <div className="form-actions">
                             <button
                                 type="button"
-                                onClick={()=>setShowUpdateModal(false)}
+                                onClick={handleCloseModal}
                                 disabled={isLoading}
                                 className="cancel-button"
                             >

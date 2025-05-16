@@ -5,7 +5,8 @@ import {
     viewServiceCategoriesQuery,
     updateServiceCategoriesQuery,
     deleteServiceCategoriesQuery,
-    searchServiceCategoriesQuery
+    searchServiceCategoriesQuery,
+    viewServiceCategoryByIdQuery
 } from "../utils/sqlQuery.js";
 
 export class ServiceCategories{
@@ -69,9 +70,17 @@ export class ServiceCategories{
     static async searchServiceCategories(id){
         const {rows} = await query(searchServiceCategoriesQuery, [id]);
         if(!rows.length){
-            return false;
+            return null;
         }
-        return true;
+        return rows.map(ServiceCategories.fromDB);
+    }
+
+    static async viewSpecifyById(id){
+        const {rows} = await query(viewServiceCategoryByIdQuery, [id]);
+        if(!rows.length){
+            return null;
+        }
+        return ServiceCategories.fromDB(rows[0]);
     }
 
     

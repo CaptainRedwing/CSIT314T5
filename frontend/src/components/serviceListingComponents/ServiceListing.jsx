@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export default function ServiceListing() {
+        const navigate = useNavigate();
     const {profile_id} = useParams();
     const [isLoading, setIsLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -34,6 +36,8 @@ export default function ServiceListing() {
       });
 
     const [showUpdateModal, setShowUpdateModal] = useState(false);
+    const [selectedListing, setSelectedListing] = useState(null);
+    const [showSelectedListing, setShowSelectedListing] = useState(false);
 
     useEffect(() => {
         viewServiceListing();
@@ -254,8 +258,39 @@ export default function ServiceListing() {
         }
     }
 
+    const viewSpecifyListing = async (serviceId) => {
+        setIsLoading(true);
+        try {
+        const response = await fetch(`http://localhost:3000/api/serviceListing/${serviceId}`);
+        
+        if (!response.ok) {
+            throw new Error('Failed to fetch service listing details');
+        }
+        
+        const userData = await response.json();
+        setSelectedListing(userData);
+        setShowSelectedListing(true);
+        
+        setUpdateData({
+            username: userData.username,
+            email: userData.email,
+            password: '',
+            profile_id: userData.profile_id,
+            is_active: userData.is_active // Add this line
+        });
+        } catch (error) {
+        setError(error.message);
+        } finally {
+        setIsLoading(false);
+        }
+    };
+
+    const handlePastServicePage = () => {
+        navigate('/cleanerMatchHitory')
+    }
+
     return (
-        <>
+        <>  
             <h2>Service Listing</h2>
 
             <button
@@ -264,6 +299,14 @@ export default function ServiceListing() {
                 className="create-button"
             >
             Create Service Listing
+            </button>
+            <button
+                type="button"
+                onClick={handlePastServicePage}
+                className="create-button"
+                style={{ marginLeft: '10px' }}
+            >
+            View Service Matches
             </button>
             
             {showCreateModal && (
@@ -403,12 +446,8 @@ export default function ServiceListing() {
                         <thead>
                             <tr>
                                 <th>Service Title</th>
-                                <th>Description</th>
-                                <th>Price</th>
-                                <th>Location</th>
-                                <th>View Count</th>
-                                <th>Listed Count</th>
                                 <th>Service Category</th>
+                                <th>Price</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -417,24 +456,20 @@ export default function ServiceListing() {
                                 {serviceListing.map((service) => (
                                     <tr key={service.id} className="profile-card">
                                         <td>{service.title}</td>
-                                        <td>{service.description}</td>
-                                        <td>{service.price}</td>
-                                        <td>{service.location}</td>
-                                        <td>{service.view_count}</td>
-                                        <td>{service.listed_count}</td>
                                         <td>{service.service_categories_name}</td>
+                                        <td>{service.price}</td>
                                         <td>
-                                            <button
+                                            <button 
                                                 className="view-button"
-                                                onClick={() => handleUpdateButton(service)}
+                                                onClick={() => viewSpecifyListing(user.id)}
                                             >
-                                                Update
+                                                View
                                             </button>
                                             <button
                                                 className="suspend"
                                                 onClick={() => suspendServiceListing(service.id)}
                                             >
-                                                Suspend
+                                                Delete
                                             </button>
                                         </td>
                                     </tr>
@@ -443,6 +478,45 @@ export default function ServiceListing() {
                         )}
                     </table>
                 </div>
+
+        {showSelectedListing && selectedListing && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2>Service Listing Details</h2>
+              <button className="close-button" onClick={setShowSelectedListing(false)}>
+                &times;
+              </button>
+            </div>
+            
+            <div className="user-info">
+              <p><strong>Service Title:</strong> {selectedListing.title}</p>
+              <p><strong>Description:</strong> {selectedListing.description}</p>
+              <p><strong>Price:</strong> {selectedListing.price}</p>
+              <p><strong>Location:</strong> {selectedListing.location}</p>
+              <p><strong>View Count:</strong> {selectedListing.view_count}</p>
+              <p><strong>Listed Count:</strong> {selectedListing.listed_count}</p>
+              <p><strong>Service Category name:</strong> {selectedListing.service_categories_name}</p>
+            </div>
+            
+            <div className="form-actions">
+                <button
+                    className="view-button"
+                    onClick={() => handleUpdateButton(selectedListing)}
+                >
+                    Update
+                </button>
+                <button
+                    type="button"
+                    onClick={handleCloseModal}
+                    className="cancel-button"
+                >
+                    Close
+                </button>
+            </div>
+          </div>
+        </div>
+      )}
 
         {showUpdateModal && (
             <div className="modal-overlay">

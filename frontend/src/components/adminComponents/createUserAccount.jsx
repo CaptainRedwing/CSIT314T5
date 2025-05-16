@@ -33,16 +33,17 @@ export default function CreateUserAccount() {
             }
         
             const data = await response.json();
+            const activeProfiles = data.filter(profile => profile.is_active === true);
             
-            setProfiles(data);
+            setProfiles(activeProfiles);
 
-        
-            if (data && data.length > 0) {
+            if (activeProfiles.length > 0) {
               setNewUser(prev => ({
                 ...prev,
-                profile_id: data[0].id
+                profile_id: activeProfiles[0].id
               }));
             }
+            setError(''); // Clear errors on success
           } catch (error) {
             console.error('Error fetching profiles:', error);
             setError(prev => ({ ...prev, profileError: error.message }));
