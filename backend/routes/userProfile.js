@@ -12,9 +12,10 @@ const router = express.Router();
 
 router.post("/", createUserProfileController.createUserProfile);
 router.get("/", viewUserProfileController.viewUserProfile);
+router.get("/:id", viewSpecifyByIdController.viewSpecifyById);
 router.put("/:id", updateUserProfileController.updateUserProfile);
 router.delete("/:id", suspendUserProfileController.suspendUserProfile);
 router.get("/search/:name", searchUserProfileController.searchUserProfile);
-router.get("/:id", viewSpecifyByIdController.viewSpecifyById);
+
 
 export default router;

@@ -5,7 +5,9 @@ export class searchUserProfileController{
     static async searchUserProfile(req, res, next){
         try{
             const name = req.params.name;
+            console.log(name)
             const userProfile = await UserProfile.searchUserProfile(name);
+            console.log(userProfile)
             if(!userProfile){
                 return next(createError(400, "User Profile Not Found"));
             }

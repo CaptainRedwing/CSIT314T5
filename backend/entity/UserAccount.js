@@ -6,6 +6,7 @@ import{
     updateUserAccountQuery,
     findSpecificUserAccountQuery,
     suspendUserAccountQuery,
+    viewAccountByUserNameRoleQuery
 } from "../utils/sqlQuery.js"
 
 export class UserAccount{
@@ -60,13 +61,13 @@ export class UserAccount{
         return rows.map(UserAccount.fromDB);
     }
 
-    // static async findByUsernameAndRole(username, role){
-    //     const {rows} = await query(viewAccountByUserNameRoleQuery, [
-    //         username || null,
-    //         role || null
-    //     ]);
-    //     return rows.map(UserAccount.fromDB);
-    // }
+    static async findByUsernameAndRole(username, role){
+        const {rows} = await query(viewAccountByUserNameRoleQuery, [
+            username || null,
+            role || null
+        ]);
+        return rows.map(UserAccount.fromDB);
+    }
 
     static async searchUserAccount(id){
         const {rows} = await query(findSpecificUserAccountQuery, [id]);
@@ -76,31 +77,33 @@ export class UserAccount{
         return UserAccount.fromDB(rows[0]);
     }
 
-static async updateUserAccount(id, { username, email, password, profile_id, is_active }) {
-    const existingUser = await this.searchUserAccount(id);
-    if (!existingUser) return false;
-
-    let hashedPassword = existingUser.password;
-    if (password) {
-        const isSamePassword = await bcrypt.compare(password, existingUser.password);
-        if (!isSamePassword) {
-            const saltRounds = 10;
-            hashedPassword = await bcrypt.hash(password, saltRounds);
+    static async updateUserAccount(id, {username, email, password, profile_id, is_active}){
+        let hashedPassword = null;
+    
+        if (password) {
+            const existingUser = await this.searchUserAccount(id);
+            if (!existingUser) return false;
+            const isSamePassword = await bcrypt.compare(password, existingUser.password);
+            if (!isSamePassword) {
+                const saltRounds = 10;
+                hashedPassword = await bcrypt.hash(password, saltRounds);
+            } else {
+                hashedPassword = existingUser.password;
+            }
         }
+        const {rowCount, rows} = await query(updateUserAccountQuery, [
+            username,
+            email,
+            hashedPassword,
+            profile_id,
+            is_active,
+            id
+        ]);
+        if (rowCount === 0){
+            return null;
+        }
+        return true;
     }
-    const { rowCount, rows } = await query(updateUserAccountQuery, [
-        username,
-        email,
-        hashedPassword,
-        profile_id,
-        is_active,
-        id
-    ]);
-
-    if (rowCount === 0) return false;
-    return true;
-}
-
 
     static async suspendUserAccount(id){
         const {rowCount} = await query(suspendUserAccountQuery, [id]);

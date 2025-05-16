@@ -35,14 +35,14 @@ export class UserProfile{
             SELECT 1
             FROM pg_type t
             JOIN pg_enum e ON t.oid = e.enumtypid
-            WHERE t.typname = 'role_type' AND e.enumlabel = $1
+            WHERE t.typname = 'profile_type' AND e.enumlabel = $1
         ) AS exists;
         `;
         const enumCheck = await query(enumExistsQuery, [this.name]);
         const roleExists = enumCheck.rows[0].exists;
 
         if(!roleExists){
-            const alterEnumQuery = `ALTER TYPE role_type ADD VALUE IF NOT EXISTS '${this.name}'`;
+            const alterEnumQuery = `ALTER TYPE profile_type ADD VALUE IF NOT EXISTS '${this.name}'`;
             await query(alterEnumQuery);
         }
 
@@ -82,7 +82,7 @@ export class UserProfile{
         if(!rows.length){
             return null;
         }
-        return UserProfile.fromDB(rows[0]);
+        return rows.map(UserProfile.fromDB);
     }
     static async viewSpecifyById(id){
         const {rows} = await query(viewProfileByIdQuery, [id]);

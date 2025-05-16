@@ -102,6 +102,7 @@ export default function CreateUserProfile() {
         is_active: true
       });
       setError({});
+      alert('User Profile created successfully')
       
     } catch (error) {
       setError({form: error.message});

@@ -107,9 +107,9 @@ export const suspendUserAccountQuery = `
 export const viewAccountByUserNameRoleQuery = `
     SELECT * FROM user_account
     WHERE
-        (username = $1 OR $1 IS NULL) 
+        (username ILIKE '%' || $1 || '%' OR $1 IS NULL) 
         AND 
-        (profile_id = $2 OR $2 IS NULL)
+        (profile_id = $2 OR $2 IS NULL);
 `;
 
 // User Profile CRUDS
@@ -155,6 +155,8 @@ export const searchUserProfileQuery = `
     SELECT * FROM user_profile
     WHERE name = $1;
 `;
+
+
 
 export const viewProfileByIdQuery = `
     SELECT * FROM user_profile

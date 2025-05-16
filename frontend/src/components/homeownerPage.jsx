@@ -1,12 +1,16 @@
 import React from "react";
 import FavouriteListing from "./favoriteListingComponents/FavorateSerive"
 import HomeownerMatchHistory from "./matchHistory/homeownerMatchHistory";
+import { useNavigate } from 'react-router-dom';
 
 export default function homeownerPage(){
+    const navigate = useNavigate();
+
 
     const handleLogout = () => {
-        window.location.href = "/login";
+        navigate("/login");
       };
+
 
     return (
         <>
@@ -23,7 +27,6 @@ export default function homeownerPage(){
         </div>
 
         <FavouriteListing />
-        <HomeownerMatchHistory />
         </>
     )
 }
