@@ -4,6 +4,7 @@ import { viewUserProfileController } from "../controller/userProfile/viewUserPro
 import { updateUserProfileController } from "../controller/userProfile/updateUserProfileController.js";
 import { suspendUserProfileController } from "../controller/userProfile/suspendUserProfileController.js";
 import { searchUserProfileController } from "../controller/userProfile/searchUserProfileController.js";
+import { viewSpecifyByIdController } from "../controller/userProfile/viewSpecifyById.js";
 
 
 const router = express.Router();
@@ -13,6 +14,7 @@ router.post("/", createUserProfileController.createUserProfile);
 router.get("/", viewUserProfileController.viewUserProfile);
 router.put("/:id", updateUserProfileController.updateUserProfile);
 router.delete("/:id", suspendUserProfileController.suspendUserProfile);
-router.get("/:name", searchUserProfileController.searchUserProfile);
+router.get("/search/:name", searchUserProfileController.searchUserProfile);
+router.get("/:id", viewSpecifyByIdController.viewSpecifyById);
 
 export default router;

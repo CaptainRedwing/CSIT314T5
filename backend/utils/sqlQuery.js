@@ -155,6 +155,11 @@ export const searchUserProfileQuery = `
     WHERE name = $1;
 `;
 
+export const viewProfileByIdQuery = `
+    SELECT * FROM user_profile_details
+    WHERE id = $1;
+`;
+
 // Service Categories CRUDS
 export const createServiceCategoriesTableQuery = `
     CREATE TABLE IF NOT EXISTS service_categories_details(
@@ -315,7 +320,6 @@ export const getListedCountQuery = `
     FROM service_listing_details
     WHERE id = $1;
 `;
-
 
 // Favourite Listing CRUDS
 export const createFavouriteListingTableQuery = `

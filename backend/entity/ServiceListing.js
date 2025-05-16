@@ -1,6 +1,5 @@
 import { query } from "../utils/connectToDB.js";
 import {
-    createServiceListingTableQuery,
     createServiceListingQuery,
     viewServiceListingQuery,
     updateServiceListingQuery,
@@ -10,7 +9,8 @@ import {
     incrementViewCountQuery,
     getViewCountQuery,
     incrementListedCountQuery,
-    getListedCountQuery
+    getListedCountQuery,
+    viewServiceListingByIdQuery
 } from "../utils/sqlQuery.js";
 
 export class ServiceListing{
@@ -60,12 +60,6 @@ export class ServiceListing{
     }
 
     static async viewServiceListing(){
-        const response = await query(`
-            SELECT to_regclass('service_listing_details');
-            `);
-        if(!response.rows[0].to_regclass){
-            await query(createServiceListingTableQuery);
-        }
         const {rows} = await query(viewServiceListingQuery);
         return rows.map(ServiceListing.fromDB);
     }
@@ -128,8 +122,11 @@ export class ServiceListing{
         return countRows[0].listed_count;
     }
 
-
-
-
-
+    static async viewServiceListingById(id){
+        const {rows} = await query(viewServiceListingByIdQuery, [id]);
+        if(!rows.length){
+            return false;
+        }
+        return ServiceListing.fromDB(rows[0]);
+    }
 }

@@ -3,26 +3,23 @@ import {query} from "../utils/connectToDB.js"
 import{
     createUserAccountQuery,
     viewUserAccountQuery,
-    viewAccountByUserNameRoleQuery,
     updateUserAccountQuery,
     findSpecificUserAccountQuery,
     suspendUserAccountQuery,
-    createRoleQuery,
-    createUserAccountTableQuery
 } from "../utils/sqlQuery.js"
 
 export class UserAccount{
-    constructor({id,username, email, password, user_profile_id, is_active}){
+    constructor({id,username, email, password, profile_id, is_active}){
         this.id = id
         this.username = username;
         this.email = email;
         this.password = password;
-        this.user_profile_id = user_profile_id;
+        this.profile_id = profile_id;
         this.is_active = is_active;
     }
 
     isValid(){
-        return this.username && this.email && this.password && this.user_profile_id && this.is_active;
+        return this.username && this.email && this.password && this.profile_id && this.is_active;
     }
 
     static fromDB(row){
@@ -31,7 +28,7 @@ export class UserAccount{
             username: row.username,
             email: row.email,
             password: row.password,
-            user_profile_id: row.user_profile_id,
+            profile_id: row.profile_id,
             is_active: row.is_active
         });
     }
@@ -49,20 +46,13 @@ export class UserAccount{
             this.username,
             this.email,
             this.password,
-            this.user_profile_id,
+            this.profile_id,
             this.is_active
         ]);
         return UserAccount.fromDB(rows[0]);
     }
 
     static async viewUserAccount(){
-        const response = await query(`
-           SELECT to_regclass('user_account_details'); 
-        `);
-        if (!response.rows[0].to_regclass){
-            await query(createRoleQuery);
-            await query(createUserAccountTableQuery);
-        }
         const {rows} = await query(viewUserAccountQuery);
         return rows.map(UserAccount.fromDB);
     }
@@ -83,20 +73,31 @@ export class UserAccount{
         return UserAccount.fromDB(rows[0]);
     }
 
-    static async updateUserAccount(id, {username, email, password, user_profile_id, is_active}){
-        const {rowCount, rows} = await query(updateUserAccountQuery, [
-            username,
-            email,
-            password,
-            user_profile_id,
-            is_active,
-            id
-        ]);
-        if (rowCount == 0){
-            return null;
+static async updateUserAccount(id, { username, email, password, profile_id, is_active }) {
+    const existingUser = await this.searchUserAccount(id);
+    if (!existingUser) return false;
+
+    let hashedPassword = existingUser.password;
+    if (password) {
+        const isSamePassword = await bcrypt.compare(password, existingUser.password);
+        if (!isSamePassword) {
+            const saltRounds = 10;
+            hashedPassword = await bcrypt.hash(password, saltRounds);
         }
-        return UserAccount.fromDB(rows[0]);
     }
+    const { rowCount, rows } = await query(updateUserAccountQuery, [
+        username,
+        email,
+        hashedPassword,
+        profile_id,
+        is_active,
+        id
+    ]);
+
+    if (rowCount === 0) return false;
+    return true;
+}
+
 
     static async suspendUserAccount(id){
         const {rowCount} = await query(suspendUserAccountQuery, [id]);

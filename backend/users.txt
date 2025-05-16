@@ -11,3 +11,13 @@ userName|email|password|role
 
 tom123|tom123@gmail.com|tom123321tom|admin
 jj123|jj123@gmail.com|jj123321jj|manager
+
+
+INSERT INTO match_history (service_listing_id, homeowner_id, date_confirmed, service_date, status)
+VALUES 
+(1, 5, '2025-05-01', '2025-05-10', true), 
+(2, 6, '2025-05-02', '2025-05-11', true), 
+(3, 5, '2025-05-03', '2025-05-12', true), 
+(4, 7, '2025-05-04', '2025-05-13', true), 
+(5, 6, '2025-05-05', '2025-05-14', true); 
+

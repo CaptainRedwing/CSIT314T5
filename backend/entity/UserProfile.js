@@ -1,12 +1,11 @@
 import { query } from "../utils/connectToDB.js";
 import {
-    createUserProfileTableQuery,
-    createRoleQuery,
     createUserProfileQuery,
     viewUserProfileQuery,
     updateUserProfileQuery,
     suspendUserProfileQuery,
-    searchUserProfileQuery
+    searchUserProfileQuery,
+    viewProfileByIdQuery
 } from "../utils/sqlQuery.js";
 
 export class UserProfile{
@@ -36,7 +35,7 @@ export class UserProfile{
             SELECT 1
             FROM pg_type t
             JOIN pg_enum e ON t.oid = e.enumtypid
-            WHERE t.typname = 'profile_type' AND e.enumlabel = $1
+            WHERE t.typname = 'role_type' AND e.enumlabel = $1
         ) AS exists;
         `;
         const enumCheck = await query(enumExistsQuery, [this.name]);
@@ -56,13 +55,6 @@ export class UserProfile{
     }
 
     static async viewUserProfile(){
-        const response = await query(`
-            SELECT to_regclass('user_profile_details');    
-        `);
-        if(!response.rows[0].to_regclass){
-            await query(createRoleQuery),
-            await query(createUserProfileTableQuery);
-        }
         const {rows} = await query(viewUserProfileQuery);
         return rows.map(UserProfile.fromDB);
     }
@@ -85,8 +77,15 @@ export class UserProfile{
         return rowCount > 0;
     }
 
-    static async searchUserProfile(id){
-        const {rows} = await query(searchUserProfileQuery, [id]);
+    static async searchUserProfile(name){
+        const {rows} = await query(searchUserProfileQuery, [name]);
+        if(!rows.length){
+            return null;
+        }
+        return UserProfile.fromDB(rows[0]);
+    }
+    static async viewSpecifyById(id){
+        const {rows} = await query(viewProfileByIdQuery, [id]);
         if(!rows.length){
             return null;
         }
