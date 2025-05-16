@@ -1,5 +1,5 @@
 // Drop all tables
-export const dropAllQuery = `
+export const dropAllTableQuery = `
 DO $$
 DECLARE
     tbl TEXT;
@@ -57,27 +57,28 @@ export const getAllrole = `
 `;
 
 export const createUserAccountTableQuery = `
-    CREATE TABLE IF NOT EXISTS user_account_details (
+    CREATE TABLE IF NOT EXISTS user_account (
         id SERIAL PRIMARY KEY,
         username VARCHAR(50) NOT NULL UNIQUE,
         email VARCHAR(50) NOT NULL UNIQUE,
         password VARCHAR(200) NOT NULL,
-        profile_id INT REFERENCES user_profile_details(id) ON DELETE SET NULL,
-        is_active BOOLEAN
+        profile_id INT REFERENCES user_profile(id) ON DELETE SET NULL,
+        is_active BOOLEAN,
+        time_stamp DATE DEFAULT CURRENT_DATE
     );
 `;
 
 export const createUserAccountQuery = `
-    INSERT INTO user_account_details(username, email, password, profile_id, is_active)
-    VALUES($1, $2, $3, $4, $5) RETURNING *;
+    INSERT INTO user_account(username, email, password, profile_id, is_active, time_stamp)
+    VALUES($1, $2, $3, $4, $5, $6) RETURNING *;
 `;
 
-export const viewUserAccountQuery = `SELECT * FROM user_account_details`;
+export const viewUserAccountQuery = `SELECT * FROM user_account`;
 
-export const loginQuery = `SELECT * FROM user_account_details WHERE username=$1 AND profile_id =$2`;
+export const loginQuery = `SELECT * FROM user_account WHERE username=$1 AND profile_id =$2`;
 
 export const updateUserAccountQuery = `
-    UPDATE user_account_details
+    UPDATE user_account
     SET
     username = COALESCE($1, username),
     email = COALESCE($2, email),
@@ -92,19 +93,19 @@ export const updateUserAccountQuery = `
 `;
 
 export const findSpecificUserAccountQuery = `
-    SELECT * FROM user_account_details 
+    SELECT * FROM user_account 
     WHERE id = $1;
 `;
 
 export const suspendUserAccountQuery = `
-    UPDATE user_account_details
+    UPDATE user_account
     SET
     is_active = false
     WHERE id = $1;
 `;
 
 export const viewAccountByUserNameRoleQuery = `
-    SELECT * FROM user_account_details
+    SELECT * FROM user_account
     WHERE
         (username = $1 OR $1 IS NULL) 
         AND 
@@ -113,7 +114,7 @@ export const viewAccountByUserNameRoleQuery = `
 
 // User Profile CRUDS
 export const createUserProfileTableQuery = `
-    CREATE TABLE IF NOT EXISTS user_profile_details(
+    CREATE TABLE IF NOT EXISTS user_profile(
         id SERIAL PRIMARY KEY,
         name profile_type NOT NULL DEFAULT 'Pending',
         description VARCHAR(100) NOT NULL,
@@ -122,16 +123,16 @@ export const createUserProfileTableQuery = `
 `;
 
 export const createUserProfileQuery = `
-    INSERT INTO user_profile_details(name, description, is_active)
+    INSERT INTO user_profile(name, description, is_active)
     VALUES(COALESCE($1::profile_type, 'Pending'::profile_type), $2, $3) RETURNING *
 `;
 
 export const viewUserProfileQuery = `
-    SELECT * FROM user_profile_details;
+    SELECT * FROM user_profile;
 `;
 
 export const updateUserProfileQuery = `
-    UPDATE user_profile_details
+    UPDATE user_profile
     SET
     name = COALESCE($1, name),
     description = COALESCE($2, description),
@@ -144,25 +145,25 @@ export const updateUserProfileQuery = `
 `;
 
 export const suspendUserProfileQuery = `
-    UPDATE user_profile_details
+    UPDATE user_profile
     SET
     is_active = false
     WHERE id = $1;
 `;
 
 export const searchUserProfileQuery = `
-    SELECT * FROM user_profile_details
+    SELECT * FROM user_profile
     WHERE name = $1;
 `;
 
 export const viewProfileByIdQuery = `
-    SELECT * FROM user_profile_details
+    SELECT * FROM user_profile
     WHERE id = $1;
 `;
 
 // Service Categories CRUDS
 export const createServiceCategoriesTableQuery = `
-    CREATE TABLE IF NOT EXISTS service_categories_details(
+    CREATE TABLE IF NOT EXISTS service_categories(
     id SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE,
     description VARCHAR(100) NOT NULL
@@ -170,16 +171,16 @@ export const createServiceCategoriesTableQuery = `
 `;
 
 export const createServiceCategoriesQuery = `
-    INSERT INTO service_categories_details(name, description)
+    INSERT INTO service_categories(name, description)
     VALUES($1, $2) RETURNING *;
 `;
 
 export const viewServiceCategoriesQuery = `
-    SELECT * FROM service_categories_details;
+    SELECT * FROM service_categories;
 `;
 
 export const updateServiceCategoriesQuery = `
-    UPDATE service_categories_details
+    UPDATE service_categories
     SET
     name = COALESCE($1, name),
     description = COALESCE($2, name)
@@ -188,42 +189,43 @@ export const updateServiceCategoriesQuery = `
 `;
 
 export const deleteServiceCategoriesQuery = `
-    DELETE FROM service_categories_details
+    DELETE FROM service_categories
     WHERE id = $1;
 `;
 
 export const searchServiceCategoriesQuery = `
-    SELECT * FROM service_categories_details
+    SELECT * FROM service_categories
     WHERE name = $1;
 `;
 
 // Service Listing CRUDS
 export const createServiceListingTableQuery = `
-    CREATE TABLE IF NOT EXISTS service_listing_details(
+    CREATE TABLE IF NOT EXISTS service_listing(
     id SERIAL PRIMARY KEY,
-    cleaner_id INT REFERENCES user_account_details(id) ON DELETE SET NULL,
+    cleaner_id INT REFERENCES user_account(id) ON DELETE SET NULL,
     title VARCHAR(50) NOT NULL,
     description VARCHAR(50) NOT NULL,
     price DOUBLE PRECISION NOT NULL,
     location VARCHAR(50) NOT NULL,
     view_count INTEGER DEFAULT 0,
     listed_count INTEGER DEFAULT 0,
-    service_categories_name VARCHAR REFERENCES service_categories_details(name) ON DELETE SET NULL
+    service_categories_name VARCHAR REFERENCES service_categories(name) ON DELETE SET NULL,
+    created_at DATE DEFAULT CURRENT_DATE
     );
 `;
 
 export const createServiceListingQuery = `
-    INSERT INTO service_listing_details(cleaner_id, title, description, price, location, view_count, listed_count, service_categories_name)
-    VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;
+    INSERT INTO service_listing(cleaner_id, title, description, price, location, view_count, listed_count, service_categories_name, created_at)
+    VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *;
 `;
 
 
 export const viewServiceListingQuery = `
-    SELECT * FROM service_listing_details;
+    SELECT * FROM service_listing;
 `;
 
 export const updateServiceListingQuery = `
-    UPDATE service_listing_details
+    UPDATE service_listing
     SET
     cleaner_id = COALESCE($1, cleaner_id),
     title = COALESCE($2, title),
@@ -236,17 +238,17 @@ export const updateServiceListingQuery = `
 `;
 
 export const deleteServiceListingQuery = `
-    DELETE FROM service_listing_details 
+    DELETE FROM service_listing 
     WHERE id = $1;
 `;
 
 export const searchServiceListingQuery = `
-    SELECT * FROM service_listing_details
+    SELECT * FROM service_listing
     WHERE title = $1;
 `;
 
 export const viewServiceListingByIdQuery = `
-    SELECT * FROM service_listing_details
+    SELECT * FROM service_listing
     WHERE id = $1;
 `;
 
@@ -256,7 +258,7 @@ export const cleanerCheckingTriggerAndTriggerFunction = `
         IF EXISTS (
             SELECT 1 FROM pg_trigger WHERE tgname = 'trg_check_cleaner_role'
         ) THEN
-            DROP TRIGGER trg_check_cleaner_role ON service_listing_details;
+            DROP TRIGGER trg_check_cleaner_role ON service_listing;
         END IF;
     EXCEPTION WHEN undefined_table THEN
         NULL;
@@ -273,8 +275,8 @@ export const cleanerCheckingTriggerAndTriggerFunction = `
         -- Get the cleaner's profile role based on profile_id
         SELECT upd.name
         INTO role_name
-        FROM user_account_details uad
-        JOIN user_profile_details upd ON uad.profile_id = upd.id
+        FROM user_account uad
+        JOIN user_profile upd ON uad.profile_id = upd.id
         WHERE uad.id = NEW.cleaner_id;  -- Check the cleaner's role for the inserted service listing
 
         -- Check if the role is 'Cleaner'
@@ -288,13 +290,13 @@ export const cleanerCheckingTriggerAndTriggerFunction = `
     $$ LANGUAGE plpgsql;
 
     CREATE TRIGGER trg_check_cleaner_role
-    BEFORE INSERT ON service_listing_details
+    BEFORE INSERT ON service_listing
     FOR EACH ROW
     EXECUTE FUNCTION ensure_cleaner_role();
 `;
 
 export const incrementViewCountQuery = `
-    UPDATE service_listing_details
+    UPDATE service_listing
     SET
     view_count = view_count + 1
     WHERE id = $1
@@ -303,12 +305,12 @@ export const incrementViewCountQuery = `
 
 export const getViewCountQuery = `
     SELECT view_count
-    FROM service_listing_details
+    FROM service_listing
     WHERE id = $1;
 `;
 
 export const incrementListedCountQuery = `
-    UPDATE service_listing_details
+    UPDATE service_listing
     SET
     listed_count = listed_count + 1
     WHERE id = $1
@@ -317,30 +319,31 @@ export const incrementListedCountQuery = `
 
 export const getListedCountQuery = `
     SELECT listed_count
-    FROM service_listing_details
+    FROM service_listing
     WHERE id = $1;
 `;
 
 // Favourite Listing CRUDS
 export const createFavouriteListingTableQuery = `
-    CREATE TABLE IF NOT EXISTS favourite_listing_details(
+    CREATE TABLE IF NOT EXISTS favourite_listing(
         id SERIAL PRIMARY KEY,
-        homeowner_id INT REFERENCES user_account_details(id) ON DELETE SET NULL,
-        service_listing_id INT REFERENCES service_listing_details(id) ON DELETE SET NULL
+        homeowner_id INT REFERENCES user_account(id) ON DELETE SET NULL,
+        service_listing_id INT REFERENCES service_listing(id) ON DELETE SET NULL
+        added_at DATE DEFAULT CURRENT_DATE;
     );
 `;
 
 export const saveFavouriteListingQuery = `
-    INSERT INTO favourite_listing_details(homeowner_id, service_listing_id)
-    VALUES($1, $2) RETURNING *;
+    INSERT INTO favourite_listing(homeowner_id, service_listing_id, added_at)
+    VALUES($1, $2, $3) RETURNING *;
 `;
 
 export const viewFavouriteListingQuery = `
-    SELECT * FROM favourite_listing_details;
+    SELECT * FROM favourite_listing;
 `;
 
 export const searchFavouriteListingQuery = `
-    SELECT * FROM favourite_listing_details
+    SELECT * FROM favourite_listing
     WHERE id = $1;
 `;
 
@@ -350,7 +353,7 @@ export const homeownerCheckingTriggerAndTriggerFunction = `
         IF EXISTS (
             SELECT 1 FROM pg_trigger WHERE tgname = 'trg_check_homeowner_role'
         ) THEN
-            DROP TRIGGER trg_check_homeowner_role ON favourite_listing_details;
+            DROP TRIGGER trg_check_homeowner_role ON favourite_listing;
         END IF;
     EXCEPTION WHEN undefined_table THEN
         NULL;
@@ -367,8 +370,8 @@ export const homeownerCheckingTriggerAndTriggerFunction = `
         -- Get the homeowner's profile role based on profile_id
         SELECT upd.name
         INTO role_name
-        FROM user_account_details uad
-        JOIN user_profile_details upd ON uad.profile_id = upd.id
+        FROM user_account uad
+        JOIN user_profile upd ON uad.profile_id = upd.id
         WHERE uad.id = NEW.homeowner_id;  -- Check the homeowner's role for the inserted favourite listing
 
         -- Check if the role is 'Homeowner'
@@ -382,7 +385,7 @@ export const homeownerCheckingTriggerAndTriggerFunction = `
     $$ LANGUAGE plpgsql;
 
     CREATE TRIGGER trg_check_homeowner_role
-    BEFORE INSERT ON favourite_listing_details
+    BEFORE INSERT ON favourite_listing
     FOR EACH ROW
     EXECUTE FUNCTION ensure_homeowner_role();
 `;
@@ -392,8 +395,8 @@ export const homeownerCheckingTriggerAndTriggerFunction = `
 export const createMatchHistoryTableQuery = `
     CREATE TABLE IF NOT EXISTS match_history(
     id SERIAL PRIMARY KEY,
-    service_listing_id INT REFERENCES service_listing_details(id) ON DELETE SET NULL,
-    homeowner_id INT REFERENCES user_account_details(id) ON DELETE SET NULL,
+    service_listing_id INT REFERENCES service_listing(id) ON DELETE SET NULL,
+    homeowner_id INT REFERENCES user_account(id) ON DELETE SET NULL,
     date_confirmed DATE DEFAULT CURRENT_DATE,
     service_date DATE DEFAULT CURRENT_DATE,
     status BOOLEAN 
@@ -409,9 +412,9 @@ export const cleanerViewMatchHistoryQuery = `
         mh.service_date,
         mh.status
     FROM match_history mh
-    JOIN service_listing_details sld
-        ON mh.service_listing_id = sld.id
-    WHERE sld.cleaner_id = $1
+    JOIN service_listing sl
+        ON mh.service_listing_id = sl.id
+    WHERE sl.cleaner_id = $1
     AND mh.status = true
     ORDER BY date_confirmed DESC;
 `;
@@ -425,24 +428,24 @@ export const cleanerSearchMatchHistoryQuery = `
         mh.service_date,
         mh.status
     FROM match_history mh
-    JOIN service_listing_details sld
-        ON mh.service_listing_id = sld.id
-    WHERE sld.cleaner_id = $1;
+    JOIN service_listing sl
+        ON mh.service_listing_id = sl.id
+    WHERE sl.cleaner_id = $1;
 `;
 
 export const homeownerSearchMatchHistoryQuery = `
     SELECT * 
     FROM match_history mh
-    JOIN service_listing_details sld
-        ON mh.service_listing_id = sld.id
+    JOIN service_listing sl
+        ON mh.service_listing_id = sl.id
     WHERE mh.homeowner_id = $1;
 `;
 
 export const homeownerViewMatchHistoryQuery = `
     SELECT * 
     FROM match_history mh
-    JOIN service_listing_details sld
-        ON mh.service_listing_id = sld.id
+    JOIN service_listing sl
+        ON mh.service_listing_id = sl.id
     WHERE mh.homeowner_id = $1 
     AND mh.status = true
     ORDER BY date_confirmed DESC;
@@ -451,26 +454,26 @@ export const homeownerViewMatchHistoryQuery = `
 // US 30
 export const cleanerViewPageAttributes = `
     SELECT 
-        sld.title, 
+        sl.title, 
         mh.service_date,
-        sld.homeowner_id,
-        sld.description,
-        sld.price
-    FROM service_listing_details sld
+        sl.homeowner_id,
+        sl.description,
+        sl.price
+    FROM service_listing sl
     JOIN match_history mh 
-        ON mh.service_listing_id = sld.id
+        ON mh.service_listing_id = sl.id
     WHERE mh.cleaner_id = $1;
 `;
 
 // US 31
 export const cleanerSearchPageAttributes = `
     SELECT
-        sld.title,
-        sld.service_categories,
-        sld.price
-    FROM service_listing_id sld
+        sl.title,
+        sl.service_categories,
+        sl.price
+    FROM service_listing_id sl
     JOIN match_history mh
-        ON mh.service_listing_id = sld.id
+        ON mh.service_listing_id = sl.id
     WHERE mh.cleaner_id = $1;
 `;
 
@@ -478,24 +481,192 @@ export const cleanerSearchPageAttributes = `
 // US 32
 export const homeownerViewMatchHistoryAttributes = `
     SELECT
-        sld.title,
+        sl.title,
         mh.cleaner_id,
-        sld.description,
-        sld.price
-    FROM service_listing_id sld
+        sl.description,
+        sl.price
+    FROM service_listing_id sl
     JOIN match_history mh
-        ON mh.service_listing_id = sld.id
+        ON mh.service_listing_id = sl.id
     WHERE mh.homeowner_id = $1;
 `;
 
 // US 31
 export const homeownerSearchMatchHistoryAttributes= `
     SELECT
-        sld.title,
-        sld.categories,
-        sld.price
-    FROM service_listing_id sld
+        sl.title,
+        sl.categories,
+        sl.price
+    FROM service_listing_id sl
     JOIN match_history mh
-        ON mh.service_listing_id = sld.id
+        ON mh.service_listing_id = sl.id
     WHERE mh.homeowner_id = $1;
 `
+
+// Report
+export const createReportType = `
+    CREATE TYPE report_type AS
+    ENUM('Daily', 'Weekly', 'Monthly');
+`;
+
+export const createReportTableQuery = `
+    CREATE TABLE IF NOT EXISTS report(
+    id SERIAL PRIMARY KEY,
+    date_of_report DATE DEFAULT CURRENT_DATE,
+    type_of_report report_type NOT NULL DEFAULT 'Daily',
+    new_user INT NOT NULL DEFAULT 0,
+    match_service INT NOT NULL DEFAULT 0,
+    created_service INT NOT NULL DEFAULT 0,
+    most_viewed_service INT NOT NULL DEFAULT 0,
+    added_favourite INT NOT NULL DEFAULT 0
+    );
+`;
+
+export const generateDailyReportQuery = `
+    INSERT INTO report (date_of_report, type_of_report, new_user, match_service, created_service, most_viewed_service, added_favourite)
+    SELECT
+        $1::date AS date_of_report,
+        'Daily' AS type_of_report,
+        (
+            SELECT COUNT(*) FROM user_account
+            WHERE time_stamp = $1
+        ) AS new_user,
+        (
+            SELECT COUNT(*) FROM match_history
+            WHERE date_confirmed = $1
+        ) AS match_service,
+        (
+            SELECT COUNT(*) FROM service_listing
+            WHERE created_at = $1
+        ) AS created_service,
+        (
+            SELECT COALESCE(id, 0) FROM service_listing
+            ORDER BY view_count DESC
+            LIMIT 1
+        ) AS most_viewed_service,
+        (
+            SELECT COUNT(*) FROM favourite_listing
+            WHERE added_at = $1
+        ) AS added_favourite
+    RETURNING *;
+`;
+
+export const generateWeeklyReportQuery = `
+INSERT INTO report (
+    date_of_report,
+    type_of_report,
+    new_user,
+    match_service,
+    created_service,
+    most_viewed_service,
+    added_favourite
+)
+SELECT
+    $1::date AS date_of_report,
+    'Weekly' AS type_of_report,
+    (
+        SELECT COUNT(*) FROM user_account
+        WHERE time_stamp >= $1::date AND time_stamp <= $1::date + INTERVAL '6 days'
+    ) AS new_user,
+    (
+        SELECT COUNT(*) FROM match_history
+        WHERE date_confirmed >= $1::date AND date_confirmed <= $1::date + INTERVAL '6 days'
+    ) AS match_service,
+    (
+        SELECT COUNT(*) FROM service_listing
+        WHERE created_at >= $1::date AND created_at <= $1::date + INTERVAL '6 days'
+    ) AS created_service,
+    (
+        SELECT id FROM service_listing
+        ORDER BY view_count DESC
+        LIMIT 1
+    ) AS most_viewed_service,
+    (
+        SELECT COUNT(*) FROM favourite_listing
+        WHERE added_at >= $1::date AND added_at <= $1::date + INTERVAL '6 days'
+    ) AS added_favourite
+RETURNING *;
+`;
+
+
+export const generateMonthlyReportQuery = `
+    INSERT INTO report (date_of_report, type_of_report, new_user, match_service, created_service, most_viewed_service, added_favourite)
+    SELECT
+        $1::date AS date_of_report,
+        'Monthly' AS type_of_report,
+        (
+            SELECT COUNT(*) FROM user_account
+            WHERE time_stamp >= date_trunc('month', $1) AND time_stamp < date_trunc('month', $1) + INTERVAL '1 month'
+        ) AS new_user,
+        (
+            SELECT COUNT(*) FROM match_history
+            WHERE date_confirmed >= date_trunc('month', $1) AND date_confirmed < date_trunc('month', $1) + INTERVAL '1 month'
+        ) AS match_service,
+        (
+            SELECT COUNT(*) FROM service_listing
+            WHERE created_at >= date_trunc('month', $1) AND created_at < date_trunc('month', $1) + INTERVAL '1 month'
+        ) AS created_service,
+        (
+            SELECT COALESCE(id, 0) FROM service_listing
+            ORDER BY view_count DESC
+            LIMIT 1
+        ) AS most_viewed_service,
+        (
+            SELECT COUNT(*) FROM favourite_listing
+            WHERE added_at >= date_trunc('month', $1) AND added_at < date_trunc('month', $1) + INTERVAL '1 month'
+        ) AS added_favourite
+    RETURNING *;
+`;
+
+
+export const countNewUserQuery = `
+    SELECT COUNT(*) AS no_of_new_users
+    FROM user_account
+    WHERE
+    ($1 = 'Daily' AND time_stamp = $2)
+    OR
+    ($1 = 'Weekly' AND time_stamp >= $2 AND time_stamp <= $2 + INTERVAL '6 days')
+    OR
+    ($1 = 'Monthly' AND time_stamp >= date_trunc('month', $2) AND time_stamp < date_trunc('month', $2) + INTERVAL '1 month');
+`;
+
+export const countMatchServiceQuery = `
+    SELECT COUNT(*) AS no_of_match_service
+    FROM match_history
+    WHERE
+    ($1 = 'Daily' AND date_confirmed = $2)
+    OR
+    ($1 = 'Weekly' AND date_confirmed >= $2 AND date_confirmed <= $2 + INTERVAL '6 days')
+    OR
+    ($1 = 'Monthly' AND date_confirmed >= date_trunc('month', $2) AND date_confirmed < date_trunc('month', $2) + INTERVAL '1 month');
+`;
+
+export const countCreatedListingQuery = `
+    SELECT COUNT(*) AS no_of_created_service_listing
+    FROM service_listing
+    WHERE
+    ($1 = 'Daily' AND created_at = $2)
+    OR
+    ($1 = 'Weekly' AND created_at >= $2 AND created_at <= $2 + INTERVAL '6 days')
+    OR
+    ($1 = 'Monthly' AND created_at >= date_trunc('month', $2) AND created_at < date_trunc('month', $2) + INTERVAL '1 month');
+`;
+
+export const mostViewedServiceListingQuery = `
+    SELECT id, view_count AS most_viewed_service_listing
+    FROM service_listing
+    ORDER BY view_count DESC
+    LIMIT 1;
+
+`;
+
+export const countAddedFavouriteQuery = `
+    SELECT COUNT(*) AS no_of_added_favourite
+    FROM favourite_listing
+    WHERE
+    ($1 = 'Daily' AND added_at = $2)
+    OR
+    ($1 = 'Weekly' AND added_at >= $2 AND added_at <= $2 + INTERVAL '6 days')
+    OR
+    ($1 = 'Monthly' AND added_at >= date_trunc('month', $2) AND added_at < date_trunc('month', $2) + INTERVAL '1 month');
+`;

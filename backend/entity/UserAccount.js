@@ -9,17 +9,18 @@ import{
 } from "../utils/sqlQuery.js"
 
 export class UserAccount{
-    constructor({id,username, email, password, profile_id, is_active}){
+    constructor({id,username, email, password, profile_id, is_active, time_stamp}){
         this.id = id
         this.username = username;
         this.email = email;
         this.password = password;
         this.profile_id = profile_id;
         this.is_active = is_active;
+        this.time_stamp = time_stamp;
     }
 
     isValid(){
-        return this.username && this.email && this.password && this.profile_id && this.is_active;
+        return this.username && this.email && this.password && this.profile_id && this.is_active && this.time_stamp;
     }
 
     static fromDB(row){
@@ -29,7 +30,8 @@ export class UserAccount{
             email: row.email,
             password: row.password,
             profile_id: row.profile_id,
-            is_active: row.is_active
+            is_active: row.is_active,
+            time_stamp: row.time_stamp
         });
     }
 
@@ -47,7 +49,8 @@ export class UserAccount{
             this.email,
             this.password,
             this.profile_id,
-            this.is_active
+            this.is_active,
+            this.time_stamp
         ]);
         return UserAccount.fromDB(rows[0]);
     }

@@ -8,21 +8,23 @@ import{
 } from "../utils/sqlQuery.js";
 
 export class FavouriteListing{
-    constructor({id, homeowner_id, service_listing_id}){
+    constructor({id, homeowner_id, service_listing_id, added_at}){
         this.id = id;
         this.homeowner_id = homeowner_id;
         this.service_listing_id = service_listing_id;
+        this.added_at = added_at;
     }
 
     isValid(){
-        return this.homeowner_id && this.service_listing_id;
+        return this.homeowner_id && this.service_listing_id && this.added_at;
     }
 
     static fromDB(row){
         return new FavouriteListing({
             id: row.id,
             homeowner_id: row.homeowner_id,
-            service_listing_id: row.service_listing_id
+            service_listing_id: row.service_listing_id,
+            added_at: row.added_at
         });
     }
 
@@ -30,7 +32,8 @@ export class FavouriteListing{
         await query(homeownerCheckingTriggerAndTriggerFunction);
         const {rows} = await query(saveFavouriteListingQuery,[
             this.homeowner_id,
-            this.service_listing_id
+            this.service_listing_id,
+            this.added_at
         ]);
         return FavouriteListing.fromDB(rows[0]);
     }

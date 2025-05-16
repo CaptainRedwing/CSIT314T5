@@ -8,7 +8,8 @@ import userProfileRoute from "../backend/routes/userProfile.js";
 import serviceCategoriesRoute from "../backend/routes/serviceCategories.js";
 import serviceListingRoute from "../backend/routes/serviceListing.js";
 import favouriteListingRoute from "../backend/routes/favouriteListing.js";
-import MatchHistoryRoute from "../backend/routes/matchHistory.js";
+import matchHistoryRoute from "../backend/routes/matchHistory.js";
+import platformReportRoute from "../backend/routes/platformReport.js"
 
 dotenv.config();
 
@@ -36,7 +37,10 @@ app.use('/api/serviceListing', serviceListingRoute);
 
 app.use('/api/favouriteListing', favouriteListingRoute);
 
-app.use('/api/matchHistory', MatchHistoryRoute);
+app.use('/api/matchHistory', matchHistoryRoute);
+
+app.use('/api/platformReport', platformReportRoute);
+
 
 
 
