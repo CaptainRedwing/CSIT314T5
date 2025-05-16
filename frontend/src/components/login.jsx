@@ -188,6 +188,7 @@ export default function Login() {
             onChange={handleChange}
             required
             disabled={isLoading}
+            aria-label="Account Type"
           >
             {profiles.map((profile) => (
               <option key={String(profile.id)} value={String(profile.id)}>

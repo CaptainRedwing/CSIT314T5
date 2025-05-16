@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, jest} from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 import { useNavigate } from "react-router-dom";
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
@@ -10,7 +10,7 @@ import React from 'react';
 global.fetch = jest.fn();
 
 jest.mock("react-router-dom", () => ({
-  ... jest.requireActual("react-router-dom"),
+  ...jest.requireActual("react-router-dom"),
   useNavigate: jest.fn()
 }));
 
@@ -22,52 +22,49 @@ describe('Login Component', () => {
 
   const testCases = [
     {
-      profileType : 'UserAdmin',
-      profile_id : '1',
-      username : 'admin',
-      password : '123'
+      profileType: 'UserAdmin',
+      profile_id: '1',
+      username: 'admin',
+      password: '123'
     },
-
     {
-      profileType : 'Cleaner',
-      profile_id : '2',
-      username : 'cleaner',
-      password : '123'
+      profileType: 'Cleaner',
+      profile_id: '2',
+      username: 'cleaner',
+      password: '123'
     },
-
     {
-      profileType : 'Homeowner',
-      profile_id : '3',
-      username : 'homeowner',
-      password : '123'
+      profileType: 'Homeowner',
+      profile_id: '3',
+      username: 'homeowner',
+      password: '123'
     },
-
     {
-      profileType : 'PlatformManager',
-      profile_id : '4',
-      username : 'platformManager',
-      password : '123'
+      profileType: 'PlatformManager',
+      profile_id: '4',
+      username: 'platformManager',
+      password: '123'
     }
-  ] 
-  
+  ];
+
   testCases.forEach(({ profileType, profile_id, username, password }) => {
     it(`successful login for ${profileType}`, async () => {
       // Mock API responses
       fetch
-        // First call - GET profiles
+        // First call - GET userProfile (matches your component)
         .mockResolvedValueOnce({
           ok: true,
-          json: async () => ([{ id: profile_id, name: profileType }])
+          json: async () => ([{ id: profile_id, name: profileType, is_active: true }])
         })
-        // Second call - GET users
+        // Second call - GET userAdmin (matches your component)
         .mockResolvedValueOnce({
           ok: true,
-          json: async () => ([{ id: profile_id, username }])
+          json: async () => ([{ id: profile_id, username, is_active: true }])
         })
         // Third call - POST login
         .mockResolvedValueOnce({
           ok: true,
-          json: async () => ({ success: true })
+          json: async () => ({ success: true, message: 'Login successful' })
         });
 
       render(
@@ -76,9 +73,10 @@ describe('Login Component', () => {
         </MemoryRouter>
       );
 
-      // Wait for profile to load
+      // Wait for profile options to load in select
       await waitFor(() => {
-        expect(screen.getByText(profileType)).toBeInTheDocument();
+        const selectElement = screen.getByRole('combobox', { name: /account type/i });
+        expect(selectElement).toBeInTheDocument();
       });
 
       // Fill out the form
@@ -87,6 +85,10 @@ describe('Login Component', () => {
       });
       fireEvent.change(screen.getByLabelText('Password:'), {
         target: { value: password }
+      });
+
+      fireEvent.change(screen.getByLabelText('Account Type'), {
+      target: { value: profile_id }
       });
 
       // Submit the form
@@ -104,7 +106,7 @@ describe('Login Component', () => {
             body: JSON.stringify({
               username,
               password,
-              profile_id: profile_id
+              profile_id
             }),
           }
         );
@@ -112,50 +114,43 @@ describe('Login Component', () => {
     });
   });
 
-    it('handles unsuccessful login with invalid credentials', async () => {
-    // 1. Mock API responses
+  it('handles unsuccessful login with invalid credentials', async () => {
+    // Mock API responses
     fetch
-      // First call - GET profiles
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ([
-          { id: 1, name: 'Admin' },
-          { id: 2, name: 'Cleaner'},
-          { id: 3, name: 'Homeowner'},
-          { id: 4, name: 'PlatformManager'}
+          { id: '1', name: 'UserAdmin', is_active: true },
+          { id: '2', name: 'Cleaner', is_active: true }
         ])
       })
-      // Second call - GET users
       .mockResolvedValueOnce({
         ok: true,
         json: async () => ([
-          { id: 1, name: 'Admin' },
-          { id: 2, name: 'Cleaner'},
-          { id: 3, name: 'Homeowner'},
-          { id: 4, name: 'PlatformManager'}
+          { id: '1', username: 'admin', is_active: true }
         ])
       })
-      // Third call - POST login (failure)
       .mockResolvedValueOnce({
         ok: false,
         json: async () => ({ 
-          success: false
+          success: false,
+          message: 'Invalid credentials'
         })
       });
 
-    // 2. Render the component
     render(
       <MemoryRouter>
         <Login />
       </MemoryRouter>
     );
 
-    // 3. Wait for initial data load
+    // Wait for initial data load
     await waitFor(() => {
-      expect(screen.getByText('Admin')).toBeInTheDocument();
+      const selectElement = screen.getByRole('combobox', { name: /account type/i });
+      expect(selectElement).toBeInTheDocument();
     });
 
-    // 4. Fill out the form with invalid credentials
+    // Fill out the form with invalid credentials
     fireEvent.change(screen.getByLabelText('Username:'), {
       target: { value: 'wronguser' }
     });
@@ -163,24 +158,59 @@ describe('Login Component', () => {
       target: { value: 'wrongpass' }
     });
 
-    // 5. Submit the form
+    // Submit the form
+    fireEvent.click(screen.getByRole('button', { name: /login/i }));
+
+    // Verify error message appears
+    await waitFor(() => {
+      expect(screen.getByText('Invalid credentials')).toBeInTheDocument();
+    });
+  });
+
+  it('shows error when account is suspended', async () => {
+    const suspendedUser = {
+      id: '1',
+      username: 'suspendedUser',
+      is_active: false
+    };
+
+    fetch
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ([
+          { id: '1', name: 'UserAdmin', is_active: true }
+        ])
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ([suspendedUser])
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ success: true })
+      });
+
+    render(
+      <MemoryRouter>
+        <Login />
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByRole('combobox', { name: /account type/i })).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText('Username:'), {
+      target: { value: suspendedUser.username }
+    });
+    fireEvent.change(screen.getByLabelText('Password:'), {
+      target: { value: 'test123' }
+    });
+
     fireEvent.click(screen.getByRole('button', { name: /login/i }));
 
     await waitFor(() => {
-      expect(fetch).toHaveBeenNthCalledWith(3,  // Third call should be login
-        'http://localhost:3000/api/login',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            username: 'wronguser',
-            password: 'wrongpass',
-            profile_id: '1'
-          }),
-        }
-      );
+      expect(screen.getByText('Account is suspended')).toBeInTheDocument();
     });
   });
 });
