@@ -200,6 +200,11 @@ export const searchServiceCategoriesQuery = `
     WHERE name = $1;
 `;
 
+export const viewServiceCategoryByIdQuery = `
+    SELECT * FROM service_categories
+    WHERE id = $1;
+`;
+
 // Service Listing CRUDS
 export const createServiceListingTableQuery = `
     CREATE TABLE IF NOT EXISTS service_listing(
