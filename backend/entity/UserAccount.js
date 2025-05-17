@@ -61,7 +61,7 @@ export class UserAccount{
         return rows.map(UserAccount.fromDB);
     }
 
-    static async findByUsernameAndRole(username, role){
+    static async searchUserAccount(username, role){searchUserAccount
         const {rows} = await query(viewAccountByUserNameRoleQuery, [
             username || null,
             role || null
@@ -69,7 +69,7 @@ export class UserAccount{
         return rows.map(UserAccount.fromDB);
     }
 
-    static async searchUserAccount(id){
+    static async findByUserId(id){
         const {rows} = await query(findSpecificUserAccountQuery, [id]);
         if(!rows.length){
             return null;
