@@ -5,7 +5,7 @@ export class deleteServiceListingController{
     static async deleteServiceListing(req, res, next){
         try{
             const id = req.params.id;
-            const serviceListing = await ServiceListing.deleteServiceListing(id, req.body);
+            const serviceListing = await ServiceListing.suspendServiceListing(id, req.body);
 
             if(!serviceListing){
                 return next(createError(400, "Service Listing Not Found"));

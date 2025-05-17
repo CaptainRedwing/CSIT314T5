@@ -1,9 +1,13 @@
 import ServiceCategories from "./serviceComponents/ServiceCategories";
+import { useNavigate } from 'react-router-dom';
+import GenerateReport from "./generateReport/generateReport";
+import React from "react";
 
 export default function platformManagerPage(){
+    const navigate = useNavigate();
 
     const handleLogout = () => {
-        window.location.href = "/login";
+        navigate("/login");
       };
       
     return (
@@ -20,6 +24,7 @@ export default function platformManagerPage(){
             </div>
         
             <ServiceCategories />
+            <GenerateReport />
         
         </div>
         </>

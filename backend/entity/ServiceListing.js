@@ -14,7 +14,7 @@ import {
 } from "../utils/sqlQuery.js";
 
 export class ServiceListing{
-    constructor({id, cleaner_id, title, description, price, location, view_count, listed_count, service_categories_name}){
+    constructor({id, cleaner_id, title, description, price, location, view_count, listed_count, service_categories_name, created_at}){
         this.id = id;
         this.cleaner_id = cleaner_id;
         this.title = title;
@@ -24,10 +24,11 @@ export class ServiceListing{
         this.view_count = view_count;
         this.listed_count = listed_count;
         this.service_categories_name = service_categories_name;
+        this.created_at = created_at;
     }
 
     isValid(){
-        return this.cleaner_id && this.title && this.description && this.price && this.location && this.view_count && this.listed_count && this.service_categories_name;
+        return this.cleaner_id && this.title && this.description && this.price && this.location && this.view_count && this.listed_count && this.service_categories_name && this.created_at;
     }
 
     static fromDB(row){
@@ -40,7 +41,8 @@ export class ServiceListing{
             location: row.location,
             view_count: row.view_count,
             listed_count: row.listed_count,
-            service_categories_name: row.service_categories_name
+            service_categories_name: row.service_categories_name,
+            created_at : row.created_at
         });
     }
 
@@ -54,7 +56,8 @@ export class ServiceListing{
             this.location,
             this.view_count,
             this.listed_count,
-            this.service_categories_name
+            this.service_categories_name,
+            this.created_at
         ]);
         return ServiceListing.fromDB(rows[0]);
     }
@@ -93,7 +96,7 @@ export class ServiceListing{
         if(!rows.length){
             return null;
         }
-        return ServiceListing.fromDB(rows[0]);
+        return rows.map(ServiceListing.fromDB);
     }
 
     static async updateAndGetViewCount(id){

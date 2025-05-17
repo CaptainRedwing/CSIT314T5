@@ -1,10 +1,13 @@
 import React from "react";
 import ServiceListing from "./serviceListingComponents/ServiceListing";
+import { useNavigate } from 'react-router-dom';
 
 export default function cleanerPage(){
 
+    const navigate = useNavigate();
+
     const handleLogout = () => {
-        window.location.href = "/login";
+        navigate("/login");
       };
 
     return (

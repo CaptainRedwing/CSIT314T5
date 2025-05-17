@@ -834,3 +834,97 @@ form {
   margin: 0;
 }
 
+/* General styling */
+h2 {
+  color: #2c3e50;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+div {
+  font-family: 'Arial', sans-serif;
+  color: #333;
+}
+
+/* Form styling */
+select {
+  padding: 8px 12px;
+  margin: 0 10px 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 14px;
+}
+
+label {
+  margin-right: 5px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+/* Button styling */
+.search-buttons {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  margin-top: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.search-buttons:hover {
+  background-color: #2980b9;
+}
+
+/* Report summary styling */
+.user-info {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.user-info p {
+  margin: 10px 0;
+  line-height: 1.6;
+}
+
+.user-info strong {
+  color: #2c3e50;
+  margin-right: 5px;
+}
+
+/* Error message styling */
+.error-message {
+  color: #e74c3c;
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #fadbd8;
+  border-radius: 4px;
+  border-left: 4px solid #e74c3c;
+}
+
+/* Form container styling */
+form {
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  select {
+    width: 100%;
+    margin: 5px 0;
+  }
+  
+  .search-buttons {
+    width: 100%;
+  }
+}

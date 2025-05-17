@@ -5,6 +5,7 @@ export class saveFavouriteListingController{
     static async saveFavouriteListing(req, res, next){
         try{
             const favouriteListing = new FavouriteListing(req.body);
+            console.log(favouriteListing)
 
             if(!favouriteListing){
                 return res.status(400).json({error:"Invalid favourite listing input"});

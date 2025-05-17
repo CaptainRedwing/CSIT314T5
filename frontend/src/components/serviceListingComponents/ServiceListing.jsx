@@ -3,10 +3,11 @@ import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 
 export default function ServiceListing() {
-        const navigate = useNavigate();
+    const navigate = useNavigate();
     const {profile_id} = useParams();
     const [isLoading, setIsLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
+    const now = new Date();
     const [serviceListing, setServiceListing] = useState([]);
     const [showServiceList, setShowServiceList] = useState(false);
     const [serviceCategories, setserviceCategories] = useState([]);
@@ -18,7 +19,8 @@ export default function ServiceListing() {
         location:'',
         view_count: '0',
         listed_count: '0',
-        service_categories_name:''
+        service_categories_name:'',
+        created_at : now
     })
     const [fieldErr, setFieldError] = useState({});
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -71,22 +73,31 @@ export default function ServiceListing() {
     }
 
     const handleChange = () => {
+        setError('');
         viewServiceListing();
         setShowServiceList(true);
     }
     const handleSearch = async (e) => {
         e.preventDefault();
         searchServiceListing();
+        setShowServiceList(true);
     };
 
     const searchServiceListing = async() => {
+        setError('');
+        setServiceListing([]);
         try {
 
-            const response = await fetch(`http://localhost:3000/api/serviceListing/${searchTerm}`, {
+            const response = await fetch(`http://localhost:3000/api/serviceListing/search/${searchTerm}`, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' }
               });
             
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'No service listing found');
+            }
+
             const data = await response.json();
 
             const servicesArray = Array.isArray(data) ? data : [data].filter(Boolean);
@@ -99,13 +110,19 @@ export default function ServiceListing() {
             );
     
             setServiceListing(filteredServices);
+            setError('');
+            
 
         } catch (error) {
             console.log(error);
+            setError(error.message)
         }
     }
 
     const createServiceListing = async(e) => {
+        setError('');
+
+        console.log(newServiceListing)
         e.preventDefault();
 
         if (!newServiceListing.title && 
@@ -147,7 +164,8 @@ export default function ServiceListing() {
                     location: newServiceListing.location,
                     view_count: newServiceListing.view_count,
                     listed_count: newServiceListing.listed_count,
-                    service_categories_name: newServiceListing.service_categories_name
+                    service_categories_name: newServiceListing.service_categories_name,
+                    created_at : newServiceListing.created_at
 
                 })
             });
@@ -166,9 +184,11 @@ export default function ServiceListing() {
                 location:'',
                 view_count: '0',
                 listed_count: '0',
-                service_categories_name:''
+                service_categories_name:'',
+                created_at : now
             })
             alert("Service Listing Created")
+            setError('');
 
         } catch (error) {
             console.log(error);
@@ -182,6 +202,7 @@ export default function ServiceListing() {
       };
 
     const updateServiceListing = async(e) => {
+        setError('');
         e.preventDefault();
 
         try {
@@ -208,7 +229,8 @@ export default function ServiceListing() {
             
             setShowUpdateModal(false);
             viewServiceListing();
-            alert('Profile updated successfully')
+            alert('Service Listing updated successfully')
+            setError('');
         } catch (error) {
             console.log(error);
         }
@@ -252,13 +274,14 @@ export default function ServiceListing() {
             }
 
             await viewServiceListing();
-            alert('Service suspended successfully')
+            alert('Service Listing deleted successfully')
         } catch (error) {
             console.error(error);
         }
     }
 
     const viewSpecifyListing = async (serviceId) => {
+        console.log(serviceId)
         setIsLoading(true);
         try {
         const response = await fetch(`http://localhost:3000/api/serviceListing/${serviceId}`);
@@ -270,14 +293,7 @@ export default function ServiceListing() {
         const userData = await response.json();
         setSelectedListing(userData);
         setShowSelectedListing(true);
-        
-        setUpdateData({
-            username: userData.username,
-            email: userData.email,
-            password: '',
-            profile_id: userData.profile_id,
-            is_active: userData.is_active // Add this line
-        });
+    
         } catch (error) {
         setError(error.message);
         } finally {
@@ -288,6 +304,22 @@ export default function ServiceListing() {
     const handlePastServicePage = () => {
         navigate('/cleanerMatchHitory')
     }
+
+    const handleProfileChange = (e) => {
+
+        const selectedName = e.target.value;
+
+            setNewServiceListing(prev => ({
+            ...prev,
+            service_categories_name: selectedName
+            }));
+    };
+
+    const handleCloseModal = () => {
+        setShowSelectedListing(false);
+        setShowUpdateModal(false);
+        setError('');
+    };
 
     return (
         <>  
@@ -377,7 +409,7 @@ export default function ServiceListing() {
                                     <select
                                         name="service_categories_name"
                                         value={newServiceListing.service_categories_name}
-                                        onChange={handleInputChange}
+                                        onChange={handleProfileChange}
                                         required
                                     >
                                         {serviceCategories.map(serviceCategory => (
@@ -400,7 +432,7 @@ export default function ServiceListing() {
                                     type="submit"
                                     disabled={isLoading}
                                 >
-                                    {isLoading ? 'Creating..' : 'Create User'}
+                                    {isLoading ? 'Creating..' : 'Create Service'}
                                 </button>
                             </div>
                         </form>
@@ -441,6 +473,8 @@ export default function ServiceListing() {
                     </form>
                 </div>
 
+                {error && <div className="error-message">{error}</div>}
+
                 <div className="profile-list">
                     <table className="user-table">
                         <thead>
@@ -461,7 +495,7 @@ export default function ServiceListing() {
                                         <td>
                                             <button 
                                                 className="view-button"
-                                                onClick={() => viewSpecifyListing(user.id)}
+                                                onClick={() => viewSpecifyListing(service.id)}
                                             >
                                                 View
                                             </button>
@@ -484,7 +518,7 @@ export default function ServiceListing() {
           <div className="modal-content">
             <div className="modal-header">
               <h2>Service Listing Details</h2>
-              <button className="close-button" onClick={setShowSelectedListing(false)}>
+              <button className="close-button" onClick={handleCloseModal}>
                 &times;
               </button>
             </div>
@@ -525,7 +559,7 @@ export default function ServiceListing() {
                         <h2>Update Service</h2>
                         <button 
                             className="close-button"
-                            onClick={() => setShowUpdateModal(false)}
+                            onClick={handleCloseModal}
                         >
                             ×
                         </button>
@@ -597,7 +631,7 @@ export default function ServiceListing() {
                         <div className="form-actions">
                             <button
                                 type="button"
-                                onClick={()=>setShowUpdateModal(false)}
+                                onClick={handleCloseModal}
                                 disabled={isLoading}
                                 className="cancel-button"
                             >

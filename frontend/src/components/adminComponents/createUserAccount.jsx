@@ -6,13 +6,15 @@ export default function CreateUserAccount() {
   const [error, setError] = useState('');
   const [fieldErr, setFieldError] = useState({});
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const now = new Date();
   const [newUser, setNewUser] = useState({
     username : '',
     email:'',
     password: '',
     confirmPassword: '',
     profile_id:'',
-    is_active:true
+    is_active:true,
+    time_stamp: now
   });
 
 
@@ -103,8 +105,8 @@ export default function CreateUserAccount() {
       return;
     }
 
+    console.log(newUser.profile_id)
     setIsLoading(true);
-
 
     try {
       const response = await fetch('http://localhost:3000/api/userAdmin', {
@@ -116,8 +118,9 @@ export default function CreateUserAccount() {
           username: newUser.username,
           email: newUser.email,
           password: newUser.password,
-          user_profile_id: newUser.profile_id,
-          is_active: newUser.is_active
+          profile_id: newUser.profile_id,
+          is_active: newUser.is_active,
+          time_stamp: newUser.time_stamp
         })
       });
 
@@ -136,7 +139,8 @@ export default function CreateUserAccount() {
         password: '',
         confirmPassword: '',
         profile_id:'',
-        is_active: true
+        is_active: true,
+        time_stamp: now
       });
       setError('');
       alert('User Account Successfully Created')

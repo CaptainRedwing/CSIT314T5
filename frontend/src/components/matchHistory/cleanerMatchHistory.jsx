@@ -47,9 +47,10 @@ export default function CleanerMatchHistory() {
         }
     }
 
-    const viewMatchHistory = async () => {
+    const viewMatchHistory = async (id) => {
+        console.log(id)
         try {
-            const response = await fetch(`http://localhost:3000/api/matchHistory/cview/${searchTerm}`);
+            const response = await fetch(`http://localhost:3000/api/matchHistory/cview/${id}`);
             if (!response.ok) throw new Error('Failed to fetch match history');
             
             const data = await response.json();
@@ -65,19 +66,31 @@ export default function CleanerMatchHistory() {
     }
 
     const searchMatchHistory = async (e) => {
+        setError('')
         e.preventDefault();
         setIsLoading(true);
         try {
+
+            if (searchTerm.trim() === '') {
+                setError('Please enter a search term');
+                setIsLoading(false);
+                return;
+            }
+            
             const response = await fetch(`http://localhost:3000/api/matchHistory/csearch/${searchTerm}`);
-            if (!response.ok) throw new Error('Search failed');
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'No service listing found')
+            };
             
             const data = await response.json();
-            console.log(data)
             setMatchHistory(data)
             setShowMatchHistory(true);
+            setError('');
         } catch (error) {
             console.error(error);
-            setError('Search failed. Please try again.');
+            setError(error.message);
         } finally {
             setIsLoading(false);
         }
@@ -140,6 +153,8 @@ export default function CleanerMatchHistory() {
                     </form>
                 </div>
 
+                {error && <div className="error-message">{error}</div>}
+
                 <div className="profile-list">
                     <table className="user-table">
                         <thead>
@@ -158,7 +173,7 @@ export default function CleanerMatchHistory() {
                                 <td>
                                     <button 
                                         className="view-button"
-                                        onClick={() => viewMatchHistory()}
+                                        onClick={() => viewMatchHistory(matchHistory.service_listing_id)}
                                     >
                                         View
                                     </button>

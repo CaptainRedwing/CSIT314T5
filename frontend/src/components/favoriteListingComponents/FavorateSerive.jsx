@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function ServiceListing() {
     const navigate = useNavigate();
+    const now = new Date();
     const {profile_id} = useParams();
     const [isLoading, setIsLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -26,20 +27,19 @@ export default function ServiceListing() {
     const handleChange = () => {
         viewServiceListing();
         setShowServiceList(true);
-        serviceViewCount();
+        setError('');
     }
 
-    const serviceViewCount = async () => {
+    const serviceViewCount = async (serviceId) => {
         try {
-            await Promise.all(serviceListing.map(async (service) => {
             const response = await fetch(
-                `http://localhost:3000/api/serviceListing/service-listing/${service.id}/view`,
+                `http://localhost:3000/api/serviceListing/service-listing/${serviceId}/view`,
                 { method: 'POST' } 
             );
+
             if (!response.ok) {
-                console.error(`Failed to update view count for service ${service.id}`);
+                console.error(`Failed to update view count for service ${serviceId}`);
             }
-        }));
 
         } catch (error) {
             console.log(error)
@@ -113,44 +113,68 @@ export default function ServiceListing() {
     const handleFavChange = () => {
         viewFavouriteListing();
         setShowFavServiceList(true);
+        setError('');
 
     }
     const handleSearch = async (e) => {
         e.preventDefault();
+        setShowServiceList(true);
         searchServiceListing();
+        setError('');
     };
 
     const handleFavSearch = async (e) => {
         e.preventDefault();
         searchFavouriteServiceListing();
+        setShowFavServiceList(true);
+        setError('');
     };
 
     const searchServiceListing = async() => {
+
+        setError('');
+        setServiceListing([]);
+
         try {
 
-            const response = await fetch(`http://localhost:3000/api/serviceListing/${searchTerm}`, {
+            const response = await fetch(`http://localhost:3000/api/serviceListing/search/${searchTerm}`, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' }
               });
             
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'No service listing found');
+            }
+
             const data = await response.json();
 
             const servicesArray = Array.isArray(data) ? data : [data].filter(Boolean);
     
             setServiceListing(servicesArray);
+            setError('');
 
         } catch (error) {
+            setError(error.message)
             console.log(error);
         }
     }
 
     const searchFavouriteServiceListing = async() => {
+
+        setError('');
+        setFavoriteServiceListing([]);
         try {
 
-            const response = await fetch(`http://localhost:3000/api/serviceListing/${searchTermFav}`, {
+            const response = await fetch(`http://localhost:3000/api/serviceListing/search/${searchTermFav}`, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' }
               });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'No Favourite service listing found');
+            }
             
             const data = await response.json();
 
@@ -165,9 +189,11 @@ export default function ServiceListing() {
             );
     
             setFavoriteServiceListing(filteredServices);
-            setShowSelectedFavListing(true)
+            setShowSelectedFavListing(true);
+            setError();
 
         } catch (error) {
+            setError(error.message)
             console.log(error);
         }
     }
@@ -194,6 +220,7 @@ export default function ServiceListing() {
     }
 
     const viewSpecifyListing = async (serviceId) => {
+        serviceViewCount(serviceId);
         setIsLoading(true);
         try {
         const response = await fetch(`http://localhost:3000/api/serviceListing/${serviceId}`);
@@ -217,28 +244,25 @@ export default function ServiceListing() {
         setIsLoading(true);
         try {
 
-            const servicesListing = await fetch(`http://localhost:3000/api/serviceListing/${serviceId}`)
-            
-            const services = await servicesListing.json()
-            setServiceListing(services)
+            const response = await fetch(`http://localhost:3000/api/serviceListing/${serviceId}`)
 
-            const response = await fetch(`http://localhost:3000/api/favouriteListing`,{
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' }
-            });
+            if (!response.ok) {
+            throw new Error('Failed to fetch favourite service listing details');
+        }
             
             const data = await response.json()
-            const myFavorites = data.filter(
-                fav => fav.homeowner_id == profile_id
-            );
+            // const myFavorites = data.filter(
+            //     fav => fav.homeowner_id == profile_id
+            // );
 
-            const favoriteServiceId = myFavorites.map(fav => fav.service_listing_id);
+            // const favoriteServiceId = myFavorites.map(fav => fav.service_listing_id);
 
-            const favServices = services.filter(service =>
-                favoriteServiceId.includes(service.id)
-            )
-
-            setSelectedFavListing(favServices);
+            // const favServices = services.filter(service =>
+            //     favoriteServiceId.includes(service.id)
+            // )
+            setSelectedFavListing(data);
+            setShowSelectedFavListing(true);
+            setError('');
         } catch (error) {
         setError(error.message);
         } finally {
@@ -267,15 +291,21 @@ export default function ServiceListing() {
                 },
                 body: JSON.stringify({
                     homeowner_id: profile_id,
-                    service_listing_id: serviceId
+                    service_listing_id: serviceId,
+                    added_at: now
                 })
             })
 
             if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.message || 'Failed to add to favorite');
+            
             }
+
+            alert('Service Listing Added Successfilly')
+            setError('');
         } catch (error) {
+            setError(error.message)
             console.error(error);
         }
     }
@@ -288,6 +318,12 @@ export default function ServiceListing() {
         navigate('/homeownerMatchHitory')
     }
 
+    const handleCloseModal = () => {
+        setShowSelectedListing(false);
+        setShowSelectedFavListing(false);
+        setError('');
+    };
+
     return (
         <>
             <button
@@ -296,6 +332,7 @@ export default function ServiceListing() {
             >
                 View Past Service
             </button>
+            {error && <div className="error-message">{error}</div>}
             <div className="search-container">
                 <h2>All Service Listing</h2>
                 <div className="search-controls">
@@ -351,7 +388,7 @@ export default function ServiceListing() {
                                         <td>
                                             <button 
                                                 className="view-button"
-                                                onClick={() => viewSpecifyListing(user.id)}
+                                                onClick={() => viewSpecifyListing(service.id)}
                                             >
                                                 View
                                             </button>
@@ -368,7 +405,7 @@ export default function ServiceListing() {
                 <div className="modal-content">
                     <div className="modal-header">
                     <h2>Service Listing Details</h2>
-                    <button className="close-button" onClick={setShowSelectedListing(false)}>
+                    <button className="close-button" onClick={handleCloseModal}>
                         &times;
                     </button>
                     </div>
@@ -378,23 +415,19 @@ export default function ServiceListing() {
                     <p><strong>Description:</strong> {selectedListing.description}</p>
                     <p><strong>Price:</strong> {selectedListing.price}</p>
                     <p><strong>Location:</strong> {selectedListing.location}</p>
-                    <p><strong>View Count:</strong> {selectedListing.view_count}</p>
-                    <p><strong>Listed Count:</strong> {selectedListing.listed_count}</p>
                     <p><strong>Service Category name:</strong> {selectedListing.service_categories_name}</p>
                     </div>
                     
                     <div className="form-actions">
                         <button
                             className="view-button"
-                            onClick={() => addToFavorite(service.id)}
+                            onClick={() => addToFavorite(selectedListing.id)}
                         >
                             Add to Favorite
                         </button>
                         <button
-                            className="view-button"
-                            onClick={() => bookService(service.id)}
-                        >
-                            Book Service
+                            className="view-button">
+                            Book Service(No function)
                         </button>
                         <button
                             type="button"
@@ -461,7 +494,8 @@ export default function ServiceListing() {
                                         <td>{service.title}</td>
                                         <td>{service.service_categories_name}</td>
                                         <td>{service.price}</td>
-                                        <td>                                            <button 
+                                        <td>
+                                            <button 
                                                 className="view-button"
                                                 onClick={() => viewSpecifyFavListing(service.id)}
                                             >
@@ -479,34 +513,25 @@ export default function ServiceListing() {
                 <div className="modal-overlay">
                 <div className="modal-content">
                     <div className="modal-header">
-                    <h2>Service Listing Details</h2>
-                    <button className="close-button" onClick={setShowSelectedListing(false)}>
+                    <h2>Favourite Service Listing Details</h2>
+                    <button className="close-button" onClick={handleCloseModal}>
                         &times;
                     </button>
                     </div>
                     
                     <div className="user-info">
-                    <p><strong>Service Title:</strong> {selectedListing.title}</p>
-                    <p><strong>Description:</strong> {selectedListing.description}</p>
-                    <p><strong>Price:</strong> {selectedListing.price}</p>
-                    <p><strong>Location:</strong> {selectedListing.location}</p>
-                    <p><strong>View Count:</strong> {selectedListing.view_count}</p>
-                    <p><strong>Listed Count:</strong> {selectedListing.listed_count}</p>
-                    <p><strong>Service Category name:</strong> {selectedListing.service_categories_name}</p>
+                    <p><strong>Service Title:</strong> {selectedFavListing.title}</p>
+                    <p><strong>Description:</strong> {selectedFavListing.description}</p>
+                    <p><strong>Price:</strong> {selectedFavListing.price}</p>
+                    <p><strong>Location:</strong> {selectedFavListing.location}</p>
+                    <p><strong>Service Category name:</strong> {selectedFavListing.service_categories_name}</p>
                     </div>
                     
                     <div className="form-actions">
                         <button
                             className="view-button"
-                            onClick={() => addToFavorite(service.id)}
                         >
-                            Add to Favorite
-                        </button>
-                        <button
-                            className="view-button"
-                            onClick={() => bookService(service.id)}
-                        >
-                            Book Service
+                            Book Service (No function)
                         </button>
                         <button
                             type="button"

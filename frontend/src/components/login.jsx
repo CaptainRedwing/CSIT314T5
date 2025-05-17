@@ -115,6 +115,7 @@ export default function Login() {
       
 
       const data = await response.json();
+      console.log(data)
 
       
       if (!response.ok || data.success === false) {
@@ -139,7 +140,7 @@ export default function Login() {
       // Navigation based on profile_id
       const user_id = currentUser?.id; 
 
-      switch(formData.profile_id) {
+      switch(String(formData.profile_id)) {
         case '1': // Admin
           navigate('/adminPage');
           break;
@@ -191,7 +192,7 @@ export default function Login() {
             aria-label="Account Type"
           >
             {profiles.map((profile) => (
-              <option key={String(profile.id)} value={String(profile.id)}>
+              <option key={profile.id} value={profile.id}>
                 {profile.name}
               </option>
             ))}

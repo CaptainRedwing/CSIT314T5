@@ -5,6 +5,7 @@ export class homeownerSearchMatchHistoryController{
     static async homeownerSearchMatchHistory(req, res, next){
         try{
             const homeowner_id = req.params.homeowner_id;
+            console.log(homeowner_id)
             const matchHistory = await MatchHistory.homeownerSearchMatchHistory(homeowner_id);
             if(!matchHistory){
                 return next(createError(400, "Match History Not Found"));

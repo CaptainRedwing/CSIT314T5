@@ -5,6 +5,7 @@ export class viewServiceListingByIdController{
     static async viewServiceListingById(req, res, next){
         try{
             const id = req.params.id;
+            console.log(id)
             const serviceListing = await ServiceListing.viewServiceListingById(id);
             if(!serviceListing){
                 return next(createError(400, "Service Listing Not Found"));

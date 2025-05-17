@@ -152,8 +152,7 @@ export const suspendUserProfileQuery = `
 `;
 
 export const searchUserProfileQuery = `
-    SELECT * FROM user_profile
-    WHERE name = $1;
+    SELECT * FROM user_profile WHERE name::text ILIKE '%' || $1 || '%';
 `;
 
 
@@ -196,8 +195,7 @@ export const deleteServiceCategoriesQuery = `
 `;
 
 export const searchServiceCategoriesQuery = `
-    SELECT * FROM service_categories
-    WHERE name = $1;
+    SELECT * FROM service_categories WHERE name::text ILIKE '%' || $1 || '%';
 `;
 
 export const viewServiceCategoryByIdQuery = `
@@ -250,8 +248,7 @@ export const deleteServiceListingQuery = `
 `;
 
 export const searchServiceListingQuery = `
-    SELECT * FROM service_listing
-    WHERE title = $1;
+     SELECT * FROM service_listing WHERE title::text ILIKE '%' || $1 || '%';
 `;
 
 export const viewServiceListingByIdQuery = `
@@ -335,8 +332,8 @@ export const createFavouriteListingTableQuery = `
     CREATE TABLE IF NOT EXISTS favourite_listing(
         id SERIAL PRIMARY KEY,
         homeowner_id INT REFERENCES user_account(id) ON DELETE SET NULL,
-        service_listing_id INT REFERENCES service_listing(id) ON DELETE SET NULL
-        added_at DATE DEFAULT CURRENT_DATE;
+        service_listing_id INT REFERENCES service_listing(id) ON DELETE SET NULL,
+        added_at DATE DEFAULT CURRENT_DATE
     );
 `;
 
@@ -437,7 +434,7 @@ export const cleanerSearchMatchHistoryQuery = `
     FROM match_history mh
     JOIN service_listing sl
         ON mh.service_listing_id = sl.id
-    WHERE sl.cleaner_id = $1;
+    WHERE sl.title = $1;
 `;
 
 export const homeownerSearchMatchHistoryQuery = `
@@ -463,51 +460,51 @@ export const cleanerViewPageAttributes = `
     SELECT 
         sl.title, 
         mh.service_date,
-        sl.homeowner_id,
+        mh.homeowner_id,
         sl.description,
         sl.price
     FROM service_listing sl
     JOIN match_history mh 
         ON mh.service_listing_id = sl.id
-    WHERE mh.cleaner_id = $1;
+    WHERE sl.id = $1;
 `;
 
 // US 31
 export const cleanerSearchPageAttributes = `
     SELECT
+        mh.service_listing_id,
         sl.title,
-        sl.service_categories,
+        sl.service_categories_name,
         sl.price
-    FROM service_listing_id sl
+    FROM service_listing sl
     JOIN match_history mh
         ON mh.service_listing_id = sl.id
-    WHERE mh.cleaner_id = $1;
+    WHERE sl.title::text ILIKE '%' || $1 || '%';
 `;
-
 
 // US 32
 export const homeownerViewMatchHistoryAttributes = `
     SELECT
         sl.title,
-        mh.cleaner_id,
+        sl.cleaner_id,
         sl.description,
         sl.price
-    FROM service_listing_id sl
+    FROM service_listing sl
     JOIN match_history mh
         ON mh.service_listing_id = sl.id
-    WHERE mh.homeowner_id = $1;
+    WHERE sl.id = $1;
 `;
 
 // US 31
 export const homeownerSearchMatchHistoryAttributes= `
     SELECT
         sl.title,
-        sl.categories,
+        sl.service_categories_name,
         sl.price
-    FROM service_listing_id sl
+    FROM service_listing sl
     JOIN match_history mh
         ON mh.service_listing_id = sl.id
-    WHERE mh.homeowner_id = $1;
+    WHERE sl.title::text ILIKE '%' || $1 || '%';
 `
 
 // Report
@@ -515,6 +512,10 @@ export const createReportType = `
     CREATE TYPE report_type AS
     ENUM('Daily', 'Weekly', 'Monthly');
 `;
+
+export const viewReportAttributeQuery = `
+    SELECT * FROM report;
+`
 
 export const createReportTableQuery = `
     CREATE TABLE IF NOT EXISTS report(

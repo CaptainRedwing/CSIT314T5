@@ -13,6 +13,7 @@ export default function HomeownerMatchHistory() {
     const [searchTerm, setSearchTerm] = useState('');
     const [showViewHistory, setShowViewHistory] = useState(false);
     const [selectedMatchHistory, setSelectedMatchHistory] = useState({});
+    const [error, setError] = useState(null);
 
     useEffect(() => {
             viewServiceListing();
@@ -44,9 +45,9 @@ export default function HomeownerMatchHistory() {
         }
     }
 
-    const viewMatchHistory = async () => {
+    const viewMatchHistory = async (id) => {
         try {
-            const response = await fetch(`http://localhost:3000/api/matchHistory/hview/${searchTerm}`)
+            const response = await fetch(`http://localhost:3000/api/matchHistory/hview/${id}`)
 
             const data = await response.json()
             console.log(data)
@@ -59,20 +60,34 @@ export default function HomeownerMatchHistory() {
     }
 
     const searchMatchHistory = async (e) => {
+        setError('')
         e.preventDefault();
         setIsLoading(true);
 
         try {
 
-            const response = await fetch(`http://localhost:3000/api/matchHistory/hsearch/${searchTerm}`)
-            if (!response.ok) throw new Error('Search failed');
-            const data = await response.json()
-            console.log(data)
+            if (searchTerm.trim() === '') {
+                setError('Please enter a search term');
+                setIsLoading(false);
+                return;
+            }
+
+            const response = await fetch(`http://localhost:3000/api/matchHistory/csearch/${searchTerm}`);
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'No service listing found')
+            };
+            
+            const data = await response.json();
             setMatchHistory(data)
             setShowMatchHistory(true);
-
+            setError('');
         } catch (error) {
-            console.log(error)
+            console.error(error);
+            setError(error.message);
+        } finally {
+            setIsLoading(false);
         }
     }
 
@@ -110,22 +125,27 @@ export default function HomeownerMatchHistory() {
                                 type="text"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                placeholder="Search by Service title..."
+                                placeholder="Search by Service name..."
                                 className="search-input"
                                 style={{ marginLeft: '10px' }}
+                                disabled={isLoading}
                             />
                         </div>
-
+                        
                         <div className="search-actions">
                             <button 
                                 type="submit" 
                                 className="search-button"
+                                disabled={isLoading}
                             >
-                                Search
+                                {isLoading ? 'Searching...' : 'Search'}
                             </button>
                         </div>
                     </form>
                 </div>
+
+                {error && <div className="error-message">{error}</div>}
+
                 <div className="profile-list">
                     <table className="user-table">
                         <thead>
@@ -146,7 +166,7 @@ export default function HomeownerMatchHistory() {
                                 <td>
                                     <button 
                                         className="view-button"
-                                        onClick={() => viewMatchHistory()}
+                                        onClick={() => viewMatchHistory(matchHistory.service_listing_id)}
                                     >
                                         View
                                     </button>
@@ -170,7 +190,7 @@ export default function HomeownerMatchHistory() {
                         
                         <div className="user-info">
                         <p><strong>Service Title:</strong> {selectedMatchHistory.title}</p>
-                        <p><strong>Homeowner:</strong> {getCleanerName(selectedMatchHistory.cleaner_id)}</p>
+                        <p><strong>Cleaner:</strong> {getCleanerName(selectedMatchHistory.cleaner_id)}</p>
                         <p><strong>Description:</strong> {selectedMatchHistory.description}</p>
                         <p><strong>Price:</strong> {selectedMatchHistory.price}</p>
                         </div>

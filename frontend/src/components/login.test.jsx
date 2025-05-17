@@ -4,6 +4,9 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Login from './login';
 import AdminPage from './adminPage';
+import CleanerPage from './cleanerPage';
+import HomeownerPage from './homeownerPage';
+import PlatformManager from './platformManagerPage';
 import React from 'react';
 
 // Mock the fetch API
@@ -223,7 +226,7 @@ describe('Logout', () => {
     jest.clearAllMocks();
   });
 
-  it('should navigate to /login when logout is clicked', () => {
+  it('should navigate to /login when logout is clicked (adminPage)', () => {
     render(
       <MemoryRouter>
         <AdminPage />
@@ -235,5 +238,48 @@ describe('Logout', () => {
 
     // Verify navigation to login page
     expect(mockNavigate).toHaveBeenCalledWith('/login', { replace: true });
+  });
+
+    it('should navigate to /login when logout is clicked (cleanerPage)', () => {
+    render(
+
+      <MemoryRouter>
+        <CleanerPage />
+      </MemoryRouter>
+    );
+
+    const logoutButton = screen.getByText('Logout');
+    fireEvent.click(logoutButton);
+
+    // Verify navigation to login page
+    expect(mockNavigate).toHaveBeenCalledWith('/login');
+  });
+
+    it('should navigate to /login when logout is clicked (homeownerPage)', () => {
+    render(
+      <MemoryRouter>
+        <HomeownerPage />
+      </MemoryRouter>
+    );
+
+    const logoutButton = screen.getByText('Logout');
+    fireEvent.click(logoutButton);
+
+    // Verify navigation to login page
+    expect(mockNavigate).toHaveBeenCalledWith('/login');
+  });
+
+    it('should navigate to /login when logout is clicked (platformManager)', () => {
+    render(
+      <MemoryRouter>
+        <PlatformManager />
+      </MemoryRouter>
+    );
+
+    const logoutButton = screen.getByText('Logout');
+    fireEvent.click(logoutButton);
+
+    // Verify navigation to login page
+    expect(mockNavigate).toHaveBeenCalledWith('/login');
   });
 });
