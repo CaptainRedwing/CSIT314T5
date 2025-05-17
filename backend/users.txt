@@ -21,3 +21,35 @@ VALUES
 (4, 7, '2025-05-04', '2025-05-13', true), 
 (5, 6, '2025-05-05', '2025-05-14', true); 
 
+INSERT INTO user_profile (name, description, is_active)
+VALUES
+('UserAdmin', 'xxxxx', true),
+('Cleaner', 'xxxxxx', true),
+('Homeowner', 'xxxxx', true),
+('PlatformManager', 'xxxxx', true)
+
+INSERT INTO service_listing (cleaner_id, title, description, price, location, view_count, listed_count, service_categories_name, created_at) VALUES
+(2, 'Spring Clean Deluxe', 'Full house deep cleaning', 150.0, 'New York', 0, 0, 'House Cleaning', '2025-04-05-07'),
+(3, 'Carpet Shine', 'Expert carpet shampoo and treatment', 80.0, 'Los Angeles', 0, 0, 'Carpet Cleaning', '2025-04-07'),
+(5, 'Office Blitz', 'Office space cleaning and sanitizing', 200.0, 'Chicago', 0, 0, 'Office Cleaning', '2025-04-07'),
+(7, 'Window Wonder', 'Window and glass panel cleaning', 90.0, 'Miami', 0, 0, 'Window Cleaning', '2025-04-07'),
+(2, 'Garden Freshness', 'Garden and yard cleanup', 120.0, 'Dallas', 0, 0, 'Garden Cleaning', '2025-04-07'),
+(3, 'Move In Ready', 'Pre-move in cleaning service', 180.0, 'Houston', 0, 0, 'Move-In Cleaning', '2025-04-10'),
+(5, 'Move Out Touch', 'Post-move cleaning service', 160.0, 'Atlanta', 0, 0, 'Move-Out Cleaning', '2025-04-11'),
+(7, 'Airbnb Sparkle', 'Quick turnaround cleaning for Airbnb hosts', 100.0, 'Seattle', 0, 0, 'Airbnb Cleaning', '2025-04-12'),
+(3, 'Party Clean Up', 'After-event cleaning services', 130.0, 'Boston', 0, 0, 'Event Cleaning', '2025-04-13'),
+(2, 'Basement Renewal', 'Basement declutter and deep clean', 140.0, 'San Francisco', 0, 0, 'Basement Cleaning', '2025-04-14');
+
+INSERT INTO user_account (username, email, password, profile_id, is_active, time_stamp) VALUES
+('kate_y', 'kate_y@example.com', 'pass321', 2, true, '2025-04-07'),
+('liam_f', 'liam_f@example.com', 'pass654', 3, true, '2025-04-07'),
+('mia_v', 'mia_v@example.com', 'pass987', 4, true, '2025-04-07'),
+('nora_u', 'nora_u@example.com', 'pass111', 2, true, '2025-04-18'),
+('oliver_s', 'oliver_s@example.com', 'pass222', 3, true, '2025-04-19'),
+('peter_r', 'peter_r@example.com', 'pass333', 4, true, '2025-04-20'),
+('quinn_q', 'quinn_q@example.com', 'pass444', 2, true, '2025-04-21'),
+('ruby_p', 'ruby_p@example.com', 'pass555', 3, true, '2025-04-22'),
+('sam_o', 'sam_o@example.com', 'pass666', 4, true, '2025-04-23'),
+('tina_n', 'tina_n@example.com', 'pass777', 3, true, '2025-04-24');
+
+
