@@ -41,6 +41,7 @@ INSERT INTO service_listing (cleaner_id, title, description, price, location, vi
 (2, 'Basement Renewal', 'Basement declutter and deep clean', 140.0, 'San Francisco', 0, 0, 'Basement Cleaning', '2025-04-14');
 
 INSERT INTO user_account (username, email, password, profile_id, is_active, time_stamp) VALUES
+('admin','admin@gmail.com','$2b$10$NS9yL3NDXRx3ZEC19..7kemW0FWswTnQBvZNOdUc8DZpnqPS/U7QO',1,true,'2024-10-11')
 ('kate_y', 'kate_y@example.com', 'pass321', 2, true, '2025-04-07'),
 ('liam_f', 'liam_f@example.com', 'pass654', 3, true, '2025-04-07'),
 ('mia_v', 'mia_v@example.com', 'pass987', 4, true, '2025-04-07'),

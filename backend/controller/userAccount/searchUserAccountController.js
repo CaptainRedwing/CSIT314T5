@@ -4,14 +4,9 @@ import {UserAccount} from "../../entity/UserAccount.js";
 export class searchUserAccountController{
     static async searchUserAccount(req, res, next){
         try{
-            const id = req.params.id;
-            console.log(id)
-            const user = await UserAccount.searchUserAccount(id);
-
-            if(!user){
-                return next(createError(400, "User Account Not Found!"));
-            }
-            res.status(200).json(user);
+            const {username, profile_id} = req.query;
+            const users = await UserAccount.searchUserAccount(username, profile_id);
+            res.status(200).json(users);
         }catch(error){
             console.log(error.message);
             return next(createError(400, error.message));

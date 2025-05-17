@@ -87,7 +87,7 @@ export default function Login() {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const login = async (e) => {
     e.preventDefault();
     
     // Basic validation
@@ -180,7 +180,7 @@ export default function Login() {
         <div className="error-message">{error}</div>
       ) : null}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={login}>
         <div className="form-login">
           <label>Account Type</label>
           <select
