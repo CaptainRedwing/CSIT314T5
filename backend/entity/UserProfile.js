@@ -29,30 +29,42 @@ export class UserProfile{
         });
     }
 
-    async createUserProfile(){
-        const enumExistsQuery = `
+    async createUserProfile() {
+    // Check if name already exists in user_profile table
+    const checkDuplicateQuery = `
+        SELECT 1 FROM user_profile WHERE name = $1 LIMIT 1;
+    `;
+    const duplicateCheck = await query(checkDuplicateQuery, [this.name]);
+
+    if (duplicateCheck.rowCount > 0) {
+        throw new Error(`Profile type '${this.name}' already exists.`);
+    }
+
+    // Check if name already exists in enum
+    const enumExistsQuery = `
         SELECT EXISTS (
             SELECT 1
             FROM pg_type t
             JOIN pg_enum e ON t.oid = e.enumtypid
             WHERE t.typname = 'profile_type' AND e.enumlabel = $1
         ) AS exists;
-        `;
-        const enumCheck = await query(enumExistsQuery, [this.name]);
-        const roleExists = enumCheck.rows[0].exists;
+    `;
+    const enumCheck = await query(enumExistsQuery, [this.name]);
+    const roleExists = enumCheck.rows[0].exists;
 
-        if(!roleExists){
-            const alterEnumQuery = `ALTER TYPE profile_type ADD VALUE IF NOT EXISTS '${this.name}'`;
-            await query(alterEnumQuery);
-        }
-
-        const {rows} = await query(createUserProfileQuery, [
-            this.name,
-            this.description,
-            this.is_active
-        ]);
-        return UserProfile.fromDB(rows[0]);
+    if (!roleExists) {
+        const alterEnumQuery = `ALTER TYPE profile_type ADD VALUE IF NOT EXISTS '${this.name}'`;
+        await query(alterEnumQuery);
     }
+
+    const { rows } = await query(createUserProfileQuery, [
+        this.name,
+        this.description,
+        this.is_active
+    ]);
+    return UserProfile.fromDB(rows[0]);
+}
+
 
     static async viewUserProfile(){
         const {rows} = await query(viewUserProfileQuery);
