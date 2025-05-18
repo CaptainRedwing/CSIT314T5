@@ -61,7 +61,7 @@ export class UserAccount{
         return rows.map(UserAccount.fromDB);
     }
 
-    static async searchUserAccount(username, role){searchUserAccount
+    static async searchUserAccount(username, role){
         const {rows} = await query(viewAccountByUserNameRoleQuery, [
             username || null,
             role || null
@@ -81,7 +81,7 @@ export class UserAccount{
         let hashedPassword = null;
     
         if (password) {
-            const existingUser = await this.searchUserAccount(id);
+            const existingUser = await this.findByUserId(id);
             if (!existingUser) return false;
             const isSamePassword = await bcrypt.compare(password, existingUser.password);
             if (!isSamePassword) {
