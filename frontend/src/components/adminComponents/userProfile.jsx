@@ -71,7 +71,7 @@ export default function UserProfile() {
     
           if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || 'Failed to suspend user');
+            throw new Error(errorData.message || 'Failed to suspend profile');
           }
     
           await viewAllUserProfile();
@@ -227,8 +227,8 @@ export default function UserProfile() {
                 </div>
                 
                 <div className="user-info">
-                <p><strong>Username:</strong> {selectedUserProfile.name}</p>
-                <p><strong>Email:</strong> {selectedUserProfile.description}</p>
+                <p><strong>Profile Name:</strong> {selectedUserProfile.name}</p>
+                <p><strong>Description:</strong> {selectedUserProfile.description}</p>
                 <p><strong>Status:</strong> {selectedUserProfile.is_active ? 'Active' : 'Suspended'}</p>
                 </div>
                 

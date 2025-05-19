@@ -52,6 +52,39 @@ export default function CreateUserAccount() {
           }
         };
 
+        // const viewAllUserAccount = async () => {
+        //   try {
+        //     const response = await fetch("http://localhost:3000/api/login/roles", {
+        //       method: 'GET',
+        //       headers: { 'Content-Type': 'application/json' }
+        //     });
+
+        //     if (!response.ok) {
+        //       const errorData = await response.json();
+        //       throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        //     }
+        
+        //     const data = await response.json();
+        //     console.log(data)
+        //     const arrayData = Array.isArray(data) ? data : [data].filter(Boolean)
+        //     const activeProfiles = arrayData.filter(profile => profile.is_active === true);
+
+        //     if (activeProfiles.length > 0) {
+        //       setNewUser(prev => ({
+        //         ...prev,
+        //         profile_id: activeProfiles[0].id
+        //       }));
+        //     }
+        //     setError(''); // Clear errors on success
+            
+        //     setProfiles(activeProfiles);
+
+        //   } catch (error) {
+        //     console.error('Error fetching profiles:', error);
+        //     setError(error.message);
+        //   }
+        // }
+
         viewAllUserAccount();
       }, []);
 
@@ -63,12 +96,10 @@ export default function CreateUserAccount() {
   };
 
   const validateEmail = (email) => {
-  // Basic email regex pattern
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  // Gmail-specific pattern (simplified)
-  const gmailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@gmail\.com$/;
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   
-  return emailRegex.test(email) && gmailRegex.test(email);
+  return emailRegex.test(email);
   };
 
   const createUserAccount = async(e) => {
@@ -114,14 +145,14 @@ export default function CreateUserAccount() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
+        body: JSON.stringify([{
           username: newUser.username,
           email: newUser.email,
           password: newUser.password,
           profile_id: newUser.profile_id,
           is_active: newUser.is_active,
           time_stamp: newUser.time_stamp
-        })
+        }])
       });
 
       const errorData = await response.json();

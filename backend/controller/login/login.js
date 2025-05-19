@@ -19,8 +19,13 @@ export class LoginController {
   
 
   static async roles(req, res, next) {
-      const result = await query(getAllrole);
-      const roles = result.rows.map(row => row.profile_id);
-      res.json({ roles });
+
+      const { rows  } = await query(getAllrole);
+
+      console.log('Raw rows:', rows);
+
+      const row = rows.map(row => row.role);
+
+      res.status(200).json({ row });
   }
 }

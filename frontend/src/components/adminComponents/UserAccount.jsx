@@ -84,7 +84,7 @@ export default function UserAccount() {
       if (searchBy === 'username') {
         params.append('username', searchTerm);
       } else if (searchBy === 'profile_id') {
-        params.append('profile_id', searchTerm); // Changed from 'role' to 'profile_id'
+        params.append('profile_id', searchTerm);
       }
   
       const response = await fetch(`http://localhost:3000/api/userAdmin/search?${params.toString()}`, {
@@ -181,12 +181,10 @@ export default function UserAccount() {
   };
 
   const validateEmail = (email) => {
-  // Basic email regex pattern
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  // Gmail-specific pattern (simplified)
-  const gmailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@gmail\.com$/;
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   
-  return emailRegex.test(email) && gmailRegex.test(email);
+  return emailRegex.test(email);
   };
 
   const updateUserAccount = async (e) => {
@@ -235,7 +233,7 @@ export default function UserAccount() {
       const data = await response.json();
 
       if(!response.ok) {
-        throw new Error('Failed to create user');
+        throw new Error('Failed to update user');
       }
       
       setSelectedUser(data);

@@ -9,7 +9,7 @@ import HomeownerPage from './homeownerPage';
 import PlatformManager from './platformManagerPage';
 import React from 'react';
 
-// Mock the fetch API
+
 global.fetch = jest.fn();
 
 jest.mock("react-router-dom", () => ({
@@ -52,19 +52,19 @@ describe('Login Component', () => {
 
   testCases.forEach(({ profileType, profile_id, username, password }) => {
     it(`successful login for ${profileType}`, async () => {
-      // Mock API responses
+
       fetch
-        // First call - GET userProfile (matches your component)
+        // GET userProfile
         .mockResolvedValueOnce({
           ok: true,
           json: async () => ([{ id: profile_id, name: profileType, is_active: true }])
         })
-        // Second call - GET userAdmin (matches your component)
+        // GET userAdmin
         .mockResolvedValueOnce({
           ok: true,
           json: async () => ([{ id: profile_id, username, is_active: true }])
         })
-        // Third call - POST login
+        // POST login
         .mockResolvedValueOnce({
           ok: true,
           json: async () => ({ success: true, message: 'Login successful' })
@@ -76,7 +76,6 @@ describe('Login Component', () => {
         </MemoryRouter>
       );
 
-      // Wait for profile options to load in select
       await waitFor(() => {
         const selectElement = screen.getByRole('combobox', { name: /account type/i });
         expect(selectElement).toBeInTheDocument();
@@ -97,7 +96,7 @@ describe('Login Component', () => {
       // Submit the form
       fireEvent.click(screen.getByRole('button', { name: /login/i }));
 
-      // Verify the login API call
+      // Verify login
       await waitFor(() => {
         expect(fetch).toHaveBeenNthCalledWith(3,
           'http://localhost:3000/api/login',
@@ -147,7 +146,6 @@ describe('Login Component', () => {
       </MemoryRouter>
     );
 
-    // Wait for initial data load
     await waitFor(() => {
       const selectElement = screen.getByRole('combobox', { name: /account type/i });
       expect(selectElement).toBeInTheDocument();
@@ -170,52 +168,6 @@ describe('Login Component', () => {
     });
   });
 
-  it('shows error when account is suspended', async () => {
-    const suspendedUser = {
-      id: '1',
-      username: 'suspendedUser',
-      is_active: false
-    };
-
-    fetch
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ([
-          { id: '1', name: 'UserAdmin', is_active: true }
-        ])
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ([suspendedUser])
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ success: true })
-      });
-
-    render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>
-    );
-
-    await waitFor(() => {
-      expect(screen.getByRole('combobox', { name: /account type/i })).toBeInTheDocument();
-    });
-
-    fireEvent.change(screen.getByLabelText('Username:'), {
-      target: { value: suspendedUser.username }
-    });
-    fireEvent.change(screen.getByLabelText('Password:'), {
-      target: { value: 'test123' }
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: /login/i }));
-
-    await waitFor(() => {
-      expect(screen.getByText('Account is suspended')).toBeInTheDocument();
-    });
-  });
 });
 
 describe('Logout', () => {

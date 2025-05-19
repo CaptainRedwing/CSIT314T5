@@ -173,9 +173,19 @@ export default function GenerateReport(){
         }
     }
 
+    const getWeeklyDateRange = (startDate) => {
+        const start = new Date(startDate);
+        const end = new Date(start);
+        end.setDate(start.getDate() + 6); // Adds 6 more days for a total of 7
+
+        const format = (date) => date.toISOString().split('T')[0];
+        return `${format(start)} to ${format(end)}`;
+    };
+
     const handleChange = (e) => {
         const { value } = e.target;
         setReportType(value)
+        setShowGeneratedReport(false);
 
         setShowDailyReport(value === 'Daily');
         setShowWeeklyReport(value === 'Weekly');
@@ -190,8 +200,8 @@ export default function GenerateReport(){
     }
 
     const getTime = (time) => {
-        const formattedDate = time.split('T')[0]; // "2025-05-09"
-        return formattedDate
+        const localDate = new Date(time);
+        return localDate.toLocaleDateString('en-CA');
     }
 
     return(
@@ -328,7 +338,11 @@ export default function GenerateReport(){
                     <h2>Report Summary</h2>
                     
                     <div className="user-info">
-                        <p><strong>Selected Date:</strong> {getTime(generatedReport.date_of_report)}</p>
+                        {reportType === 'Weekly' ? (
+                            <p><strong>Selected Date Range:</strong> {getWeeklyDateRange(generatedReport.date_of_report)}</p>
+                        ) : (
+                            <p><strong>Selected Date:</strong> {getTime(generatedReport.date_of_report)}</p>
+                        )}
                         <p><strong>Total No of New User:</strong> {generatedReport.new_user}</p>
                         <p><strong>Total Service Matched:</strong> {generatedReport.match_service}</p>
                         <p><strong>Number of Service Listing Created:</strong> {generatedReport.created_service}</p>

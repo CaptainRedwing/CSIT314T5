@@ -208,10 +208,10 @@ export const createServiceListingTableQuery = `
     CREATE TABLE IF NOT EXISTS service_listing(
     id SERIAL PRIMARY KEY,
     cleaner_id INT REFERENCES user_account(id) ON DELETE SET NULL,
-    title VARCHAR(50) NOT NULL,
-    description VARCHAR(50) NOT NULL,
+    title VARCHAR(500) NOT NULL,
+    description VARCHAR(500) NOT NULL,
     price DOUBLE PRECISION NOT NULL,
-    location VARCHAR(50) NOT NULL,
+    location VARCHAR(500) NOT NULL,
     view_count INTEGER DEFAULT 0,
     listed_count INTEGER DEFAULT 0,
     service_categories_name VARCHAR REFERENCES service_categories(name) ON DELETE SET NULL,

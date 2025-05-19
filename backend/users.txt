@@ -57,6 +57,7 @@ INSERT INTO service_categories(name, description) VALUES
 
 -- 3. Insert into user_account (needs user_profile to exist first)
 INSERT INTO user_account(username, email, password, profile_id, is_active, time_stamp) VALUES
+('admin', 'admin@example.com', '$2b$10$NS9yL3NDXRx3ZEC19..7kemW0FWswTnQBvZNOdUc8DZpnqPS/U7QO', 1, true, '2025-04-01'),
 ('cleaner11', 'cleaner11@example.com', 'pass123', 2, true, '2025-04-01'),
 ('cleaner12', 'cleaner12@example.com', 'pass123', 2, true, '2025-04-01'),
 ('cleaner13', 'cleaner13@example.com', 'pass123', 2, true, '2025-04-02'),
@@ -262,6 +263,7 @@ INSERT INTO favourite_listing(homeowner_id, service_listing_id, added_at) VALUES
 -- 6. Insert into match_history (needs service_listing & homeowners from user_account)
 INSERT INTO match_history (service_listing_id, homeowner_id, date_confirmed, service_date, status) VALUES
 (1, 11, '2025-04-01', '2025-04-05', true),
+(1, 4, '2025-04-01', '2025-04-05', true),
 (2, 13, '2025-04-01', '2025-04-07', false),
 (3, 15, '2025-04-02', '2025-04-08', true),
 (4, 17, '2025-04-02', '2025-04-10', true),

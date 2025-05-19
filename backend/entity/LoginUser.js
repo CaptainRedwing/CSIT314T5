@@ -39,4 +39,8 @@ export class LoginUser {
       const match = await bcrypt.compare(this.password, hashedPassword);
       return match
   }
+
+  static async getAllRoles() {
+    const { rows } = await query()
+  }
 }

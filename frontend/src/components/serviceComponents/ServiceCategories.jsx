@@ -295,7 +295,7 @@ export default function ServiceCategories() {
                                     type="submit"
                                     disabled={isLoading}
                                 >
-                                    {isLoading ? 'Creating..' : 'Create User'}
+                                    {isLoading ? 'Creating..' : 'Create Service'}
                                 </button>
                             </div>
                         </form>
